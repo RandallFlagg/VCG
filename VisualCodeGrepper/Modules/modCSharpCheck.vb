@@ -117,7 +117,7 @@ Module modCSharpCheck
                 frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf ctCodeTracker.HasVulnSQLString = True Then
                 '== Otherwise check for use of pre-prepared statements ==
-                For Each strVar In ctCodeTracker.SQLStatements
+                For Each strVar As Char In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
@@ -165,7 +165,7 @@ Module modCSharpCheck
         ElseIf CodeLine.Contains("Response.Write(") And Not CodeLine.Contains("""") Then
             CheckUserVarXSS(CodeLine, FileName)
         ElseIf CodeLine.Contains(".Text =") Then
-            For Each strLabel In ctCodeTracker.AspLabels
+            For Each strLabel As Char In ctCodeTracker.AspLabels
                 If CodeLine.Contains(strLabel) Then
                     If CodeLine.Contains("Request.QueryString[") Or CodeLine.Contains(".Cookies.Get(") Then
                         frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
@@ -179,7 +179,7 @@ Module modCSharpCheck
 
         '== Check for use of raw strings in HTML output ==
         If Regex.IsMatch(CodeLine, "\bHtml\b\.Raw\(") Then
-            For Each strVar In ctCodeTracker.InputVars
+            For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
                     frmMain.ListCodeIssue("Potential XSS", "The application uses the potentially dangerous Html.Raw construct in conjunction with a user-supplied variable.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
@@ -200,7 +200,7 @@ Module modCSharpCheck
                 strVarName = GetVarName(CodeLine)
                 If Regex.IsMatch(strVarName, "^[a-zA-Z0-9_]*$") And Not ctCodeTracker.SQLStatements.Contains(strVarName) Then ctCodeTracker.InputVars.Add(strVarName)
             ElseIf ((CodeLine.Contains("document.write(") And CodeLine.Contains("+") And CodeLine.Contains("""")) Or Regex.IsMatch(CodeLine, ".innerHTML\s*\=\s*\w+;")) And Not Regex.IsMatch(CodeLine, "\s*\S*\s*validate|encode|sanitize|sanitise\s*\S*\s*") Then
-                For Each strVar In ctCodeTracker.InputVars
+                For Each strVar As Char In ctCodeTracker.InputVars
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
                         Exit For
@@ -216,7 +216,7 @@ Module modCSharpCheck
         '=======================================================================================
         Dim blnIsFound As Boolean = False
 
-        For Each strVar In ctCodeTracker.InputVars
+        For Each strVar As Char In ctCodeTracker.InputVars
             If CodeLine.Contains(strVar) Then
                 frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
                 blnIsFound = True
@@ -266,7 +266,7 @@ Module modCSharpCheck
         If Regex.IsMatch(CodeLine, "validate|encode|sanitize|sanitise") Then Exit Sub
 
         If CodeLine.ToLower.Contains(".ProcessStartInfo(") Then
-            For Each strVar In ctCodeTracker.InputVars
+            For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
                     frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable when executing a command.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
@@ -293,7 +293,7 @@ Module modCSharpCheck
         ElseIf Regex.IsMatch(CodeLine, "LogError|Logger|logger|Logging|logging|System\.Diagnostics\.Debug|System\.Diagnostics\.Trace") And CodeLine.ToLower.Contains("password") Then
             If (InStr(CodeLine.ToLower, "log") < InStr(CodeLine.ToLower, "password")) Then frmMain.ListCodeIssue("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "LogError|Logger|logger|Logging|logging|System\.Diagnostics\.Debug|System\.Diagnostics\.Trace") Then
-            For Each strVar In ctCodeTracker.InputVars
+            For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
                     frmMain.ListCodeIssue("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
                     Exit For

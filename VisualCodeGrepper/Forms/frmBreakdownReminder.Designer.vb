@@ -22,70 +22,72 @@ Partial Class frmBreakdownReminder
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.chkNotAgain = New System.Windows.Forms.CheckBox()
-        Me.lblReminder = New System.Windows.Forms.Label()
-        Me.btnOK = New System.Windows.Forms.Button()
-        Me.chkAlwaysShow = New System.Windows.Forms.CheckBox()
-        Me.SuspendLayout()
-        '
-        'chkNotAgain
-        '
-        Me.chkNotAgain.AutoSize = True
-        Me.chkNotAgain.Location = New System.Drawing.Point(5, 89)
-        Me.chkNotAgain.Name = "chkNotAgain"
-        Me.chkNotAgain.Size = New System.Drawing.Size(180, 17)
-        Me.chkNotAgain.TabIndex = 5
-        Me.chkNotAgain.Text = "Do not show this reminder again."
-        Me.chkNotAgain.UseVisualStyleBackColor = True
-        '
-        'lblReminder
-        '
-        Me.lblReminder.Location = New System.Drawing.Point(2, 9)
-        Me.lblReminder.Name = "lblReminder"
-        Me.lblReminder.Size = New System.Drawing.Size(367, 40)
-        Me.lblReminder.TabIndex = 4
-        Me.lblReminder.Text = "To see a visual breakdown of the LOC, number of comments, number of potential iss" & _
-            "ues, etc. select 'Visual Code/Comment Breakdown' from the 'Scan' menu or or clic" & _
-            "k the 'Always display' option below."
-        '
-        'btnOK
-        '
-        Me.btnOK.Location = New System.Drawing.Point(287, 111)
-        Me.btnOK.Name = "btnOK"
-        Me.btnOK.Size = New System.Drawing.Size(75, 23)
-        Me.btnOK.TabIndex = 3
-        Me.btnOK.Text = "OK"
-        Me.btnOK.UseVisualStyleBackColor = True
-        '
-        'chkAlwaysShow
-        '
-        Me.chkAlwaysShow.AutoSize = True
-        Me.chkAlwaysShow.Location = New System.Drawing.Point(5, 66)
-        Me.chkAlwaysShow.Name = "chkAlwaysShow"
-        Me.chkAlwaysShow.Size = New System.Drawing.Size(264, 17)
-        Me.chkAlwaysShow.TabIndex = 6
-        Me.chkAlwaysShow.Text = "Always display Visual Breakdown after every scan."
-        Me.chkAlwaysShow.UseVisualStyleBackColor = True
-        '
-        'frmBreakdownReminder
-        '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
-        Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(367, 140)
-        Me.ControlBox = False
-        Me.Controls.Add(Me.chkAlwaysShow)
-        Me.Controls.Add(Me.chkNotAgain)
-        Me.Controls.Add(Me.lblReminder)
-        Me.Controls.Add(Me.btnOK)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog
-        Me.Name = "frmBreakdownReminder"
-        Me.Text = "Visual Breakdown"
-        Me.ResumeLayout(False)
-        Me.PerformLayout()
-
+        chkNotAgain = New CheckBox()
+        lblReminder = New Label()
+        btnOK = New Button()
+        chkAlwaysShow = New CheckBox()
+        SuspendLayout()
+        ' 
+        ' chkNotAgain
+        ' 
+        chkNotAgain.AutoSize = True
+        chkNotAgain.Location = New Point(7, 137)
+        chkNotAgain.Margin = New Padding(4, 5, 4, 5)
+        chkNotAgain.Name = "chkNotAgain"
+        chkNotAgain.Size = New Size(250, 24)
+        chkNotAgain.TabIndex = 5
+        chkNotAgain.Text = "Do not show this reminder again."
+        chkNotAgain.UseVisualStyleBackColor = True
+        ' 
+        ' lblReminder
+        ' 
+        lblReminder.Location = New Point(3, 14)
+        lblReminder.Margin = New Padding(4, 0, 4, 0)
+        lblReminder.Name = "lblReminder"
+        lblReminder.Size = New Size(489, 62)
+        lblReminder.TabIndex = 4
+        lblReminder.Text = "To see a visual breakdown of the LOC, number of comments, number of potential issues, etc. select 'Visual Code/Comment Breakdown' from the 'Scan' menu or or click the 'Always display' option below."
+        ' 
+        ' btnOK
+        ' 
+        btnOK.Location = New Point(383, 171)
+        btnOK.Margin = New Padding(4, 5, 4, 5)
+        btnOK.Name = "btnOK"
+        btnOK.Size = New Size(100, 35)
+        btnOK.TabIndex = 3
+        btnOK.Text = "OK"
+        btnOK.UseVisualStyleBackColor = True
+        ' 
+        ' chkAlwaysShow
+        ' 
+        chkAlwaysShow.AutoSize = True
+        chkAlwaysShow.Location = New Point(7, 102)
+        chkAlwaysShow.Margin = New Padding(4, 5, 4, 5)
+        chkAlwaysShow.Name = "chkAlwaysShow"
+        chkAlwaysShow.Size = New Size(359, 24)
+        chkAlwaysShow.TabIndex = 6
+        chkAlwaysShow.Text = "Always display Visual Breakdown after every scan."
+        chkAlwaysShow.UseVisualStyleBackColor = True
+        ' 
+        ' frmBreakdownReminder
+        ' 
+        AutoScaleDimensions = New SizeF(8.0F, 20.0F)
+        AutoScaleMode = AutoScaleMode.Font
+        ClientSize = New Size(492, 215)
+        ControlBox = False
+        Controls.Add(chkAlwaysShow)
+        Controls.Add(chkNotAgain)
+        Controls.Add(lblReminder)
+        Controls.Add(btnOK)
+        FormBorderStyle = FormBorderStyle.FixedDialog
+        Margin = New Padding(4, 5, 4, 5)
+        Name = "frmBreakdownReminder"
+        Text = "Visual Breakdown"
+        ResumeLayout(False)
+        PerformLayout()
     End Sub
-    Friend WithEvents chkNotAgain As System.Windows.Forms.CheckBox
-    Friend WithEvents lblReminder As System.Windows.Forms.Label
-    Friend WithEvents btnOK As System.Windows.Forms.Button
-    Friend WithEvents chkAlwaysShow As System.Windows.Forms.CheckBox
+    Friend WithEvents chkNotAgain As CheckBox
+    Friend WithEvents lblReminder As Label
+    Friend WithEvents btnOK As Button
+    Friend WithEvents chkAlwaysShow As CheckBox
 End Class

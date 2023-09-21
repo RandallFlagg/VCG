@@ -296,7 +296,7 @@ Module modRCheck
                 strRight = arrFragments.Last.Trim()
                 '== Check for command line use with user-controlled variables ==
                 If strRight <> "" Then
-                    For Each strItem In ctCodeTracker.UserVariables
+                    For Each strItem As String In ctCodeTracker.UserVariables
                         If strRight.Contains(strItem) Then
                             blnIsUserCont = True
                             frmMain.ListCodeIssue("Use of User-Controlled Path", "The code writes data to a file path or file name that appears to be a user-controlled variable. This may create an opportunity to write to an arbitrary path.", FileName, CodeIssue.MEDIUM, CodeLine)
@@ -365,7 +365,7 @@ Module modRCheck
             strRight = arrFragments.Last.Trim()
             '== Check for command line use with user-controlled variables ==
             If strRight <> "" Then
-                For Each strItem In ctCodeTracker.UserVariables
+                For Each strItem As String In ctCodeTracker.UserVariables
                     If strRight.Contains(strItem) Then
                         blnIsUserCont = True
                         frmMain.ListCodeIssue("Use of System Shell/Command", "The code runs a command on the underlying operating system, and also appears to use a user-controlled variable in conjunction with the command. This may create an opportunity to run arbitrary commands in the context of the application.", FileName, CodeIssue.HIGH, CodeLine)

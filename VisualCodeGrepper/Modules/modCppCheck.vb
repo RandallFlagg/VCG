@@ -295,7 +295,7 @@ Module modCppCheck
         If Regex.IsMatch(CodeLine, "\b(system|popen|execlp)\b\s*\(") Then
 
             '== Is a user-controlled variable present? ==
-            For Each strVar In ctCodeTracker.UserVariables
+            For Each strVar As String In ctCodeTracker.UserVariables
                 If CodeLine.Contains(strVar) Then
                     frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable [" + strVar + "] when executing a system command.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True

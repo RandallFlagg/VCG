@@ -70,10 +70,10 @@ Module modCobolCheck
                 Exit Sub
             ElseIf arrFragments.Length = 1 Then
                 strID = GetFirstItem(arrFragments.Last)
-                ctCodeTracker.ProgramId = strID.Trim(".")
+                ctCodeTracker.ProgramId = strID.Trim("."c)
             ElseIf arrFragments.Length > 1 Then
                 strID = GetFirstItem(arrFragments(1))
-                ctCodeTracker.ProgramId = strID.Trim(".")
+                ctCodeTracker.ProgramId = strID.Trim("."c)
             End If
 
 
@@ -124,7 +124,7 @@ Module modCobolCheck
             ElseIf Regex.IsMatch(CodeLine, "\s+(ACCEPT|LOSE|DELETE|DISPLAY\s+UPON\s+CONSOLE|DISPLAY\s+UPON\s+SYSPUNCH|MERGE|OPEN|READ|RERUN|REWRITE|START|WRITE)\s+") Then
                 frmMain.ListCodeIssue("Use of Unsafe Command within CICS", "The code appears to use a command which is unsafe when running under CICS (See IBM references).", FileName, CodeIssue.STANDARD, CodeLine)
             Else
-                For Each strVar In ctCodeTracker.InputVars
+                For Each strVar As Char In ctCodeTracker.InputVars
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("User Controlled Variable Used within CICS Block", "The code appears to allow the use of a variable from JCL or user input, when interacting with an external CICS application: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.MEDIUM, CodeLine)
                     End If
@@ -148,7 +148,7 @@ Module modCobolCheck
             If Regex.IsMatch(CodeLine, "\bEND\b\-\bEXEC\b\s*\.") Then
                 ctCodeTracker.IsInsideSQL = False
             Else
-                For Each strVar In ctCodeTracker.InputVars
+                For Each strVar As Char In ctCodeTracker.InputVars
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("User Controlled Variable Used within SQL Statement", "The code appears to allow the use of a variable from JCL or user input, when executing a SQL statement: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.HIGH, CodeLine)
                     End If
@@ -187,7 +187,7 @@ Module modCobolCheck
             strAssignments = Regex.Split(CodeLine, "\bACCEPT\b")
 
             If strAssignments.Length > 1 Then
-                strTemp = strAssignments(1).TrimEnd(".")
+                strTemp = strAssignments(1).TrimEnd("."c)
 
                 '== Track user-controlled variables ==
                 strVar = GetFirstItem(strTemp)
@@ -202,7 +202,7 @@ Module modCobolCheck
             If strVarCollections = "" Then Exit Sub
 
             ' Cycle though input vars to see if they're on the right side of the = sign
-            For Each strItem In ctCodeTracker.InputVars
+            For Each strItem As Char In ctCodeTracker.InputVars
                 If Regex.IsMatch(strVarCollections, "\b" & strItem & "\b") Then
                     ' If we have an input var then extract the left of the = sign
                     strFragments = Regex.Split(CodeLine, "=")
@@ -352,7 +352,7 @@ Module modCobolCheck
         If Regex.IsMatch(CodeLine, "logerror|logger|logging|\blog\b") And CodeLine.Contains("password") Then
             If (InStr(strLogCodeLine, "log") < InStr(strLogCodeLine, "password")) Then frmMain.ListCodeIssue("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(strLogCodeLine, "logerror|logger|logging|\blog\b") Then
-            For Each strVar In ctCodeTracker.InputVars
+            For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
                     frmMain.ListCodeIssue("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
                     Exit For
@@ -427,7 +427,7 @@ Module modCobolCheck
         If Regex.IsMatch(CodeLine, ".\bCALL\b\s+('|"")\w+('|"")\s+\bUSING\b") Then
 
             ' If it's a static call check for user-supplied arguments
-            For Each strVar In ctCodeTracker.InputVars
+            For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
                     frmMain.ListCodeIssue("User Controlled Variable Used as Parameter for Application Call", "The code appears to allow the use of an unvalidated user-controlled variable when executing an application call: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.LOW, CodeLine)
                 End If

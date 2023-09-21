@@ -131,7 +131,7 @@ Module modJavaCheck
                 frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf ctCodeTracker.HasVulnSQLString = True Then
                 '== Otherwise check for use of pre-prepared statements ==
-                For Each strVar In ctCodeTracker.SQLStatements
+                For Each strVar As String In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
@@ -416,7 +416,7 @@ Module modJavaCheck
 
 
         If (CodeLine.Contains("public ") Or CodeLine.Contains("private ") Or CodeLine.Contains("protected ")) And CodeLine.Contains(";") And Not CodeLine.Contains("{") And Not CodeLine.Contains("abstract ") Then
-            For Each strName In ctCodeTracker.ServletNames
+            For Each strName As String In ctCodeTracker.ServletNames
                 If CodeLine.Contains(strName) Then
                     strVarName = GetVarName(CodeLine)
                     If Not ctCodeTracker.ServletInstances.ContainsKey(strVarName) Then ctCodeTracker.ServletInstances.Add(strVarName, strName)

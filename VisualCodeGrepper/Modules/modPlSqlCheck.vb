@@ -14,7 +14,7 @@
 ' You should have received a copy of the GNU General Public License
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-Option Explicit On
+Option Strict On
 
 Imports System.Text.RegularExpressions
 
@@ -101,7 +101,7 @@ Module modPlSqlCheck
             If (CodeLine.Contains("EXECUTE IMMEDIATE") Or CodeLine.Contains("OPEN FOR")) And (Regex.IsMatch(CodeLine, "(\'\"")\s*\|\|\s*\w+") Or Regex.IsMatch(CodeLine, "\w+\s*\|\|\s*(\'\"")\s*\|\|")) Then
                 frmMain.ListCodeIssue("Variable concatenated with dynamic SQL statement.", "Statement is potentially vulnerable to SQL injection, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf (CodeLine.Contains("EXECUTE IMMEDIATE") Or CodeLine.Contains("OPEN FOR")) And Not (CodeLine.Contains("'") Or CodeLine.Contains("""")) Then
-                For Each strVar In ctCodeTracker.SQLStatements
+                For Each strVar As String In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection through use of an input variable within a query, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
@@ -115,7 +115,7 @@ Module modPlSqlCheck
             If (Regex.IsMatch(CodeLine, "(\'\"")\s*\|\|\s*\w+") Or Regex.IsMatch(CodeLine, "\w+\s*\|\|\s*(\'\"")")) Then
                 frmMain.ListCodeIssue("Variable concatenated with dynamic SQL statement.", "Statement is potentially vulnerable to SQL injection, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf Not (CodeLine.Contains("'") Or CodeLine.Contains("""")) Then
-                For Each strVar In ctCodeTracker.SQLStatements
+                For Each strVar As String In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
                         frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection through use of an input variable within a query, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
