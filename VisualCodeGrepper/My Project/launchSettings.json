@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "VisualCodeGrepper.NETCore": {
+      "commandName": "Project",
+      "commandLineArgs": ""
+    }
+  }
+}
