@@ -10,48 +10,47 @@
 
   <ItemGroup>
     <Compile Remove="My Project\AssemblyInfo.vb" />
+    <Compile Remove="My Project\Resources.Designer.vb" />
+    <Compile Remove="My Project\Settings.Designer.vb" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Config\badcomments.conf" />
-    <None Remove="Config\cobolfunctions.conf" />
-    <None Remove="Config\cppfunctions.conf" />
-    <None Remove="Config\csfunctions.conf" />
-    <None Remove="Config\javafunctions.conf" />
-    <None Remove="Config\phpfunctions.conf" />
-    <None Remove="Config\plsqlfunctions.conf" />
-    <None Remove="Config\rfunctions.conf" />
-    <None Remove="Config\vbfunctions.conf" />
+    <EmbeddedResource Remove="My Project\Resources.resx" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Config\badcomments.conf">
+    <None Remove="My Project\app.manifest" />
+    <None Remove="My Project\Settings.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Config\badcomments.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\cobolfunctions.conf">
+    </None>
+    <None Update="Config\cobolfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\cppfunctions.conf">
+    </None>
+    <None Update="Config\cppfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\csfunctions.conf">
+    </None>
+    <None Update="Config\csfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\javafunctions.conf">
+    </None>
+    <None Update="Config\javafunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\phpfunctions.conf">
+    </None>
+    <None Update="Config\phpfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\plsqlfunctions.conf">
+    </None>
+    <None Update="Config\plsqlfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\rfunctions.conf">
+    </None>
+    <None Update="Config\rfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\vbfunctions.conf">
+    </None>
+    <None Update="Config\vbfunctions.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
 
   <ItemGroup>

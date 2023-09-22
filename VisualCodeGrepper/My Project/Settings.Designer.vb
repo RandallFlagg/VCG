@@ -64,9 +64,9 @@ Namespace My
     Friend Module MySettingsProperty
 
         <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>
-        Friend ReadOnly Property Settings() As Global.VisualCodeGrepper.NETCore.My.MySettings
+        Friend ReadOnly Property Settings() As Global.VisualCodeGrepper.My.MySettings
             Get
-                Return Global.VisualCodeGrepper.NETCore.My.MySettings.Default
+                Return Global.VisualCodeGrepper.My.MySettings.Default
             End Get
         End Property
     End Module

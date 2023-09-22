@@ -84,14 +84,14 @@ Module modPlSqlCheck
             ElseIf (CodeLine.Contains(":=") And Regex.IsMatch(CodeLine, "(\'|\"")\s*(SELECT|UPDATE|DELETE|INSERT|MERGE|CREATE|SAVEPOINT|ROLLBACK|DROP)")) Or _
                 (Regex.IsMatch(CodeLine, "(SQL|QRY|QUERY)\w*\s*\:\=")) Then
                 '== Extract variable name from assignment statement ==
-                arrFragments = CodeLine.Split(":")
+                arrFragments = CodeLine.Split(":"c)
                 strVarName = arrFragments.First.Trim
                 If Not ctCodeTracker.SQLStatements.Contains(strVarName) Then ctCodeTracker.SQLStatements.Add(strVarName)
             ElseIf Regex.IsMatch(CodeLine, "\:\=\s*$") Then
                 '== Declaration starts on next line ==
                 ctCodeTracker.IsInsideSQLVarDec = True
                 '== Extract variable name from assignment statement ==
-                arrFragments = CodeLine.Split(":")
+                arrFragments = CodeLine.Split(":"c)
                 ctCodeTracker.CurrentVar = arrFragments.First.Trim
             End If
         End If
