@@ -16,12 +16,14 @@
 
 
 Option Explicit On
+
 Imports System.ComponentModel
 Imports System.IO
-Imports System.Runtime.CompilerServices
 Imports System.Text.RegularExpressions
-Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports System.Xml
+'Imports System.Runtime.CompilerServices
+'Imports System.Windows.Forms.VisualStyles.VisualStyleElement
+'Imports System.Windows.Controls
 
 Public Class frmMain
 
@@ -1267,7 +1269,7 @@ Public Class frmMain
         DeleteScanResult()
     End Sub
 
-    Private Sub frmMain_FormClosing(sender As Object, e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
+    Private Sub frmMain_FormClosing(sender As Object, e As System.Windows.Forms.FormClosingEventArgs) Handles MyBase.FormClosing
         ' Save settings to registry
         '==========================
         Dim intIndex As Integer
@@ -1304,7 +1306,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub frmMain_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles Me.KeyDown
+    Private Sub frmMain_KeyDown(sender As Object, e As System.Windows.Forms.KeyEventArgs) Handles MyBase.KeyDown
         ' Implement keyboard shortcuts
         '=============================
 
@@ -1322,7 +1324,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub frmMain_Load(sender As Object, e As System.EventArgs) Handles Me.Load
+    Private Sub frmMain_Load(sender As Object, e As System.EventArgs) Handles MyBase.Load
 
         ' Get settings from registry and apply to app
         '============================================
@@ -1358,7 +1360,7 @@ Public Class frmMain
             ' Implement context menu for text boxes, etc.
             AddContextMenu()
             PopulateLanguageOptions()
-
+            cboLanguage.SelectedIndex = 3 'set to C#
             ' Get previous window size and location from Registry
             Me.Top = GetSetting("VisualCodeGrepper", "FormLocation", "Top", "50")
             Me.Left = GetSetting("VisualCodeGrepper", "FormLocation", "Left", "100")
@@ -1424,7 +1426,7 @@ Public Class frmMain
         End If
     End Sub
 
-    Private Sub frmMain_Shown(sender As Object, e As System.EventArgs) Handles Me.Shown
+    Private Sub frmMain_Shown(sender As Object, e As System.EventArgs) Handles MyBase.Shown
         'If we are in console mode then begin the scan, otherwise show the form
         '======================================================================
 
@@ -1625,43 +1627,43 @@ Public Class frmMain
 
         If asAppSettings.IsConsole = True Then Exit Sub
 
-        Dim cmFullContextMenu As New ContextMenu        ' The filenames combobox allows cut/copy/paste
-        Dim cmResultsContextMenu As New ContextMenu     ' The results are just for copying, not modification
-        Dim cmResultsListContextMenu As New ContextMenu ' The results table allows a file to be opened in its associated app or Notepad++
+        Dim cmFullContextMenu As New ContextMenuStrip        ' The filenames combobox allows cut/copy/paste
+        Dim cmResultsContextMenu As New ContextMenuStrip     ' The results are just for copying, not modification
+        Dim cmResultsListContextMenu As New ContextMenuStrip ' The results table allows a file to be opened in its associated app or Notepad++
 
         ' ComboBox
-        Dim menuItem1Cut As New MenuItem("Cut")
-        Dim menuItem2Copy As New MenuItem("Copy")
-        Dim menuItem3Paste As New MenuItem("Paste")
-        Dim menuItem4Divider As New MenuItem("-")
-        Dim menuItem5SelectAll As New MenuItem("Select All")
+        Dim menuItem1Cut As New ToolStripMenuItem("Cut")
+        Dim menuItem2Copy As New ToolStripMenuItem("Copy")
+        Dim menuItem3Paste As New ToolStripMenuItem("Paste")
+        Dim menuItem4Divider As New ToolStripMenuItem("-")
+        Dim menuItem5SelectAll As New ToolStripMenuItem("Select All")
 
         ' RichTextBox
-        Dim menuItem6Copy As New MenuItem("Copy")
-        Dim menuItem9Divider As New MenuItem("-")
-        Dim menuItem10SelectAll As New MenuItem("Select All")
-        Dim menuItem7Divider As New MenuItem("-")
-        Dim menuItem8Find As New MenuItem("Find")
-        Dim menuItem13Divider As New MenuItem("-")
-        Dim menuItem11Sort As New MenuItem("Sort on Severity")
-        Dim menuItem12Sort As New MenuItem("Sort on FileName")
-        Dim menuItem18Divider As New MenuItem("-")
-        Dim menuItem19FilterResults As New MenuItem("Filter Results...")
-        Dim menuItem20ExportFiltered As New MenuItem("Export Filtered XML Results...")
+        Dim menuItem6Copy As New ToolStripMenuItem("Copy")
+        Dim menuItem9Divider As New ToolStripMenuItem("-")
+        Dim menuItem10SelectAll As New ToolStripMenuItem("Select All")
+        Dim menuItem7Divider As New ToolStripMenuItem("-")
+        Dim menuItem8Find As New ToolStripMenuItem("Find")
+        Dim menuItem13Divider As New ToolStripMenuItem("-")
+        Dim menuItem11Sort As New ToolStripMenuItem("Sort on Severity")
+        Dim menuItem12Sort As New ToolStripMenuItem("Sort on FileName")
+        Dim menuItem18Divider As New ToolStripMenuItem("-")
+        Dim menuItem19FilterResults As New ToolStripMenuItem("Filter Results...")
+        Dim menuItem20ExportFiltered As New ToolStripMenuItem("Export Filtered XML Results...")
 
         ' ListBox
-        Dim menuItem14OpenFile As New MenuItem("Open Code in Associated Editor")
-        Dim menuItem15OpenAtLine As New MenuItem("Open Code at This Line in Notepad++")
-        Dim menuItem16Divider As New MenuItem("-")
-        Dim menuItem17Order As New MenuItem("Order on Multiple Columns...")
-        Dim menuItem21Divider As New MenuItem("-")
-        Dim menuItem22FilterResults As New MenuItem("Filter Results...")
-        Dim menuItem23ExportFiltered As New MenuItem("Export Filtered XML Results...")
-        Dim menuItem24Divider As New MenuItem("-")
-        Dim menuItem25SelectColour As New MenuItem("Select Colour When Checked...")
-        Dim menuItem28ChangeSeverity As New MenuItem("Change Severity...")
-        Dim menuItem26Divider As New MenuItem("-")
-        Dim menuItem27DeleteItem As New MenuItem("Delete Selected Item(s)")
+        Dim menuItem14OpenFile As New ToolStripMenuItem("Open Code in Associated Editor")
+        Dim menuItem15OpenAtLine As New ToolStripMenuItem("Open Code at This Line in Notepad++")
+        Dim menuItem16Divider As New ToolStripMenuItem("-")
+        Dim menuItem17Order As New ToolStripMenuItem("Order on Multiple Columns...")
+        Dim menuItem21Divider As New ToolStripMenuItem("-")
+        Dim menuItem22FilterResults As New ToolStripMenuItem("Filter Results...")
+        Dim menuItem23ExportFiltered As New ToolStripMenuItem("Export Filtered XML Results...")
+        Dim menuItem24Divider As New ToolStripMenuItem("-")
+        Dim menuItem25SelectColour As New ToolStripMenuItem("Select Colour When Checked...")
+        Dim menuItem28ChangeSeverity As New ToolStripMenuItem("Change Severity...")
+        Dim menuItem26Divider As New ToolStripMenuItem("-")
+        Dim menuItem27DeleteItem As New ToolStripMenuItem("Delete Selected Item(s)")
 
         '== Full context menu for combo box ==
         AddHandler menuItem1Cut.Click, AddressOf CutToolStripMenuItem_Click
@@ -1669,11 +1671,11 @@ Public Class frmMain
         AddHandler menuItem3Paste.Click, AddressOf PasteToolStripMenuItem_Click
         AddHandler menuItem5SelectAll.Click, AddressOf SelectAllToolStripMenuItem_Click
 
-        cmFullContextMenu.MenuItems.Add(menuItem1Cut)
-        cmFullContextMenu.MenuItems.Add(menuItem2Copy)
-        cmFullContextMenu.MenuItems.Add(menuItem3Paste)
-        cmFullContextMenu.MenuItems.Add(menuItem4Divider)
-        cmFullContextMenu.MenuItems.Add(menuItem5SelectAll)
+        cmFullContextMenu.Items.Add(menuItem1Cut)
+        cmFullContextMenu.Items.Add(menuItem2Copy)
+        cmFullContextMenu.Items.Add(menuItem3Paste)
+        cmFullContextMenu.Items.Add(menuItem4Divider)
+        cmFullContextMenu.Items.Add(menuItem5SelectAll)
 
 
         '== Specialised menu for results ==
@@ -1685,17 +1687,17 @@ Public Class frmMain
         AddHandler menuItem19FilterResults.Click, AddressOf FilterResultsToolStripMenuItem_Click
         AddHandler menuItem20ExportFiltered.Click, AddressOf ExportFilteredResultsXML
 
-        cmResultsContextMenu.MenuItems.Add(menuItem6Copy)
-        cmResultsContextMenu.MenuItems.Add(menuItem9Divider)
-        cmResultsContextMenu.MenuItems.Add(menuItem10SelectAll)
-        cmResultsContextMenu.MenuItems.Add(menuItem7Divider)
-        cmResultsContextMenu.MenuItems.Add(menuItem8Find)
-        cmResultsContextMenu.MenuItems.Add(menuItem13Divider)
-        cmResultsContextMenu.MenuItems.Add(menuItem11Sort)
-        cmResultsContextMenu.MenuItems.Add(menuItem12Sort)
-        cmResultsContextMenu.MenuItems.Add(menuItem18Divider)
-        cmResultsContextMenu.MenuItems.Add(menuItem19FilterResults)
-        cmResultsContextMenu.MenuItems.Add(menuItem20ExportFiltered)
+        cmResultsContextMenu.Items.Add(menuItem6Copy)
+        cmResultsContextMenu.Items.Add(menuItem9Divider)
+        cmResultsContextMenu.Items.Add(menuItem10SelectAll)
+        cmResultsContextMenu.Items.Add(menuItem7Divider)
+        cmResultsContextMenu.Items.Add(menuItem8Find)
+        cmResultsContextMenu.Items.Add(menuItem13Divider)
+        cmResultsContextMenu.Items.Add(menuItem11Sort)
+        cmResultsContextMenu.Items.Add(menuItem12Sort)
+        cmResultsContextMenu.Items.Add(menuItem18Divider)
+        cmResultsContextMenu.Items.Add(menuItem19FilterResults)
+        cmResultsContextMenu.Items.Add(menuItem20ExportFiltered)
 
 
         '== File menu for results table ==
@@ -1708,23 +1710,24 @@ Public Class frmMain
         AddHandler menuItem28ChangeSeverity.Click, AddressOf SetSeverity
         AddHandler menuItem27DeleteItem.Click, AddressOf DeleteScanResult
 
-        cmResultsListContextMenu.MenuItems.Add(menuItem14OpenFile)
-        cmResultsListContextMenu.MenuItems.Add(menuItem15OpenAtLine)
-        cmResultsListContextMenu.MenuItems.Add(menuItem16Divider)
-        cmResultsListContextMenu.MenuItems.Add(menuItem17Order)
-        cmResultsListContextMenu.MenuItems.Add(menuItem21Divider)
-        cmResultsListContextMenu.MenuItems.Add(menuItem22FilterResults)
-        cmResultsListContextMenu.MenuItems.Add(menuItem23ExportFiltered)
-        cmResultsListContextMenu.MenuItems.Add(menuItem24Divider)
-        cmResultsListContextMenu.MenuItems.Add(menuItem25SelectColour)
-        cmResultsListContextMenu.MenuItems.Add(menuItem28ChangeSeverity)
-        cmResultsListContextMenu.MenuItems.Add(menuItem26Divider)
-        cmResultsListContextMenu.MenuItems.Add(menuItem27DeleteItem)
+        cmResultsListContextMenu.Items.Add(menuItem14OpenFile)
+        cmResultsListContextMenu.Items.Add(menuItem15OpenAtLine)
+        cmResultsListContextMenu.Items.Add(menuItem16Divider)
+        cmResultsListContextMenu.Items.Add(menuItem17Order)
+        cmResultsListContextMenu.Items.Add(menuItem21Divider)
+        cmResultsListContextMenu.Items.Add(menuItem22FilterResults)
+        cmResultsListContextMenu.Items.Add(menuItem23ExportFiltered)
+        cmResultsListContextMenu.Items.Add(menuItem24Divider)
+        cmResultsListContextMenu.Items.Add(menuItem25SelectColour)
+        cmResultsListContextMenu.Items.Add(menuItem28ChangeSeverity)
+        cmResultsListContextMenu.Items.Add(menuItem26Divider)
+        cmResultsListContextMenu.Items.Add(menuItem27DeleteItem)
 
         '== Assign menus to controls ==
-        cboTargetDir.ContextMenu = cmFullContextMenu
-        rtbResults.ContextMenu = cmResultsContextMenu
-        lvResults.ContextMenu = cmResultsListContextMenu
+        'TODO: MAKE THIS WORK!
+        'cboTargetDir.ContextMenu = cmFullContextMenu
+        'rtbResults.ContextMenu = cmResultsContextMenu
+        'lvResults.ContextMenu = cmResultsListContextMenu
 
     End Sub
 
@@ -3213,7 +3216,7 @@ Public Class frmMain
 
     End Sub
 
-    Private Sub frmMain_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+    Private Sub frmMain_Closing(sender As Object, e As CancelEventArgs) Handles MyBase.Closing
         frmLoading.Close()
     End Sub
 

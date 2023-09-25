@@ -503,13 +503,13 @@ Public Module modMain
             ' Restore default file in case of bad registry entries, user placing non-existent file in Options dialog, etc.
             Select Case CurrentLanguage
                 Case AppSettings.C
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "cppfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(Application.StartupPath, "config\cppfunctions.conf")
                 Case AppSettings.JAVA
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "javafunctions.conf")
                 Case AppSettings.SQL
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "plsqlfunctions.conf")
                 Case AppSettings.CSHARP
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "csfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(Application.StartupPath, "config\csfunctions.conf")
                 Case AppSettings.VB
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "vbfunctions.conf")
                 Case AppSettings.PHP
@@ -520,7 +520,9 @@ Public Module modMain
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "rfunctions.conf")
             End Select
 
-            If Not File.Exists(asAppSettings.BadFuncFile) Then MsgBox("No config file found for bad functions.", MsgBoxStyle.Critical, "Error")
+            If Not File.Exists(asAppSettings.BadFuncFile) Then
+                MsgBox("No config file found for bad functions.", MsgBoxStyle.Critical, "Error")
+            End If
 
         Else
             Try
@@ -571,7 +573,7 @@ Public Module modMain
         '==========================================
 
         Try
-            For Each strLine In File.ReadLines(asAppSettings.BadCommentFile)
+            For Each strLine In File.ReadLines("./config/" & asAppSettings.BadCommentFile)
 
                 ' Check for comments/whitespace
                 If (strLine.Trim() <> Nothing) And (Not strLine.Trim().StartsWith("//")) Then
@@ -607,12 +609,14 @@ Public Module modMain
 
                 '== Important - comparison MUST be case-sensitive for everything except PL/SQL, where it MUST be case-insenstive ==
                 If asAppSettings.TestType = AppSettings.SQL Then
-                    If (strCleanName <> "" And Regex.IsMatch(CodeLine.ToUpper, strCleanName)) Or (strCleanName = "" And CodeLine.ToUpper.Contains(asAppSettings.BadFunctions(intIndex).FunctionName.toupper)) Then
+                    'TODO: Fix the cast so it will be a string
+                    If (strCleanName <> "" And Regex.IsMatch(CodeLine.ToUpper, strCleanName)) Or (strCleanName = "" And CodeLine.ToUpper.Contains(CType(asAppSettings.BadFunctions(intIndex).FunctionName.toupper, String))) Then
                         frmMain.ListCodeIssue(asAppSettings.BadFunctions(intIndex).FunctionName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
                     End If
                 Else
                     'If CodeLine.Contains(asAppSettings.BadFunctions(intIndex).FunctionName) Then
-                    If (strCleanName <> "" And Regex.IsMatch(CodeLine, strCleanName)) Or (strCleanName = "" And CodeLine.Contains(asAppSettings.BadFunctions(intIndex).FunctionName)) Then
+                    'TODO: Fix the cast so it will be a string
+                    If (strCleanName <> "" And Regex.IsMatch(CodeLine, strCleanName)) Or (strCleanName = "" And CodeLine.Contains(CType(asAppSettings.BadFunctions(intIndex).FunctionName, String))) Then
                         frmMain.ListCodeIssue(strTidyFuncName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
                     End If
                 End If
@@ -650,7 +654,7 @@ Public Module modMain
         End If
 
     End Sub
-    Public Function GetVarName(CodeLine As String, Optional SplitOnEquals As Boolean = False)
+    Public Function GetVarName(CodeLine As String, Optional SplitOnEquals As Boolean = False) As String
         ' Extract the variable name from a line of code
         '==============================================
         Dim strVarName As String = ""
