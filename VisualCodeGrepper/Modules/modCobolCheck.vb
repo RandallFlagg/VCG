@@ -42,7 +42,8 @@ Module modCobolCheck
         CheckDynamicCall(CodeLine, FileName)            ' Identify any user controlled variables used for dynamic function calls
 
         If Regex.IsMatch(CodeLine, "(LOWER|UPPER)\-CASE\s*\(\S*(Password|password|PASSWORD|pwd|PWD|passwd|PASSWD)") Then
-            frmMain.ListCodeIssue("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+            SharedCode.FireEvent("modCobolCheck", overFlowArg)
         End If
 
     End Sub
@@ -84,18 +85,19 @@ Module modCobolCheck
             arrFragments = strFile.Split("\")
             strFile = arrFragments.Last
             If strFile.ToLower <> ctCodeTracker.ProgramId.ToLower Then
-
+                'Dim overFlowArg As CheckOverFlowArg
                 ' Has the filename been used as the ID?
                 If ctCodeTracker.ProgramId.Contains(".") And (strFile.ToLower + "." + strExtension.ToLower = ctCodeTracker.ProgramId.ToLower) Then
-                    frmMain.ListCodeIssue("PROGRAM-ID Includes File Extension", "The PROGRAM-ID is the filename plus its extension. This is a slight violation of convention as the filename should be based on the PROGRAM-ID, not the reverse.", FileName, CodeIssue.LOW, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("PROGRAM-ID Includes File Extension", "The PROGRAM-ID is the filename plus its extension. This is a slight violation of convention as the filename should be based on the PROGRAM-ID, not the reverse.", FileName, CodeIssue.LOW, CodeLine)
                 Else
-                    frmMain.ListCodeIssue("Filename Does Not Match PROGRAM-ID", "The filename does not match PROGRAM-ID which can make code more difficult to read and maintain.", FileName, CodeIssue.LOW, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Filename Does Not Match PROGRAM-ID", "The filename does not match PROGRAM-ID which can make code more difficult to read and maintain.", FileName, CodeIssue.LOW, CodeLine)
                 End If
-
+                SharedCode.FireEvent("modCobolCheck", overFlowArg)
             End If
         ElseIf ctCodeTracker.ProgramId <> "" And Regex.IsMatch(CodeLine, "\bPROGRAM-ID\b") Then
             ' Report any instance of multiple IDs
-            frmMain.ListCodeIssue("Multiple Use of PROGRAM-ID", "The code has more than one PROGRAM-ID which can make code more difficult to read and maintain (Original ID:" & ctCodeTracker.ProgramId & ").", FileName, CodeIssue.LOW, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Multiple Use of PROGRAM-ID", "The code has more than one PROGRAM-ID which can make code more difficult to read and maintain (Original ID:" & ctCodeTracker.ProgramId & ").", FileName, CodeIssue.LOW, CodeLine)
+            SharedCode.FireEvent("modCobolCheck", overFlowArg)
         End If
 
     End Sub
@@ -114,19 +116,19 @@ Module modCobolCheck
             If Regex.IsMatch(CodeLine, "\bEND\b\-\bEXEC\b\s*\.") Then
                 ctCodeTracker.IsInsideCICS = False
             ElseIf (Regex.IsMatch(CodeLine, "s+\bSEND\b\s+") And Regex.IsMatch(CodeLine, "s+\b(MAP|FROM|CURSOR)\b")) Then
-                frmMain.ListCodeIssue("Redirection of Output From CICS Application", "The code appears to send output to an external CICS application. Manually check to ensure that no privacy violation is occurring.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Redirection of Output From CICS Application", "The code appears to send output to an external CICS application. Manually check to ensure that no privacy violation is occurring.", FileName, CodeIssue.HIGH, CodeLine)
             ElseIf (Regex.IsMatch(CodeLine, "s+\bSEND\b\s+")) Then
                 For Each strItem In ctCodeTracker.DicPICs.Keys
                     If (strItem <> "" And (Regex.IsMatch(CodeLine, "s+\b" + strItem + "\b\s+"))) Then
-                        frmMain.ListCodeIssue("Redirection of Output From CICS Application", "The code appears to send program data to an external CICS application. Manually check to ensure that no privacy violation is occurring.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Redirection of Output From CICS Application", "The code appears to send program data to an external CICS application. Manually check to ensure that no privacy violation is occurring.", FileName, CodeIssue.HIGH, CodeLine)
                     End If
                 Next
             ElseIf Regex.IsMatch(CodeLine, "\s+(ACCEPT|LOSE|DELETE|DISPLAY\s+UPON\s+CONSOLE|DISPLAY\s+UPON\s+SYSPUNCH|MERGE|OPEN|READ|RERUN|REWRITE|START|WRITE)\s+") Then
-                frmMain.ListCodeIssue("Use of Unsafe Command within CICS", "The code appears to use a command which is unsafe when running under CICS (See IBM references).", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of Unsafe Command within CICS", "The code appears to use a command which is unsafe when running under CICS (See IBM references).", FileName, CodeIssue.STANDARD, CodeLine)
             Else
                 For Each strVar As Char In ctCodeTracker.InputVars
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("User Controlled Variable Used within CICS Block", "The code appears to allow the use of a variable from JCL or user input, when interacting with an external CICS application: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.MEDIUM, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("User Controlled Variable Used within CICS Block", "The code appears to allow the use of a variable from JCL or user input, when interacting with an external CICS application: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.MEDIUM, CodeLine)
                     End If
                 Next
             End If
@@ -150,7 +152,7 @@ Module modCobolCheck
             Else
                 For Each strVar As Char In ctCodeTracker.InputVars
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("User Controlled Variable Used within SQL Statement", "The code appears to allow the use of a variable from JCL or user input, when executing a SQL statement: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("User Controlled Variable Used within SQL Statement", "The code appears to allow the use of a variable from JCL or user input, when executing a SQL statement: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.HIGH, CodeLine)
                     End If
                 Next
             End If
@@ -259,13 +261,13 @@ Module modCobolCheck
 
         If (intSourceLength > 0 And strDestVar <> "") Then
             If intSourceLength > ctCodeTracker.DicPICs(strDestVar).Length Then
-                frmMain.ListCodeIssue("PIC Length Mismatch", "The code appears to copy a PIC variable to a destination that is shorter than the source PIC. This can cause unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("PIC Length Mismatch", "The code appears to copy a PIC variable to a destination that is shorter than the source PIC. This can cause unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
             End If
         ElseIf (strSourceVar <> "" And strDestVar <> "") Then
 
             If (ctCodeTracker.DicPICs.ContainsKey(strSourceVar) And (ctCodeTracker.DicPICs.ContainsKey(strDestVar))) Then
                 If ctCodeTracker.DicPICs(strSourceVar).Length > ctCodeTracker.DicPICs(strDestVar).Length Then
-                    frmMain.ListCodeIssue("PIC Length Mismatch", "The code appears to copy a PIC variable to a destination that is shorter than the source PIC. This can cause unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("PIC Length Mismatch", "The code appears to copy a PIC variable to a destination that is shorter than the source PIC. This can cause unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
                 End If
             End If
         End If
@@ -297,16 +299,16 @@ Module modCobolCheck
 
                 If (ctCodeTracker.DicPICs.ContainsKey(strSourceVar) And (ctCodeTracker.DicPICs.ContainsKey(strDestVar))) Then
                     If ctCodeTracker.DicPICs(strSourceVar).IsSigned And Not ctCodeTracker.DicPICs(strDestVar).IsSigned Then
-                        frmMain.ListCodeIssue("PIC Sign Mismatch", "The code appears to copy a PIC variable to a destination PIC variable but only one of them is signed. This can cause unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("PIC Sign Mismatch", "The code appears to copy a PIC variable to a destination PIC variable but only one of them is signed. This can cause unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
                     ElseIf (Not ctCodeTracker.DicPICs(strSourceVar).IsNumeric) And ctCodeTracker.DicPICs(strDestVar).IsNumeric Then
-                        frmMain.ListCodeIssue("PIC Mismatch", "The code appears to copy an alphanumeric PIC variable to a numeric PIC variable. This can cause a loss of sign for types intended to be signed numeric, and unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("PIC Mismatch", "The code appears to copy an alphanumeric PIC variable to a numeric PIC variable. This can cause a loss of sign for types intended to be signed numeric, and unexpected behaviour or results.", FileName, CodeIssue.HIGH, CodeLine)
                     End If
                 End If
             End If
 
         ElseIf (CodeLine.Contains("=") Or CodeLine.Contains("<") Or CodeLine.Contains(">") Or CodeLine.Contains(" NE ")) Then
             '== Check for signed/unsigned integer comparisons ==
-            If ctCodeTracker.CheckCOBOLSignedComp(CodeLine) Then frmMain.ListCodeIssue("Signed/Unsigned Comparison", "The code appears to compare a signed numeric value with an unsigned numeric value. This behaviour can return unexpected results as negative numbers will be forcibly cast to large positive numbers.", FileName, CodeIssue.HIGH, CodeLine)
+            If ctCodeTracker.CheckCOBOLSignedComp(CodeLine) Then overFlowArg = New CheckOverFlowArg("Signed/Unsigned Comparison", "The code appears to compare a signed numeric value with an unsigned numeric value. This behaviour can return unexpected results as negative numbers will be forcibly cast to large positive numbers.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -332,7 +334,7 @@ Module modCobolCheck
             ' Cycle though input vars to see if they're on the right side of the = sign
             For Each strItem In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, "\bOPEN\b\s+\w*" & strItem) Then
-                    frmMain.ListCodeIssue("User Controlled File/Directory Name", "The code uses a user-controlled value when opening a file/directory. Manually inspect the code to ensure safe usage.", FileName, CodeIssue.LOW, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled File/Directory Name", "The code uses a user-controlled value when opening a file/directory. Manually inspect the code to ensure safe usage.", FileName, CodeIssue.LOW, CodeLine)
                     Exit For
                 End If
             Next
@@ -350,11 +352,11 @@ Module modCobolCheck
         If Regex.IsMatch(strLogCodeLine, "validate|encode|sanitize|sanitise") And Not strLogCodeLine.Contains("password") Then Exit Sub
 
         If Regex.IsMatch(CodeLine, "logerror|logger|logging|\blog\b") And CodeLine.Contains("password") Then
-            If (InStr(strLogCodeLine, "log") < InStr(strLogCodeLine, "password")) Then frmMain.ListCodeIssue("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
+            If (InStr(strLogCodeLine, "log") < InStr(strLogCodeLine, "password")) Then overFlowArg = New CheckOverFlowArg("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(strLogCodeLine, "logerror|logger|logging|\blog\b") Then
             For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
-                    frmMain.ListCodeIssue("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
                     Exit For
                 End If
             Next
@@ -386,7 +388,7 @@ Module modCobolCheck
                 ' Usage takes place sometime later. Set severity accordingly and notify user
                 ctCodeTracker.IsLstat = False
                 If ctCodeTracker.TocTouLineCount > 5 Then intSeverity = 2
-                frmMain.ListCodeIssue("Potential TOCTOU (Time Of Check, Time Of Use) Vulnerability", "The check for the file's existence occurs " & ctCodeTracker.TocTouLineCount & " lines before the file/directory is accessed. The longer the time between the check and the OPEN call, the greater the likelihood that the check will no longer be valid.", FileName)
+                overFlowArg = New CheckOverFlowArg("Potential TOCTOU (Time Of Check, Time Of Use) Vulnerability", "The check for the file's existence occurs " & ctCodeTracker.TocTouLineCount & " lines before the file/directory is accessed. The longer the time between the check and the OPEN call, the greater the likelihood that the check will no longer be valid.", FileName)
             End If
         End If
 
@@ -398,7 +400,7 @@ Module modCobolCheck
 
         '== Check for unsafe functions ==
         If (Regex.IsMatch(CodeLine, "\bRANDOM\b") And Not (Regex.IsMatch(CodeLine, "\bIS\b\s+\bRANDOM\b")) And Not (Regex.IsMatch(CodeLine, "\-RANDOM")) And Not (Regex.IsMatch(CodeLine, "RANDOM\-"))) Then
-            frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the RANDOM function. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the RANDOM function. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.STANDARD, CodeLine)
         End If
 
     End Sub
@@ -409,7 +411,7 @@ Module modCobolCheck
 
         '== Check for unsafe functions ==
         If Regex.IsMatch(CodeLine, "\bOPEN\b\s+\w+\s+\S*(?i)temp") Then
-            frmMain.ListCodeIssue("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker or other application creates a file with the same name between the application's creation and attempted usage).", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker or other application creates a file with the same name between the application's creation and attempted usage).", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -429,7 +431,7 @@ Module modCobolCheck
             ' If it's a static call check for user-supplied arguments
             For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
-                    frmMain.ListCodeIssue("User Controlled Variable Used as Parameter for Application Call", "The code appears to allow the use of an unvalidated user-controlled variable when executing an application call: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.LOW, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled Variable Used as Parameter for Application Call", "The code appears to allow the use of an unvalidated user-controlled variable when executing an application call: " & strVar & ". Manually check to ensure the parameter is used safely.", FileName, CodeIssue.LOW, CodeLine)
                 End If
             Next
 
@@ -438,13 +440,13 @@ Module modCobolCheck
             ' If it's a dynamic function call check for user controlled function name
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, ".\bCALL\b\s+" & strVar & "\s+\bUSING\b") Then
-                    frmMain.ListCodeIssue("User Controlled Variable From JCL Used for Dynamic Function Call", "The code appears to allow the use of an unvalidated user-controlled variable when executing a dynamic application call.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled Variable From JCL Used for Dynamic Function Call", "The code appears to allow the use of an unvalidated user-controlled variable when executing a dynamic application call.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False Then
-                frmMain.ListCodeIssue("Dynamic Function Call", "The code appears to allow the use of an unvalidated variable when executing a dynamic application call. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Dynamic Function Call", "The code appears to allow the use of an unvalidated variable when executing a dynamic application call. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
     End Sub

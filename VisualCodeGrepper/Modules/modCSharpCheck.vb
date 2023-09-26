@@ -46,7 +46,7 @@ Module modCSharpCheck
         CheckWebConfig(CodeLine, FileName)              ' Check config file to determine whether .NET debugging and default errors are enabled
 
         If Regex.IsMatch(CodeLine, "\S*(Password|password|pwd|passwd)\S*(\.|\-\>)(ToLower|ToUpper)\s*\(") Then
-            frmMain.ListCodeIssue("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -78,11 +78,11 @@ Module modCSharpCheck
         ElseIf FileName.ToLower.EndsWith(".config") And CodeLine.ToLower.Contains("<pages validateRequest=""false""") Then
             '== .NET validation turned off deliberately ==
             ctCodeTracker.HasValidator = False
-            frmMain.ListCodeIssue("Potential Input Validation Issues", "The application appears to deliberately de-activate the default .NET input validation functionality.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential Input Validation Issues", "The application appears to deliberately de-activate the default .NET input validation functionality.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf FileName.ToLower.EndsWith(".xml") And CodeLine.ToLower.Contains("<pages> element with validateRequest=""false""") Then
             '== .NET validation turned off deliberately ==
             ctCodeTracker.HasValidator = False
-            frmMain.ListCodeIssue("Potential Input Validation Issues", "The application appears to deliberately de-activate the default .NET input validation functionality.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential Input Validation Issues", "The application appears to deliberately de-activate the default .NET input validation functionality.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -114,12 +114,12 @@ Module modCSharpCheck
             '== Check usage of java.sql.Statement.executeQuery, etc. ==
             If CodeLine.Contains("""") And CodeLine.Contains("&") Then
                 '== Dynamic SQL built into connection/update ==
-                frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf ctCodeTracker.HasVulnSQLString = True Then
                 '== Otherwise check for use of pre-prepared statements ==
                 For Each strVar As Char In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
                     End If
                 Next
@@ -159,7 +159,7 @@ Module modCSharpCheck
 
         If CodeLine.Contains("Response.Write(") And CodeLine.Contains("Request.Form(") Then
             '== Classic ASP XSS==
-            frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect user input to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to reflect user input to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf CodeLine.Contains("Response.Write(") And CodeLine.Contains("""") And CodeLine.Contains("+") Then
             CheckUserVarXSS(CodeLine, FileName)
         ElseIf CodeLine.Contains("Response.Write(") And Not CodeLine.Contains("""") Then
@@ -168,7 +168,7 @@ Module modCSharpCheck
             For Each strLabel As Char In ctCodeTracker.AspLabels
                 If CodeLine.Contains(strLabel) Then
                     If CodeLine.Contains("Request.QueryString[") Or CodeLine.Contains(".Cookies.Get(") Then
-                        frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
                     Else
                         CheckUserVarXSS(CodeLine, FileName)
                     End If
@@ -181,14 +181,14 @@ Module modCSharpCheck
         If Regex.IsMatch(CodeLine, "\bHtml\b\.Raw\(") Then
             For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
-                    frmMain.ListCodeIssue("Potential XSS", "The application uses the potentially dangerous Html.Raw construct in conjunction with a user-supplied variable.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Potential XSS", "The application uses the potentially dangerous Html.Raw construct in conjunction with a user-supplied variable.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
 
             If Not blnIsFound Then
-                frmMain.ListCodeIssue("Potential XSS", "The application uses the potentially dangerous Html.Raw construct.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential XSS", "The application uses the potentially dangerous Html.Raw construct.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -202,7 +202,7 @@ Module modCSharpCheck
             ElseIf ((CodeLine.Contains("document.write(") And CodeLine.Contains("+") And CodeLine.Contains("""")) Or Regex.IsMatch(CodeLine, ".innerHTML\s*\=\s*\w+;")) And Not Regex.IsMatch(CodeLine, "\s*\S*\s*validate|encode|sanitize|sanitise\s*\S*\s*") Then
                 For Each strVar As Char In ctCodeTracker.InputVars
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
                         Exit For
                     End If
                 Next
@@ -218,14 +218,14 @@ Module modCSharpCheck
 
         For Each strVar As Char In ctCodeTracker.InputVars
             If CodeLine.Contains(strVar) Then
-                frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
                 blnIsFound = True
                 Exit For
             End If
         Next
 
         If Not blnIsFound Then
-            frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect data to the screen with no apparent validation or sanitisation. It was not clear if this variable is controlled by the user.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to reflect data to the screen with no apparent validation or sanitisation. It was not clear if this variable is controlled by the user.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -235,7 +235,7 @@ Module modCSharpCheck
         '============================================================================
 
         If Regex.IsMatch(CodeLine, "\s+(String|char\[\])\s+\S*(Password|password|key)\S*") Then
-            frmMain.ListCodeIssue("Insecure Storage of Sensitive Information", "The code uses standard strings and byte arrays to store sensitive transient data such as passwords and cryptographic private keys instead of the more secure SecureString class.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Insecure Storage of Sensitive Information", "The code uses standard strings and byte arrays to store sensitive transient data such as passwords and cryptographic private keys instead of the more secure SecureString class.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -249,10 +249,10 @@ Module modCSharpCheck
             Return
         ElseIf ((Regex.IsMatch(CodeLine, "\bint\b\s*\w+\s*\=\s*\bunchecked\b\s+\(")) And (CodeLine.Contains("+") Or CodeLine.Contains("*"))) Then
             ' Checks have been switched off
-            frmMain.ListCodeIssue("Integer Operation With Overflow Check Deliberately Disabled", "The code carries out integer operations with a deliberate disabling of overflow defences. Manually review the code to ensure that it is safe.", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Integer Operation With Overflow Check Deliberately Disabled", "The code carries out integer operations with a deliberate disabling of overflow defences. Manually review the code to ensure that it is safe.", FileName, CodeIssue.STANDARD, CodeLine)
         ElseIf ((Regex.IsMatch(CodeLine, "\bint\b\s*\w+\s*\=")) And (CodeLine.Contains("+") Or CodeLine.Contains("*"))) Then
             ' Unchecked operation
-            frmMain.ListCodeIssue("Integer Operation Without Overflow Check", "The code carries out integer operations without enabling overflow defences. Manually review the code to ensure that it is safe", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Integer Operation Without Overflow Check", "The code carries out integer operations without enabling overflow defences. Manually review the code to ensure that it is safe", FileName, CodeIssue.STANDARD, CodeLine)
         End If
 
     End Sub
@@ -268,13 +268,13 @@ Module modCSharpCheck
         If CodeLine.ToLower.Contains(".ProcessStartInfo(") Then
             For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
-                    frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable when executing a command.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable when executing a command.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False And ((Not CodeLine.Contains("""")) Or (CodeLine.Contains("""") And CodeLine.Contains("+"))) Then
-                frmMain.ListCodeIssue("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated variable when executing a command. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated variable when executing a command. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -291,11 +291,11 @@ Module modCSharpCheck
         If Regex.IsMatch(CodeLine, "validate|encode|sanitize|sanitise") And Not CodeLine.ToLower.Contains("password") Then
             RemoveSanitisedVars(CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "LogError|Logger|logger|Logging|logging|System\.Diagnostics\.Debug|System\.Diagnostics\.Trace") And CodeLine.ToLower.Contains("password") Then
-            If (InStr(CodeLine.ToLower, "log") < InStr(CodeLine.ToLower, "password")) Then frmMain.ListCodeIssue("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
+            If (InStr(CodeLine.ToLower, "log") < InStr(CodeLine.ToLower, "password")) Then overFlowArg = New CheckOverFlowArg("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "LogError|Logger|logger|Logging|logging|System\.Diagnostics\.Debug|System\.Diagnostics\.Trace") Then
             For Each strVar As Char In ctCodeTracker.InputVars
                 If CodeLine.Contains(strVar) Then
-                    frmMain.ListCodeIssue("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
                     Exit For
                 End If
             Next
@@ -313,7 +313,7 @@ Module modCSharpCheck
         If ctCodeTracker.IsSerializable = True Then
             '== File content is deserialized into onjects - flag this up for further investigation ==
             If Regex.IsMatch(CodeLine, "\.(Deserialize|ReadObject)\s*\(") Then
-                frmMain.ListCodeIssue("Unsafe Object Deserialization", "The code allows objects to be deserialized. This can allow potentially hostile objects to be instantiated directly from data held in the filesystem.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Unsafe Object Deserialization", "The code allows objects to be deserialized. This can allow potentially hostile objects to be instantiated directly from data held in the filesystem.", FileName, CodeIssue.STANDARD, CodeLine)
             End If
         End If
 
@@ -339,7 +339,7 @@ Module modCSharpCheck
 
             strClassName = GetLastItem(arrFragments.First())
             If Regex.IsMatch(strClassName, "^[a-zA-Z0-9_]*$") Then
-                frmMain.ListCodeIssue("Unsafe Object Serialization", "The code allows the object " & strClassName & " to be serialized. This can allow potentially sensitive data to be saved to the filesystem.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Unsafe Object Serialization", "The code allows the object " & strClassName & " to be serialized. This can allow potentially sensitive data to be saved to the filesystem.", FileName, CodeIssue.STANDARD, CodeLine)
             End If
         End If
 
@@ -353,17 +353,17 @@ Module modCSharpCheck
 
         '== Check for secure HTTP usage ==
         If CodeLine.Contains("Response.Redirect(") And CodeLine.Contains("HTTP:") Then
-            frmMain.ListCodeIssue("URL request sent over HTTP:", "The URL used in the HTTP request appears to be unencrypted. Check the code manually to ensure that sensitive data is not being submitted.", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("URL request sent over HTTP:", "The URL used in the HTTP request appears to be unencrypted. Check the code manually to ensure that sensitive data is not being submitted.", FileName, CodeIssue.STANDARD, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "Response\.Redirect\(") And Not Regex.IsMatch(CodeLine, "Response\.Redirect\(\s*\""\S+\""\s*\)") Then
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, "Response\.Redirect\(\s*" & strVar) Or Regex.IsMatch(CodeLine, "Response\.Redirect\(\s*(\""\S+\""|S+)\s*(\+|\&)\s*" & strVar) Then
-                    frmMain.ListCodeIssue("URL Request Gets Path from Unvalidated Variable", "The URL used in the HTTP request is loaded from an unsanitised variable. This can allow an attacker to redirect the user to a site under the control of a third party.", FileName, CodeIssue.MEDIUM, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("URL Request Gets Path from Unvalidated Variable", "The URL used in the HTTP request is loaded from an unsanitised variable. This can allow an attacker to redirect the user to a site under the control of a third party.", FileName, CodeIssue.MEDIUM, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False Then
-                frmMain.ListCodeIssue("URL Request Gets Path from Variable", "The URL used in the HTTP request appears to be loaded from a variable. Check the code manually to ensure that malicious URLs cannot be submitted by an attacker.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("URL Request Gets Path from Variable", "The URL used in the HTTP request appears to be loaded from a variable. Check the code manually to ensure that malicious URLs cannot be submitted by an attacker.", FileName, CodeIssue.STANDARD, CodeLine)
             End If
         End If
 
@@ -383,9 +383,9 @@ Module modCSharpCheck
         '== Check for unsafe functions Next() or NextBytes() ==
         If Regex.IsMatch(CodeLine, "\bRandom\b\.Next(Bytes\(|\()") Then
             If ctCodeTracker.HasSeed Then
-                frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker, although this is partly mitigated by a seed that does not appear to be time-based.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker, although this is partly mitigated by a seed that does not appear to be time-based.", FileName, CodeIssue.STANDARD, CodeLine)
             Else
-                frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions without a seed to generate pseudo-random values. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions without a seed to generate pseudo-random values. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -409,7 +409,7 @@ Module modCSharpCheck
             Else
                 ctCodeTracker.IsSamlFunction = ctCodeTracker.TrackBraces(CodeLine, ctCodeTracker.ClassBraces)
                 If ctCodeTracker.IsSamlFunction = False Then
-                    frmMain.ListCodeIssue("Insufficient SAML2 Condition Validation", "The code includes a token handling class that inherits from Saml2SecurityTokenHandler. It appears not to perform any validation on the Saml2Conditions object passed, violating its contract with the superclass and undermining authentication/authorisation conditions.", FileName, CodeIssue.MEDIUM)
+                    overFlowArg = New CheckOverFlowArg("Insufficient SAML2 Condition Validation", "The code includes a token handling class that inherits from Saml2SecurityTokenHandler. It appears not to perform any validation on the Saml2Conditions object passed, violating its contract with the superclass and undermining authentication/authorisation conditions.", FileName, CodeIssue.MEDIUM)
                 End If
             End If
 
@@ -422,7 +422,7 @@ Module modCSharpCheck
         '======================================================
 
         If Regex.IsMatch(CodeLine, "\=\s*File\.Open\(\""\S*(temp|tmp)\S*\""\,") Then
-            frmMain.ListCodeIssue("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic link attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic link attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -451,7 +451,7 @@ Module modCSharpCheck
                 ' Usage takes place sometime later. Set severity accordingly and notify user
                 ctCodeTracker.IsLstat = False
                 If ctCodeTracker.TocTouLineCount > 5 Then intSeverity = 2
-                frmMain.ListCodeIssue("Potential TOCTOU (Time Of Check, Time Of Use) Vulnerability", "The .Exists() check occurs " & ctCodeTracker.TocTouLineCount & " lines before the file/directory is accessed. The longer the time between the check and the fopen(), the greater the likelihood that the check will no longer be valid.", FileName)
+                overFlowArg = New CheckOverFlowArg("Potential TOCTOU (Time Of Check, Time Of Use) Vulnerability", "The .Exists() check occurs " & ctCodeTracker.TocTouLineCount & " lines before the file/directory is accessed. The longer the time between the check and the fopen(), the greater the likelihood that the check will no longer be valid.", FileName)
             End If
         End If
 
@@ -462,7 +462,7 @@ Module modCSharpCheck
         '====================================
 
         If ctCodeTracker.IsUnsafe = False And Regex.IsMatch(CodeLine, "\bunsafe\b") Then
-            frmMain.ListCodeIssue("Unsafe Code Directive", "The uses the 'unsafe' directive which allows the use of C-style pointers in the code. This code has an increased risk of unexpected behaviour, including buffer overflows, memory leaks and crashes.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Code Directive", "The uses the 'unsafe' directive which allows the use of C-style pointers in the code. This code has an increased risk of unexpected behaviour, including buffer overflows, memory leaks and crashes.", FileName, CodeIssue.MEDIUM, CodeLine)
             If CodeLine.Contains("{") Then
                 ctCodeTracker.IsUnsafe = ctCodeTracker.TrackBraces(CodeLine, ctCodeTracker.UnsafeBraces)
             Else
@@ -558,7 +558,7 @@ Module modCSharpCheck
             End If
 
             If ctCodeTracker.SyncLineCount > 6 Then
-                frmMain.ListCodeIssue("Thread Locks - Possible Performance Impact", "There are " & ctCodeTracker.SyncLineCount & " lines of code in the locked code block. Manually check the code to ensure any shared resources are not being locked unnecessarily.", FileName, intSeverity)
+                overFlowArg = New CheckOverFlowArg("Thread Locks - Possible Performance Impact", "There are " & ctCodeTracker.SyncLineCount & " lines of code in the locked code block. Manually check the code to ensure any shared resources are not being locked unnecessarily.", FileName, intSeverity)
             End If
 
             ctCodeTracker.SyncLineCount = 0
@@ -617,7 +617,7 @@ Module modCSharpCheck
             strServletName = GetLastItem(arrFragments.First)
             If ctCodeTracker.ServletInstances.Count > 0 And ctCodeTracker.ServletInstances.ContainsKey(strServletName) Then
                 If DictionaryItem.Value = ctCodeTracker.ServletInstances.Item(strServletName) Then
-                    frmMain.ListCodeIssue("Possible Race Condition", "A global variable is being used/modified without a 'lock' block.", FileName, CodeIssue.HIGH)
+                    overFlowArg = New CheckOverFlowArg("Possible Race Condition", "A global variable is being used/modified without a 'lock' block.", FileName, CodeIssue.HIGH)
                     blnRetVal = True
                 End If
             End If
@@ -651,9 +651,9 @@ Module modCSharpCheck
         If Not FileName.ToLower.EndsWith("web.config") Then Exit Sub
 
         If Regex.IsMatch(CodeLine, "\<\s*customErrors\s+mode\s*\=\s*\""Off\""\s*\/\>") Then
-            frmMain.ListCodeIssue(".NET Default Errors Enabled", "The application is configured to display .NET default errors. This can provide an attacker with useful information and should not be used in a live application.", FileName, CodeIssue.MEDIUM)
+            overFlowArg = New CheckOverFlowArg(".NET Default Errors Enabled", "The application is configured to display .NET default errors. This can provide an attacker with useful information and should not be used in a live application.", FileName, CodeIssue.MEDIUM)
         ElseIf Regex.IsMatch(CodeLine, "\bdebug\b\s*\=\s*\""\s*true\s*\""") Then
-            frmMain.ListCodeIssue(".NET Debugging Enabled", "The application is configured to return .NET debug information. This can provide an attacker with useful information and should not be used in a live application.", FileName, CodeIssue.MEDIUM)
+            overFlowArg = New CheckOverFlowArg(".NET Debugging Enabled", "The application is configured to return .NET debug information. This can provide an attacker with useful information and should not be used in a live application.", FileName, CodeIssue.MEDIUM)
         End If
 
     End Sub

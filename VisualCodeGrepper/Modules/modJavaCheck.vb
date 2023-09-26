@@ -83,7 +83,7 @@ Module modJavaCheck
 
         '== Check for Thread.sleep() in servlet ==
         If ctCodeTracker.IsServlet = True And CodeLine.Contains("Thread.sleep") Then
-            frmMain.ListCodeIssue("Use of Thread.sleep() within a Java servlet", "The use of Thread.sleep() within Java servlets is discouraged", FileName)
+            overFlowArg = New CheckOverFlowArg("Use of Thread.sleep() within a Java servlet", "The use of Thread.sleep() within Java servlets is discouraged", FileName)
         End If
 
         '== List any getter and setter methods for the servlet's instance variables so that we can check these are handled in a thread-safe manner ==
@@ -128,12 +128,12 @@ Module modJavaCheck
             '== Check usage of java.sql.Statement.executeQuery, etc. ==
             If CodeLine.Contains("""") And CodeLine.Contains("+") Then
                 '== Dynamic SQL built into connection/update ==
-                frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf ctCodeTracker.HasVulnSQLString = True Then
                 '== Otherwise check for use of pre-prepared statements ==
                 For Each strVar As String In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
                     End If
                 Next
@@ -178,7 +178,7 @@ Module modJavaCheck
             If Regex.IsMatch(strVarName, "^[a-zA-Z0-9_]*$") And Not ctCodeTracker.SQLStatements.Contains(strVarName) Then ctCodeTracker.GetVariables.Add(strVarName)
 
         ElseIf FileName.ToLower.EndsWith(".jsp") And Regex.IsMatch(CodeLine, "\<\%\=\s*\w+\.getParameter\s*\(") Then
-            frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect a HTTP request parameter to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to reflect a HTTP request parameter to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
 
         ElseIf FileName.ToLower.EndsWith(".jsp") And ctCodeTracker.GetVariables.Count > 0 And (CodeLine.ToLower.Contains("validate") Or CodeLine.ToLower.Contains("encode") Or CodeLine.ToLower.Contains("sanitize") Or CodeLine.ToLower.Contains("sanitise")) Then
 
@@ -204,16 +204,16 @@ Module modJavaCheck
 
                 '== If this point has been reached then variables probably used without sanitisation ==
                 If FileName.ToLower.EndsWith(".jsp") Then
-                    frmMain.ListCodeIssue("Potential XSS", "The application appears to use data contained in the HttpServletRequest without validation or sanitisation. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to use data contained in the HttpServletRequest without validation or sanitisation. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
                 Else
-                    frmMain.ListCodeIssue("Poor Input Validation", "The application appears to use data contained in the HttpServletRequest without validation or sanitisation. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Poor Input Validation", "The application appears to use data contained in the HttpServletRequest without validation or sanitisation. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
                 End If
 
             End If
 
         ElseIf (FileName.ToLower.EndsWith(".jsp") And Regex.IsMatch(CodeLine, "<%=\s*\S*\bsession\b\.\bgetAttribute\b\s*\(")) Then
             '== Check JSPs for session variables being reflected back to page ==
-            frmMain.ListCodeIssue("Potential XSS", "The JSP displays a session variable directly to the screen. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential XSS", "The JSP displays a session variable directly to the screen. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
 
         ElseIf FileName.ToLower.EndsWith(".jsp") And ctCodeTracker.GetVariables.Count > 0 And CodeLine.Contains("<%=") Then
 
@@ -221,14 +221,14 @@ Module modJavaCheck
             For Each strVar In ctCodeTracker.GetVariables
                 If Not (strVar.contains("(") Or strVar.contains(")") Or strVar.contains("[") Or strVar.contains("]") Or strVar.contains(" ") Or strVar.contains("+") Or strVar.contains("*")) Then
                     If Regex.IsMatch(CodeLine, "<%=\s*\S*\s*\b" & strVar & "\b") Then
-                        frmMain.ListCodeIssue("Potential XSS", "The JSP displays directly a user-supplied parameter directly to the screen. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential XSS", "The JSP displays directly a user-supplied parameter directly to the screen. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
                     End If
                 End If
             Next
 
         ElseIf FileName.ToLower.EndsWith(".jsp") And Regex.IsMatch(CodeLine, "<c:\bout\b\s*\S*\s*=\s*['""]\s*\$\{\s*\S*\}\s*['""]\s*\bescapeXML\b\s*=\s*['""]\bfalse\b['""]\s*/>") Then
             '== Check JSPs for variables being reflected back to page without XML encoding ==
-            frmMain.ListCodeIssue("Potential XSS", "The JSP displays application data without applying XML encoding. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential XSS", "The JSP displays application data without applying XML encoding. No validator plug-ins were located in the application's XML files.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -243,7 +243,7 @@ Module modJavaCheck
 
         '== Check for unsafe use of java.lang.Runtime.exec ==
         If ctCodeTracker.IsRuntime And (CodeLine.Contains(".exec ") Or CodeLine.Contains(".exec(")) And (Not CodeLine.Contains("""")) Then
-            frmMain.ListCodeIssue("java.lang.Runtime.exec Gets Path from Variable", "The pathname used in the call appears to be loaded from a variable. Check the code manually to ensure that malicious filenames cannot be submitted by an attacker.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("java.lang.Runtime.exec Gets Path from Variable", "The pathname used in the call appears to be loaded from a variable. Check the code manually to ensure that malicious filenames cannot be submitted by an attacker.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -255,9 +255,9 @@ Module modJavaCheck
 
         '== Check for secure HTTP usage ==
         If CodeLine.Contains("URLConnection") And CodeLine.Contains("HTTP:") Then
-            frmMain.ListCodeIssue("URL request sent over HTTP:", "The URL used in the HTTP request appears to be unencrypted. Check the code manually to ensure that sensitive data is not being submitted.", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("URL request sent over HTTP:", "The URL used in the HTTP request appears to be unencrypted. Check the code manually to ensure that sensitive data is not being submitted.", FileName, CodeIssue.STANDARD, CodeLine)
         ElseIf (CodeLine.Contains("URLConnection(") Or CodeLine.Contains("URLConnection (")) And (Not CodeLine.Contains("""")) Then
-            frmMain.ListCodeIssue("URL Request Gets Path from Variable", "The URL used in the HTTP request appears to be loaded from a variable. Check the code manually to ensure that malicious URLs cannot be submitted by an attacker.", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("URL Request Gets Path from Variable", "The URL used in the HTTP request appears to be loaded from a variable. Check the code manually to ensure that malicious URLs cannot be submitted by an attacker.", FileName, CodeIssue.STANDARD, CodeLine)
         End If
 
     End Sub
@@ -306,7 +306,7 @@ Module modJavaCheck
 
             strVarName = GetVarName(CodeLine)
             If Regex.IsMatch(strVarName, "^[a-zA-Z0-9_]*$") Then
-                frmMain.ListCodeIssue("Class Contains Public Variable: " & strVarName, "The class variable may be accessed and modified by other classes without the use of getter/setter methods. It is considered unsafe to have public fields or methods in a class unless required as any method, field, or class that is not private is a potential avenue of attack. It is safer to provide accessor methods to variables in order to limit their accessibility.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Class Contains Public Variable: " & strVarName, "The class variable may be accessed and modified by other classes without the use of getter/setter methods. It is considered unsafe to have public fields or methods in a class unless required as any method, field, or class that is not private is a potential avenue of attack. It is safer to provide accessor methods to variables in order to limit their accessibility.", FileName, CodeIssue.STANDARD, CodeLine)
             End If
 
             '== Store public variable name for any thread safety checks if this is a servlet ==
@@ -315,7 +315,7 @@ Module modJavaCheck
             End If
 
         ElseIf asAppSettings.IsFinalizeCheck And (CodeLine.Contains("public ") And CodeLine.Contains("class ")) And Not CodeLine.Contains("final ") Then
-            frmMain.ListCodeIssue("Public Class Not Declared as Final", "The class is not declared as final as per OWASP recommendations. It is considered best practice to make classes final where possible and practical (i.e. It has no classes which inherit from it). Non-Final classes can allow an attacker to extend a class in a malicious manner. Manually inspect the code to determine whether or not it is practical to make this class final.", FileName, CodeIssue.POSSIBLY_SAFE, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Public Class Not Declared as Final", "The class is not declared as final as per OWASP recommendations. It is considered best practice to make classes final where possible and practical (i.e. It has no classes which inherit from it). Non-Final classes can allow an attacker to extend a class in a malicious manner. Manually inspect the code to determine whether or not it is practical to make this class final.", FileName, CodeIssue.POSSIBLY_SAFE, CodeLine)
         End If
 
     End Sub
@@ -333,7 +333,7 @@ Module modJavaCheck
             End If
         ElseIf ctCodeTracker.IsInsideClass Then
             If CodeLine.Contains("private ") And CodeLine.Contains("class ") Then
-                frmMain.ListCodeIssue("Class Contains Inner Class", "When translated into bytecode, any inner classes are rebuilt within the JVM as external classes within the same package. As a result, any class in the package can access these inner classes. The enclosing class's private fields become protected fields, accessible by the now external 'inner class'.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Class Contains Inner Class", "When translated into bytecode, any inner classes are rebuilt within the JVM as external classes within the same package. As a result, any class in the package can access these inner classes. The enclosing class's private fields become protected fields, accessible by the now external 'inner class'.", FileName, CodeIssue.STANDARD, CodeLine)
             End If
             ctCodeTracker.IsInsideClass = ctCodeTracker.TrackBraces(CodeLine, ctCodeTracker.ClassBraces)
         End If
@@ -373,7 +373,7 @@ Module modJavaCheck
 
                 For Each itmItem In ctCodeTracker.GlobalVars
                     If CodeLine.Contains(itmItem.Key) Then
-                        frmMain.ListCodeIssue("Possible Race Condition", "A HttpServlet instance variable is being used/modified without a synchronize block: " & itmItem.Key & vbNewLine & "Check if any code which calls this code is thread-safe.", FileName, CodeIssue.MEDIUM)
+                        overFlowArg = New CheckOverFlowArg("Possible Race Condition", "A HttpServlet instance variable is being used/modified without a synchronize block: " & itmItem.Key & vbNewLine & "Check if any code which calls this code is thread-safe.", FileName, CodeIssue.MEDIUM)
                         Exit For
                     End If
                 Next
@@ -461,7 +461,7 @@ Module modJavaCheck
             strServletName = GetLastItem(arrFragments.First)
             If ctCodeTracker.ServletInstances.Count > 0 And ctCodeTracker.ServletInstances.ContainsKey(strServletName) Then
                 If DictionaryItem.Value = ctCodeTracker.ServletInstances.Item(strServletName) Then
-                    frmMain.ListCodeIssue("Possible Race Condition", "A HttpServlet instance variable is being used/modified without a synchronize block.", FileName, CodeIssue.HIGH)
+                    overFlowArg = New CheckOverFlowArg("Possible Race Condition", "A HttpServlet instance variable is being used/modified without a synchronize block.", FileName, CodeIssue.HIGH)
                     blnRetVal = True
                 End If
             End If
@@ -476,7 +476,7 @@ Module modJavaCheck
         '======================================================
 
         If Regex.IsMatch(CodeLine, "\bnew\b\s+File\s*\(\s*\""*\S*(temp|tmp)\S*\""\s*\)") Then
-            frmMain.ListCodeIssue("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic linbk attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic linbk attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -517,7 +517,7 @@ Module modJavaCheck
             End If
 
             If ctCodeTracker.SyncLineCount > 6 Then
-                frmMain.ListCodeIssue("Synchronized Code - Possible Performance Impact", "There are " & ctCodeTracker.SyncLineCount & " lines of code in the synchronized block. Manually check the code to ensure any shared resources are not being locked unnecessarily.", FileName, intSeverity)
+                overFlowArg = New CheckOverFlowArg("Synchronized Code - Possible Performance Impact", "There are " & ctCodeTracker.SyncLineCount & " lines of code in the synchronized block. Manually check the code to ensure any shared resources are not being locked unnecessarily.", FileName, intSeverity)
             End If
 
             ctCodeTracker.SyncLineCount = 0
@@ -567,7 +567,7 @@ Module modJavaCheck
 
         For Each itmItem In ctCodeTracker.SyncBlockObjects
             If itmItem.OuterObject = InnerObject And itmItem.InnerObjects.Contains(OuterObject) Then
-                frmMain.ListCodeIssue("Synchronized Code May Result in DeadLock", "The objects " & OuterObject & " and " & InnerObject & " lock each other in such a way that they may become deadlocked.", FileName, CodeIssue.MEDIUM)
+                overFlowArg = New CheckOverFlowArg("Synchronized Code May Result in DeadLock", "The objects " & OuterObject & " and " & InnerObject & " lock each other in such a way that they may become deadlocked.", FileName, CodeIssue.MEDIUM)
                 Exit For
             End If
         Next
@@ -599,7 +599,7 @@ Module modJavaCheck
                 Else
                     ctCodeTracker.IsPrivileged = True
                 End If
-                frmMain.ListCodeIssue("Use of AccessController.doPrivileged() in Public Method of Public Class", "The code will execute with system privileges and should be manually checked with great care to ensure no vulnerabilities are present.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of AccessController.doPrivileged() in Public Method of Public Class", "The code will execute with system privileges and should be manually checked with great care to ensure no vulnerabilities are present.", FileName, CodeIssue.MEDIUM, CodeLine)
 
             ElseIf ctCodeTracker.IsPrivileged = False And Regex.IsMatch(CodeLine, "\bAccessController\b\.\bdoPrivileged\b") Then
 
@@ -627,7 +627,7 @@ Module modJavaCheck
                     End If
 
                     If ctCodeTracker.PrivLineCount > 10 Then
-                        frmMain.ListCodeIssue("Privileged Code - Possible Risks", "There are " & ctCodeTracker.PrivLineCount & " lines of code in the privileged block. Manually check the code to ensure no unnecessary code is included.", FileName, intSeverity)
+                        overFlowArg = New CheckOverFlowArg("Privileged Code - Possible Risks", "There are " & ctCodeTracker.PrivLineCount & " lines of code in the privileged block. Manually check the code to ensure no unnecessary code is included.", FileName, intSeverity)
                     End If
                     ctCodeTracker.PrivLineCount = 0
                 ElseIf ctCodeTracker.IsPrivileged = True Then
@@ -635,7 +635,7 @@ Module modJavaCheck
                     For Each strVar In ctCodeTracker.GetVariables
                         If Not (strVar.contains("(") Or strVar.contains(")") Or strVar.contains("[") Or strVar.contains("]") Or strVar.contains(" ") Or strVar.contains("+") Or strVar.contains("*")) Then
                             If Regex.IsMatch(CodeLine, "\b" & strVar & "\b") Then
-                                frmMain.ListCodeIssue("Use of User-Controlled Variable Within Privileged Code", "The code will execute with system privileges and the usage of the variable should be manually checked with great care.", FileName, CodeIssue.HIGH, CodeLine)
+                                overFlowArg = New CheckOverFlowArg("Use of User-Controlled Variable Within Privileged Code", "The code will execute with system privileges and the usage of the variable should be manually checked with great care.", FileName, CodeIssue.HIGH, CodeLine)
                                 Exit For
                             End If
                         End If
@@ -656,7 +656,7 @@ Module modJavaCheck
             For Each strVar In ctCodeTracker.GetVariables
                 If Not (strVar.contains("(") Or strVar.contains(")") Or strVar.contains("[") Or strVar.contains("]") Or strVar.contains(" ") Or strVar.contains("+") Or strVar.contains("*")) Then
                     If Regex.IsMatch(CodeLine, "\bgetRequestDispatcher\b\s*\(\s*\S*\s*\S*\s*\b" & strVar & "\b") Then
-                        frmMain.ListCodeIssue("Use of RequestDispatcher in Combination with User-Controlled Variable", "The code appears to use a user-controlled variable in a RequestDispatcher method which can allow horizontal directory traversal, allowing an attacker to download system files.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Use of RequestDispatcher in Combination with User-Controlled Variable", "The code appears to use a user-controlled variable in a RequestDispatcher method which can allow horizontal directory traversal, allowing an attacker to download system files.", FileName, CodeIssue.HIGH, CodeLine)
                         Exit For
                     End If
                 End If
@@ -674,7 +674,7 @@ Module modJavaCheck
 
         If ctCodeTracker.HasXXEEnabled = True And Regex.IsMatch(CodeLine, "\(\s*(XMLConstants\.FEATURE_SECURE_PROCESSING|XMLInputFactory.SUPPORT_DTD)\s*\,\s*false\s*\)") Then
             '== Deliberate setting of entity expansion ==
-            frmMain.ListCodeIssue("XML Entity Expansion Enabled", "The FEATURE_SECURE_PROCESSING attribute is set to false which can render the application vulnerable to the use of XML bombs. Check the necessity of enabling this feature and check for validation of incoming data.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("XML Entity Expansion Enabled", "The FEATURE_SECURE_PROCESSING attribute is set to false which can render the application vulnerable to the use of XML bombs. Check the necessity of enabling this feature and check for validation of incoming data.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf ctCodeTracker.HasXXEEnabled = True And Regex.IsMatch(CodeLine, "\(\s*(XMLConstants\.FEATURE_SECURE_PROCESSING|XMLInputFactory.SUPPORT_DTD)\s*\,\s*true\s*\)") Then
             '== Security settings have been applied ==
             ctCodeTracker.HasXXEEnabled = False
@@ -700,10 +700,10 @@ Module modJavaCheck
                 If Not (itmIntItem.Key.Contains("(") Or itmIntItem.Key.Contains(")") Or itmIntItem.Key.Contains("[") Or itmIntItem.Key.Contains("]") Or itmIntItem.Key.Contains(" ") Or itmIntItem.Key.Contains("+") Or itmIntItem.Key.Contains("*")) Then
                     If Regex.IsMatch(CodeLine, "\b" & itmIntItem.Key & "\b") Then
                         For Each itmVarItem In ctCodeTracker.GetVariables
-                            frmMain.ListCodeIssue("Operation on Primitive Data Type", "The code appears to be carrying out a mathematical operation involving a primitive data type and a user-supplied variable. This may result in an overflow and unexpected behaviour. Check the code manually to determine the risk.", FileName, CodeIssue.HIGH, CodeLine)
+                            overFlowArg = New CheckOverFlowArg("Operation on Primitive Data Type", "The code appears to be carrying out a mathematical operation involving a primitive data type and a user-supplied variable. This may result in an overflow and unexpected behaviour. Check the code manually to determine the risk.", FileName, CodeIssue.HIGH, CodeLine)
                             Exit Sub
                         Next
-                        frmMain.ListCodeIssue("Operation on Primitive Data Type", "The code appears to be carrying out a mathematical operation on a primitive data type. In some circumstances this can result in an overflow and unexpected behaviour. Check the code manually to determine the risk.", FileName, CodeIssue.LOW, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Operation on Primitive Data Type", "The code appears to be carrying out a mathematical operation on a primitive data type. In some circumstances this can result in an overflow and unexpected behaviour. Check the code manually to determine the risk.", FileName, CodeIssue.LOW, CodeLine)
                         Exit Sub
                     End If
                 End If
@@ -742,7 +742,7 @@ Module modJavaCheck
 
         '== Check for use of static string in crypto command ==
         If Regex.IsMatch(CodeLine, "CryptoAPI\.(encrypt|decrypt)\s*\(\""\w+\""\s*\,") Then
-            frmMain.ListCodeIssue("Static Crypto Keys in Use", "The application appears to be using static crypto keys. The absence of secure key storage may allow unauthorised decryption of data.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Static Crypto Keys in Use", "The application appears to be using static crypto keys. The absence of secure key storage may allow unauthorised decryption of data.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -787,7 +787,7 @@ Module modJavaCheck
                 If strIntent <> "" And ctCodeTracker.AndroidIntents.Contains(strIntent) Then
                     ctCodeTracker.AndroidIntents.Remove(strIntent)
                     If ctCodeTracker.AndroidIntents.Count = 0 Then ctCodeTracker.HasIntent = False
-                    frmMain.ListCodeIssue("Implicit Intents in Use", "The application appears to be using implicit intents which could be intercepted by rogue applications. Intent name: " & strIntent, FileName, CodeIssue.MEDIUM, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Implicit Intents in Use", "The application appears to be using implicit intents which could be intercepted by rogue applications. Intent name: " & strIntent, FileName, CodeIssue.MEDIUM, CodeLine)
                 End If
             End If
         End If

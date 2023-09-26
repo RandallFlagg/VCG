@@ -40,7 +40,7 @@ Module modPHPCheck
 
         '== Check for passwords being handled in a case-insensitive manner ==
         If Regex.IsMatch(CodeLine, "(strtolower|strtoupper)\s*\(\s*\S*(Password|password|pwd|PWD|Pwd|Passwd|passwd)") Then
-            frmMain.ListCodeIssue("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -73,13 +73,13 @@ Module modPHPCheck
                 '== Check for use of pre-prepared statements ==
                 For Each strVar In ctCodeTracker.SQLStatements
                     If Regex.IsMatch(CodeLine, strVar) Then
-                        frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection via a pre-prepared dynamic SQL statement.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
                     End If
                 Next
             ElseIf CodeLine.Contains("$") Then
                 '== Dynamic SQL built into connection/update ==
-                frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection via dynamic SQL statements.", FileName, CodeIssue.CRITICAL, CodeLine)
 
             End If
         End If
@@ -105,7 +105,7 @@ Module modPHPCheck
         ElseIf Regex.IsMatch(CodeLine, "\b(print|echo|print_r)\b") And CodeLine.Contains("$") And Not Regex.IsMatch(CodeLine, "strip_tags") Then
             CheckUserVarXSS(CodeLine, FileName)
         ElseIf Regex.IsMatch(CodeLine, "\b(print|echo|print_r)\b\s*\$_(GET|POST|COOKIE|REQUEST|SERVER)") And Not Regex.IsMatch(CodeLine, "strip_tags") Then
-            frmMain.ListCodeIssue("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential XSS", "The application appears to reflect a user-supplied variable to the screen with no apparent validation or sanitisation.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
         '== Check for DOM-based XSS in .php pages ==
@@ -117,12 +117,12 @@ Module modPHPCheck
             ElseIf ((CodeLine.Contains("document.write(") And CodeLine.Contains("+") And CodeLine.Contains("""")) Or Regex.IsMatch(CodeLine, ".innerHTML\s*\=\s*\w+;")) Then
                 For Each strVar In ctCodeTracker.InputVars
                     If Regex.IsMatch(CodeLine, strVar) Then
-                        frmMain.ListCodeIssue("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
                         Exit For
                     End If
                 Next
             ElseIf Regex.IsMatch(CodeLine, "\)\s*\.innerHTML\s*=\s*(\'|\"")\s*\<\s*\?\s*echo\s*\$_(GET|POST|COOKIE|SERVER|REQUEST)\s*\[") Then
-                frmMain.ListCodeIssue("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential DOM-Based XSS", "The application appears to allow XSS via an unencoded/unsanitised input variable.", FileName, CodeIssue.HIGH, CodeLine)
             End If
         End If
 
@@ -136,11 +136,11 @@ Module modPHPCheck
         If Regex.IsMatch(CodeLine, "validate|encode|sanitize|sanitise") And Not CodeLine.ToLower.Contains("password") Then
             RemoveSanitisedVars(CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "AddLog|error_log") And CodeLine.ToLower.Contains("password") Then
-            If (InStr(CodeLine.ToLower, "log") < InStr(CodeLine.ToLower, "password")) Then frmMain.ListCodeIssue("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles or the screen, creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
+            If (InStr(CodeLine.ToLower, "log") < InStr(CodeLine.ToLower, "password")) Then overFlowArg = New CheckOverFlowArg("Application Appears to Log User Passwords", "The application appears to write user passwords to logfiles or the screen, creating a risk of credential theft.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "AddLog|error_log") And Not CodeLine.ToLower.Contains("strip_tags") Then
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, strVar) Then
-                    frmMain.ListCodeIssue("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Unsanitized Data Written to Logs", "The application appears to write unsanitized data to its logfiles. If logs are viewed by a browser-based application this exposes risk of XSS attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
                     Exit For
                 End If
             Next
@@ -154,11 +154,11 @@ Module modPHPCheck
 
         '== Check for time or non-time-based seed ==
         If Regex.IsMatch(CodeLine, "\$\w+\s*\=\s*\bopenssl_random_pseudo_bytes\b\s*\(\s*\S+\s*\,\s*(0|false|False|FALSE)") Then
-            frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the function with the 'secure' value deliberately set to 'false'. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the function with the 'secure' value deliberately set to 'false'. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "\$\w+\s*\=\s*\b(mt_rand|smt_rand)\b\s*\(\s*\)") Or Regex.IsMatch(CodeLine, "\b(mt_rand|smt_rand)\b\s*\(\w*(T|t)ime\w*\)") Then
-            frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the mt_rand and/or smt_rand functions without a seed to generate pseudo-random values. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the mt_rand and/or smt_rand functions without a seed to generate pseudo-random values. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "\b(mt_rand|smt_rand)\b\s*\(\s*\S+\s*\)") Then
-            frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the mt_rand function. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker, although this is partly mitigated by a seed that does not appear to be time-based.", FileName, CodeIssue.STANDARD, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the mt_rand function. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker, although this is partly mitigated by a seed that does not appear to be time-based.", FileName, CodeIssue.STANDARD, CodeLine)
         End If
 
     End Sub
@@ -169,7 +169,7 @@ Module modPHPCheck
 
         '== Identify relevant 'if' statements ==
         If Regex.IsMatch(CodeLine, "\bif\b\s*\(\s*\$_FILES\s*\[\s*\$\w+\s*\]\s*\[\s*\'") Or Regex.IsMatch(CodeLine, "\bif\b\s*\(\s*\!?\s*isset\s*\(?\s*\$_FILES\s*\[\s*\$\w+\s*\]\s*\[\s*\'") Then
-            frmMain.ListCodeIssue("Unsafe Processing of $_FILES Array", "The code appears to use data within the $_FILES array in order to make to decisions. this is obtained direct from the HTTP request and may be modified by the client to cause unexpected behaviour.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Processing of $_FILES Array", "The code appears to use data within the $_FILES array in order to make to decisions. this is obtained direct from the HTTP request and may be modified by the client to cause unexpected behaviour.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -184,28 +184,28 @@ Module modPHPCheck
             '== Check for use of user-defined variables ==
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, "\b(file_include|include|require|include_once|require_once)\b\s*\(\s*" & strVar) Or Regex.IsMatch(CodeLine, "\b(file_include|include|require|include_once|require_once)\b\s*\(\s*\w+\s*\.\s*" & strVar) Then
-                    frmMain.ListCodeIssue("File Inclusion Vulnerability", "The code appears to use a user-controlled variable as a parameter for an include statement which could lead to a file include vulnerability.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("File Inclusion Vulnerability", "The code appears to use a user-controlled variable as a parameter for an include statement which could lead to a file include vulnerability.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False Then
-                frmMain.ListCodeIssue("Variable Used as FileName", "The application appears to use a variable name in order to define a filename used by the application. It is unclear whether this variable can be controlled by the user - carry out a manual inspection to confirm.", FileName, CodeIssue.LOW, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Variable Used as FileName", "The application appears to use a variable name in order to define a filename used by the application. It is unclear whether this variable can be controlled by the user - carry out a manual inspection to confirm.", FileName, CodeIssue.LOW, CodeLine)
             End If
         ElseIf Regex.IsMatch(CodeLine, "\b(file_include|include|require|include_once|require_once)\b\s*\(\s*(\'|\"")\w+\.(inc|txt|dat)") Then
             '== Check for use of unsafe extensions ==
-            frmMain.ListCodeIssue("File Inclusion Vulnerability", "The code appears to use an unsafe file extension for an include statement which could allow an attacker to download it directly and read the uncompiled code.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("File Inclusion Vulnerability", "The code appears to use an unsafe file extension for an include statement which could allow an attacker to download it directly and read the uncompiled code.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "\b(fwrite|file_get_contents|fopen|glob|popen|file|readfile)\b\s*\(\s*\$") Then
             '== Check for use of user-defined variables ==
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, "\b(fwrite|file_get_contents|fopen|glob|popen|file|readfile)\b\s*\(\s*" & strVar) Or Regex.IsMatch(CodeLine, "\b(fwrite|file_get_contents|fopen|glob|popen|file|readfile)\b\s*\(\s*\w+\s*\.\s*" & strVar) Then
-                    frmMain.ListCodeIssue("File Access Vulnerability", "The code appears to user-controlled variable as a parameter when accessing the filesystem. This could lead to a system compromise.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("File Access Vulnerability", "The code appears to user-controlled variable as a parameter when accessing the filesystem. This could lead to a system compromise.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False Then
-                frmMain.ListCodeIssue("Variable Used as FileName", "The application appears to use a variable name in order to define a filename used by the application. It is unclear whether this variable can be controlled by the user - carry out a manual inspection to confirm.", FileName, CodeIssue.LOW, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Variable Used as FileName", "The application appears to use a variable name in order to define a filename used by the application. It is unclear whether this variable can be controlled by the user - carry out a manual inspection to confirm.", FileName, CodeIssue.LOW, CodeLine)
             End If
         End If
 
@@ -222,13 +222,13 @@ Module modPHPCheck
         If Regex.IsMatch(CodeLine, "\b(exec|shell_exec|proc_open|eval|system|popen|passthru|pcntl_exec|assert)\b") And Not Regex.IsMatch(CodeLine, "escapeshellcmd") Then
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, strVar) Then
-                    frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable when executing a command.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable when executing a command.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False And CodeLine.Contains("$") Then
-                frmMain.ListCodeIssue("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated variable when executing a command. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated variable when executing a command. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -241,17 +241,17 @@ Module modPHPCheck
 
 
         If Regex.IsMatch(CodeLine, "`\s*\S*\s*\$_(GET|POST|COOKIE|REQUEST|SERVER)") Then
-            frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of a HTTP request variable within backticks, allowing commandline execution.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("User Controlled Variable Used on System Command Line", "The application appears to allow the use of a HTTP request variable within backticks, allowing commandline execution.", FileName, CodeIssue.HIGH, CodeLine)
         ElseIf Regex.IsMatch(CodeLine, "`\s*\S*\s*\$\w+") Then
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, strVar) Then
-                    frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of a user-controlled variable within backticks, allowing commandline execution.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled Variable Used on System Command Line", "The application appears to allow the use of a user-controlled variable within backticks, allowing commandline execution.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False Then
-                frmMain.ListCodeIssue("Application Variable Used on System Command Line", "The application appears to allow the use of a variable within backticks, allowing commandline execution. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Application Variable Used on System Command Line", "The application appears to allow the use of a variable within backticks, allowing commandline execution. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -268,13 +268,13 @@ Module modPHPCheck
         If Regex.IsMatch(CodeLine, "\b(preg_replace|create_function)\b") And Not Regex.IsMatch(CodeLine, "strip_tags") Then
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, strVar) Then
-                    frmMain.ListCodeIssue("Function May Evaluate PHP Code Contained in User Controlled Variable", "The application appears to allow the use of an unvalidated user-controlled variable in conjunction with a function that will evaluate PHP code.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Function May Evaluate PHP Code Contained in User Controlled Variable", "The application appears to allow the use of an unvalidated user-controlled variable in conjunction with a function that will evaluate PHP code.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False And CodeLine.Contains("$") Then
-                frmMain.ListCodeIssue("Function May Evaluate PHP Code", "The application appears to allow the use of an unvalidated variable in conjunction with a function that will evaluate PHP code. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Function May Evaluate PHP Code", "The application appears to allow the use of an unvalidated variable in conjunction with a function that will evaluate PHP code. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -291,7 +291,7 @@ Module modPHPCheck
 
             If Regex.IsMatch(CodeLine, "\bini_set\b\s*\(\s*(\'|\"")register_globals(\'|\"")\s*\,\s*(1|true|TRUE|True|\$\w+)") Then
                 ' Is it being re-enabled?
-                frmMain.ListCodeIssue("Use of 'register_globals'", "The application appears to re-activate the use of the dangerous 'register_globals' facility. Anything passed via GET or POST or COOKIE is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of 'register_globals'", "The application appears to re-activate the use of the dangerous 'register_globals' facility. Anything passed via GET or POST or COOKIE is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
 
             ElseIf Regex.IsMatch(CodeLine, "\$\w+\s*\=\s*\barray_merge\b\s*\(\s*\$_(GET|POST|COOKIE|REQUEST|SERVER)\s*\,\s*\$_(GET|POST|COOKIE|REQUEST|SERVER)") Then
                 ' Is it being simulated?
@@ -299,13 +299,13 @@ Module modPHPCheck
                 ' Get name of the array of input parameters
                 arrFragments = Regex.Split(CodeLine, "\=\s*\barray_merge\b\s*\(\s*\$_(GET|POST|COOKIE|REQUEST|SERVER)\s*\,")
                 ctCodeTracker.GlobalArrayName = GetLastItem(arrFragments.First())
-                frmMain.ListCodeIssue("Indiscriminate Merging of Input Variables", "The application appears to incorporate all incoming GET and POST data into a single array. This can facilitate GET to POST conversion and may result in unexpected behaviour or unintentionally change variables.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Indiscriminate Merging of Input Variables", "The application appears to incorporate all incoming GET and POST data into a single array. This can facilitate GET to POST conversion and may result in unexpected behaviour or unintentionally change variables.", FileName, CodeIssue.HIGH, CodeLine)
             End If
 
         ElseIf ctCodeTracker.IsArrayMerge = True Then
             If Regex.IsMatch(CodeLine, "\bglobal\b") And Regex.IsMatch(CodeLine, ctCodeTracker.GlobalArrayName) Then
                 ctCodeTracker.IsRegisterGlobals = True
-                frmMain.ListCodeIssue("Use of 'register_globals'", "The application appears to attempt to simulate the use of the dangerous 'register_globals' facility. Anything passed via GET or POST or COOKIE is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of 'register_globals'", "The application appears to attempt to simulate the use of the dangerous 'register_globals' facility. Anything passed via GET or POST or COOKIE is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
             End If
         End If
 
@@ -322,13 +322,13 @@ Module modPHPCheck
 
             For Each strVar In ctCodeTracker.InputVars
                 If Regex.IsMatch(CodeLine, "\bparse_str\b\s*\(\s*" & strVar & "\s*\)") Then
-                    frmMain.ListCodeIssue("Use of 'parse_str' with User Controlled Variable", "The application appears to use parse_str in an unsafe manner in combination with a user-controlled variable. Anything passed as part of the input string is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Use of 'parse_str' with User Controlled Variable", "The application appears to use parse_str in an unsafe manner in combination with a user-controlled variable. Anything passed as part of the input string is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False Then
-                frmMain.ListCodeIssue("Use of 'parse_str'", "The application appears to use parse_str in an unsafe manner. Anything passed as part of the input string is automatically assigned as a global variable in the code, with potentially serious consequences. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of 'parse_str'", "The application appears to use parse_str in an unsafe manner. Anything passed as part of the input string is automatically assigned as a global variable in the code, with potentially serious consequences. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -349,19 +349,19 @@ Module modPHPCheck
 
             If Regex.IsMatch(CodeLine, "\bregister_globals\b\s*=\s*\b(on|ON|On)\b") Then
                 ' register_globals
-                frmMain.ListCodeIssue("Use of 'register_globals'", "The application appears to activate the use of the dangerous 'register_globals' facility. Anything passed via GET or POST or COOKIE is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of 'register_globals'", "The application appears to activate the use of the dangerous 'register_globals' facility. Anything passed via GET or POST or COOKIE is automatically assigned as a global variable in the code, with potentially serious consequences.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf Regex.IsMatch(CodeLine, "\bsafe_mode\b\s*=\s*\b(off|OFF|Off)\b") Then
                 ' safe_mode
-                frmMain.ListCodeIssue("De-Activation of 'safe_mode'", "The application appears to de-activate the use of 'safe_mode', which can increase risks for any CGI-based applications.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("De-Activation of 'safe_mode'", "The application appears to de-activate the use of 'safe_mode', which can increase risks for any CGI-based applications.", FileName, CodeIssue.MEDIUM, CodeLine)
             ElseIf Regex.IsMatch(CodeLine, "\b(magic_quotes_gpc|magic_quotes_runtime|magic_quotes_sybase)\b\s*=\s*\b(off|OFF|Off)\b") Then
                 ' magic_quotes
-                frmMain.ListCodeIssue("De-Activation of 'magic_quotes'", "The application appears to de-activate the use of 'magic_quotes', greatly increasing the risk of SQL injection.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("De-Activation of 'magic_quotes'", "The application appears to de-activate the use of 'magic_quotes', greatly increasing the risk of SQL injection.", FileName, CodeIssue.HIGH, CodeLine)
             ElseIf Regex.IsMatch(CodeLine, "\bdisable_functions\b\s*=\s*\w+") Then
                 ' Is disable_functions being used?
                 ctCodeTracker.HasDisableFunctions = True
             ElseIf Regex.IsMatch(CodeLine, "\bmysql.default_user\b\s*=\s*\broot\b") Then
                 ' Log in to MySQL as 'root'?
-                frmMain.ListCodeIssue("Log in to MySQL as 'root'", "The application appears to log in to MySQL as 'root', greatly increasing the consequences of a successful SQL injection attack.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Log in to MySQL as 'root'", "The application appears to log in to MySQL as 'root', greatly increasing the consequences of a successful SQL injection attack.", FileName, CodeIssue.HIGH, CodeLine)
             End If
 
             rtResultsTracker.OverallCodeCount += 1

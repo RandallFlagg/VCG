@@ -78,7 +78,7 @@ Public Class frmMain
     Dim blnIsFiltered As Boolean = False     ' Will be set to true if we're not showing all results
     Public intFilterMin As Integer = CodeIssue.POSSIBLY_SAFE
     Public intFilterMax As Integer = CodeIssue.CRITICAL
-
+    Private WithEvents codeTracker As New CodeTracker
 
     Private Sub NewTargetToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles NewTargetToolStripMenuItem.Click
         'Load files to be scanned
@@ -286,7 +286,7 @@ Public Class frmMain
                     Next
 
                     If ctCodeTracker.HasDisableFunctions = True Then
-                        ListCodeIssue("Failure to use 'disable_functions'", "The ini file fails to use the 'disable_functions' feature, greatly increasing the segverity of a successful compromise.", strItem)
+                        ListCodeIssue(Me, New CheckOverFlowArg("Failure to use 'disable_functions'", "The ini file fails to use the 'disable_functions' feature, greatly increasing the segverity of a successful compromise.", strItem))
                     End If
 
 
@@ -501,13 +501,18 @@ Public Class frmMain
         Return blnRetVal
 
     End Function
-
-    Public Sub ListCodeIssue(FunctionName As String, Description As String, FileName As String, Optional Severity As Integer = CodeIssue.STANDARD, Optional CodeLine As String = "", Optional LineNumber As Integer = 0)
+    'TODO: Change vbNewLine to System.Environment.NewLine
+    Friend Sub ListCodeIssue(sender As Object, args As CheckOverFlowArg) 'Handles codeTracker.CheckOverFlow_Event
         ' Notify user of any code issues found for the bad function list from files or the language-specific tests
         '=========================================================================================================
         Dim strTitle As String
         Dim strDescription As String
-
+        Dim LineNumber = args.LineNumber
+        Dim Severity = args.Severity
+        Dim CodeLine = args.CodeLine
+        Dim FunctionName = args.FunctionName
+        Dim FileName = args.FileName
+        Dim Description = args.Description
 
         If asAppSettings.OutputLevel < Severity Then Exit Sub
 
@@ -561,7 +566,7 @@ Public Class frmMain
 
     End Sub
 
-    Public Sub WriteResult(Title As String, Description As String, CodeLine As String, Optional Severity As Integer = CodeIssue.STANDARD)
+    Private Sub WriteResult(Title As String, Description As String, CodeLine As String, Optional Severity As Integer = CodeIssue.STANDARD)
         ' Write results out to main screen in appropriate format
         '=======================================================
 

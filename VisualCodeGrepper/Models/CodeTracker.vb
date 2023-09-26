@@ -190,6 +190,7 @@ Public Class CodeTracker
     Dim reRegex As Regex
 
 
+
     Public Sub New()
         'Initialise variables
         '====================
@@ -1097,46 +1098,49 @@ Public Class CodeTracker
 
             End If
 
+            'Dim overFlowArg As CheckOverFlowArg = Nothing
 
             If blnIsStrN = False And intOverflowType <> NO_DANGER Then
 
                 Select Case intOverflowType
                     Case CMDLINE_INTO_ARRAY
                         ' Is strcpy copying a commandline argument to char[]?
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "A user-supplied string from the commandline is being copied to a fixed length destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "A user-supplied string from the commandline is being copied to a fixed length destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                     Case POINTER_INTO_ARRAY
                         ' Is strcpy copying a char* to char[]?
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "A char* is being copied to a fixed length destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "A char* is being copied to a fixed length destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                     Case SOURCE_LARGER_THAN_DEST
                         ' Mismatched array sizes
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The source buffer is larger than the destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The source buffer is larger than the destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                 End Select
 
+                SharedCode.FireEvent(Me, overFlowArg)
             ElseIf blnIsStrN = True And intOverflowType <> NO_DANGER Then
 
                 Select Case intOverflowType
                     Case CMDLINE_INTO_ARRAY
                         ' Is strcpy copying a commandline argument to char[]?
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is larger than the destination buffer, while the source is a user-supplied string from the commandline, and so could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is larger than the destination buffer, while the source is a user-supplied string from the commandline, and so could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                     Case POINTER_INTO_ARRAY
                         ' Is strcpy copying a char* to char[]?
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is larger than the destination buffer, while the source is a char* and so, could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is larger than the destination buffer, while the source is a char* and so, could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                     Case SOURCE_LARGER_THAN_DEST
                         ' Mismatched array sizes
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The source buffer and size limit are BOTH larger than the destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The source buffer and size limit are BOTH larger than the destination buffer and could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                     Case WRONG_LIMIT_NO_DANGER
                         ' No immediate danger but wrong size limit in place
-                        frmMain.ListCodeIssue("Unsafe Use of " & strExpression & ".", "Although the source buffer is not large enough to deliver a buffer overflow to the destination buffer, the size limit used by strncpy is larger then the destination and would theoretically such an attack if the source buffer were modified in the future.", FileName, CodeIssue.STANDARD, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Unsafe Use of " & strExpression & ".", "Although the source buffer is not large enough to deliver a buffer overflow to the destination buffer, the size limit used by strncpy is larger then the destination and would theoretically such an attack if the source buffer were modified in the future.", FileName, CodeIssue.STANDARD, CodeLine)
                     Case OFF_BY_ONE
                         ' Incorrect use of sizeof()
-                        frmMain.ListCodeIssue("Off-by-One Error - Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is one byte larger than the destination buffer due to incorrect use of sizeof( ) and so could allow a buffer overflow to take place.", FileName, CodeIssue.HIGH, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Off-by-One Error - Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is one byte larger than the destination buffer due to incorrect use of sizeof( ) and so could allow a buffer overflow to take place.", FileName, CodeIssue.HIGH, CodeLine)
                     Case SOURCE_LIMIT
                         ' Incorrect use of sizeof()
-                        frmMain.ListCodeIssue("Programmer Error - Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is set to the size of the source buffer, rather than the destination buffer due to mistaken use of sizeof( ) and so could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Programmer Error - Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is set to the size of the source buffer, rather than the destination buffer due to mistaken use of sizeof( ) and so could allow a buffer overflow to take place.", FileName, CodeIssue.CRITICAL, CodeLine)
                     Case STRNCAT_MISUSE
                         ' Incorrect use of strncat (uses size of source or destination as limit)
-                        frmMain.ListCodeIssue("Programmer Error - Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is set to the size of the source or destination buffer. For safe usage the limit should be set to the allowed size of the destination buffer minus the current size of the destination buffer.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Programmer Error - Unsafe Use of " & strExpression & " Allows Buffer Overflow", "The size limit is set to the size of the source or destination buffer. For safe usage the limit should be set to the allowed size of the destination buffer minus the current size of the destination buffer.", FileName, CodeIssue.CRITICAL, CodeLine)
                 End Select
+                SharedCode.FireEvent(Me, overFlowArg)
 
             End If
 NextLoop:
@@ -1148,6 +1152,8 @@ NextLoop:
         Next
 
     End Sub
+
+
 
     Public Function TrackBraces(CodeLine As String, ByRef BraceCount As Integer) As Boolean
         ' Track matching open/close braces to determine whether still inside function, loop, etc.

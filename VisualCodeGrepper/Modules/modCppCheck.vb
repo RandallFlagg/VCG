@@ -59,7 +59,7 @@ Module modCppCheck
 
             '== Check for a 'fixed' malloc using numeric value instead of data type ==
             If Regex.IsMatch(CodeLine, "\b(malloc|xmalloc)\b\s*\(\s*\d+\s*\)") Then
-                frmMain.ListCodeIssue("malloc( ) Using Fixed Value Instead of Variable Type Size", "The code uses a fixed value for malloc instead of the variable type size which is dependent on the platform (e.g. sizeof(int) instead of '4'). This can result in too much or too little memory being assigned with unpredicatble results such as performance impact, overflows or memory corruption.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("malloc( ) Using Fixed Value Instead of Variable Type Size", "The code uses a fixed value for malloc instead of the variable type size which is dependent on the platform (e.g. sizeof(int) instead of '4'). This can result in too much or too little memory being assigned with unpredicatble results such as performance impact, overflows or memory corruption.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -141,7 +141,7 @@ Module modCppCheck
         '== Check for signed/unsigned integer comparisons ==
         If (CodeLine.Contains("==") Or CodeLine.Contains("!=") Or CodeLine.Contains("<") Or CodeLine.Contains(">")) _
             And Not (CodeLine.Contains("->") Or CodeLine.Contains(">>") Or CodeLine.Contains("<<") Or CodeLine.Contains("<>")) And Not Regex.IsMatch(CodeLine, "\<\s*\w+\s*\>") And Not Regex.IsMatch(CodeLine, "\<\s*\w+\s*\w+\s*\>") Then
-            If ctCodeTracker.CheckSignedComp(CodeLine) Then frmMain.ListCodeIssue("Signed/Unsigned Comparison", "The code appears to compare a signed numeric value with an unsigned numeric value. This behaviour can return unexpected results as negative numbers will be forcibly cast to large positive numbers.", FileName, CodeIssue.HIGH, CodeLine)
+            If ctCodeTracker.CheckSignedComp(CodeLine) Then overFlowArg = New CheckOverFlowArg("Signed/Unsigned Comparison", "The code appears to compare a signed numeric value with an unsigned numeric value. This behaviour can return unexpected results as negative numbers will be forcibly cast to large positive numbers.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -152,7 +152,7 @@ Module modCppCheck
 
         '== Identify any returned values being assigned to variables ==
         If Regex.IsMatch(CodeLine, "w+\s*\=\s*\b(snprintf|strlcpy|strlcat|strlprintf|std_strlcpy|std_strlcat|std_strlprintf)\b") Then
-            frmMain.ListCodeIssue("Potential Misuse of Safe Function", "The code appears to assign the return value of a 'safe' function to a variable. This value represents the amount of bytes that the function attempted to write, not the amount actually written. Any use of this value for pointer arithmetic similar operations may result in memory corruption", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Potential Misuse of Safe Function", "The code appears to assign the return value of a 'safe' function to a variable. This value represents the amount of bytes that the function attempted to write, not the amount actually written. Any use of this value for pointer arithmetic similar operations may result in memory corruption", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -177,7 +177,7 @@ Module modCppCheck
         '== Check for any exceptions while in destructor ==
         If ctCodeTracker.IsDestructor = True Then
             If (CodeLine.Contains("throw") And ctCodeTracker.DestructorBraces > 0) Then
-                frmMain.ListCodeIssue("Exception Throw in Destructor", "Throwing an exception causes an exit from the function and should not be carried out in a class destructor as it prevents memory from being safely deallocated. If the destructor is being called due to an exception thrown elsewhere in the application this will result in unexpected termination of the application with possible loss or corruption of data.", FileName)
+                overFlowArg = New CheckOverFlowArg("Exception Throw in Destructor", "Throwing an exception causes an exit from the function and should not be carried out in a class destructor as it prevents memory from being safely deallocated. If the destructor is being called due to an exception thrown elsewhere in the application this will result in unexpected termination of the application with possible loss or corruption of data.", FileName)
             End If
             If Not blnHasCheckedBraces Then ctCodeTracker.IsDestructor = ctCodeTracker.TrackBraces(CodeLine, ctCodeTracker.DestructorBraces)
         End If
@@ -205,7 +205,7 @@ Module modCppCheck
                 ' Usage takes place sometime later. Set severity accordingly and notify user
                 ctCodeTracker.IsLstat = False
                 If ctCodeTracker.TocTouLineCount > 5 Then intSeverity = 2
-                frmMain.ListCodeIssue("Potential TOCTOU (Time Of Check, Time Of Use) Vulnerability", "The lstat() check occurs " & ctCodeTracker.TocTouLineCount & " lines before fopen() is called. The longer the time between the check and the fopen(), the greater the likelihood that the check will no longer be valid.", FileName)
+                overFlowArg = New CheckOverFlowArg("Potential TOCTOU (Time Of Check, Time Of Use) Vulnerability", "The lstat() check occurs " & ctCodeTracker.TocTouLineCount & " lines before fopen() is called. The longer the time between the check and the fopen(), the greater the likelihood that the check will no longer be valid.", FileName)
             End If
         End If
 
@@ -216,7 +216,7 @@ Module modCppCheck
         '===============================================
 
         If Regex.IsMatch(CodeLine, "\bprintf\b\s*\(\s*\w+\s*\)") And Not CodeLine.Contains(",") And Not CodeLine.Contains("""") Then
-            frmMain.ListCodeIssue("Possible printf( ) Format String Vulnerability", "The call to printf appears to be printing a variable directly to standard output. Check whether this variable can be controlled or altered by the user to determine whether a format string vulnerability exists.", FileName, CodeIssue.HIGH, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Possible printf( ) Format String Vulnerability", "The call to printf appears to be printing a variable directly to standard output. Check whether this variable can be controlled or altered by the user to determine whether a format string vulnerability exists.", FileName, CodeIssue.HIGH, CodeLine)
         End If
 
     End Sub
@@ -226,7 +226,7 @@ Module modCppCheck
         '======================================================
 
         If Regex.IsMatch(CodeLine, "\=\s*(_open|open|fopen|opendir)\s*\(\s*\""*\S*(temp|tmp)\S*\""\s*\,\s*\S*\s*\)") Then
-            frmMain.ListCodeIssue("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic link attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic link attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -256,7 +256,7 @@ Module modCppCheck
             If strDestination <> "" Then
                 strBuffer = GetFirstItem(arrFragments(1), ",")
                 If strDestination = strBuffer Then
-                    frmMain.ListCodeIssue("Dangerous Use of realloc( )", "The source and destination buffers are the same. A failure to resize the buffer will set the pointer to NULL, possibly causing unpredicatable behaviour.", FileName, CodeIssue.MEDIUM, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("Dangerous Use of realloc( )", "The source and destination buffers are the same. A failure to resize the buffer will set the pointer to NULL, possibly causing unpredicatable behaviour.", FileName, CodeIssue.MEDIUM, CodeLine)
                 End If
                 strDestination = strDestination.TrimStart("*").TrimStart()
                 strBuffer = strBuffer.TrimStart("*").TrimStart()
@@ -276,7 +276,7 @@ Module modCppCheck
                 ctCodeTracker.DestinationBuffer = ""
                 ctCodeTracker.SourceBuffer = ""
             ElseIf Regex.IsMatch(CodeLine, "(break|return|exit)") Then
-                frmMain.ListCodeIssue("Potential Memory Leak", "On failure, the realloc function returns a NULL pointer but leaves memory allocated. The code should be modified to free the memory if NULL is returned.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Potential Memory Leak", "On failure, the realloc function returns a NULL pointer but leaves memory allocated. The code should be modified to free the memory if NULL is returned.", FileName, CodeIssue.MEDIUM, CodeLine)
                 ctCodeTracker.DestinationBuffer = ""
                 ctCodeTracker.SourceBuffer = ""
             End If
@@ -297,17 +297,17 @@ Module modCppCheck
             '== Is a user-controlled variable present? ==
             For Each strVar As String In ctCodeTracker.UserVariables
                 If CodeLine.Contains(strVar) Then
-                    frmMain.ListCodeIssue("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable [" + strVar + "] when executing a system command.", FileName, CodeIssue.HIGH, CodeLine)
+                    overFlowArg = New CheckOverFlowArg("User Controlled Variable Used on System Command Line", "The application appears to allow the use of an unvalidated user-controlled variable [" + strVar + "] when executing a system command.", FileName, CodeIssue.HIGH, CodeLine)
                     blnIsFound = True
                     Exit For
                 End If
             Next
             If blnIsFound = False And (Regex.IsMatch(CodeLine, "\b(system|popen|execlp)\b\s*\(\s*\bgetenv\b")) Then
                 '== Is a system variable present? ==
-                frmMain.ListCodeIssue("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated system variable when executing a system command.", FileName, CodeIssue.HIGH, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated system variable when executing a system command.", FileName, CodeIssue.HIGH, CodeLine)
             ElseIf blnIsFound = False And ((Not CodeLine.Contains("""")) Or (CodeLine.Contains("""") And CodeLine.Contains("+")) Or (Regex.IsMatch(CodeLine, "\b(system|popen|execlp)\b\s*\(\s*\b(strcat|strncat)\b"))) Then
                 '== Is an unidentified variable present? ==
-                frmMain.ListCodeIssue("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated variable when executing a system command. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Application Variable Used on System Command Line", "The application appears to allow the use of an unvalidated variable when executing a system command. Carry out a manual check to determine whether the variable is user-controlled.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 

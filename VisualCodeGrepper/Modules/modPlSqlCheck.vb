@@ -49,7 +49,7 @@ Module modPlSqlCheck
             ctCodeTracker.IsOracleEncrypt = True
         End If
         If ctCodeTracker.IsOracleEncrypt = False And CodeLine.Contains("PASSWORD") And Not CodeLine.Contains("ACCEPT") Then
-            frmMain.ListCodeIssue("Code Appears to Process Passwords Without the Use of a Standard Oracle Encryption Module", "The code contains references to 'password'. The absence of any hashing or decryption functions indicates that the password may be stored as plaintext.", FileName, CodeIssue.HIGH)
+            overFlowArg = New CheckOverFlowArg("Code Appears to Process Passwords Without the Use of a Standard Oracle Encryption Module", "The code contains references to 'password'. The absence of any hashing or decryption functions indicates that the password may be stored as plaintext.", FileName, CodeIssue.HIGH)
         End If
 
     End Sub
@@ -99,11 +99,11 @@ Module modPlSqlCheck
         '== Check for misuse of sql statements ==
         If ctCodeTracker.IsInsidePlSqlExecuteStmt = False Then
             If (CodeLine.Contains("EXECUTE IMMEDIATE") Or CodeLine.Contains("OPEN FOR")) And (Regex.IsMatch(CodeLine, "(\'\"")\s*\|\|\s*\w+") Or Regex.IsMatch(CodeLine, "\w+\s*\|\|\s*(\'\"")\s*\|\|")) Then
-                frmMain.ListCodeIssue("Variable concatenated with dynamic SQL statement.", "Statement is potentially vulnerable to SQL injection, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Variable concatenated with dynamic SQL statement.", "Statement is potentially vulnerable to SQL injection, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf (CodeLine.Contains("EXECUTE IMMEDIATE") Or CodeLine.Contains("OPEN FOR")) And Not (CodeLine.Contains("'") Or CodeLine.Contains("""")) Then
                 For Each strVar As String In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection through use of an input variable within a query, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection through use of an input variable within a query, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
                     End If
                 Next
@@ -113,11 +113,11 @@ Module modPlSqlCheck
 
         Else
             If (Regex.IsMatch(CodeLine, "(\'\"")\s*\|\|\s*\w+") Or Regex.IsMatch(CodeLine, "\w+\s*\|\|\s*(\'\"")")) Then
-                frmMain.ListCodeIssue("Variable concatenated with dynamic SQL statement.", "Statement is potentially vulnerable to SQL injection, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Variable concatenated with dynamic SQL statement.", "Statement is potentially vulnerable to SQL injection, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
             ElseIf Not (CodeLine.Contains("'") Or CodeLine.Contains("""")) Then
                 For Each strVar As String In ctCodeTracker.SQLStatements
                     If CodeLine.Contains(strVar) Then
-                        frmMain.ListCodeIssue("Potential SQL Injection", "The application appears to allow SQL injection through use of an input variable within a query, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
+                        overFlowArg = New CheckOverFlowArg("Potential SQL Injection", "The application appears to allow SQL injection through use of an input variable within a query, depending on the origin of input variables and opportunities for an attacker to modify them before they reach the procedure.", FileName, CodeIssue.CRITICAL, CodeLine)
                         Exit For
                     End If
                 Next
@@ -142,12 +142,12 @@ Module modPlSqlCheck
                 ctCodeTracker.IsNewPackage = False
             ElseIf Regex.IsMatch(CodeLine, "\bAUTHID\b\s+\bDEFINER\b") Then
                 ' If package is running as definer then give a warning
-                frmMain.ListCodeIssue("Package Running Under Potentially Excessive Permissions", "The use of AUTHID DEFINER allows a user to run functions from this package in the role of the definer (usually a developer or administrator).", FileName)
+                overFlowArg = New CheckOverFlowArg("Package Running Under Potentially Excessive Permissions", "The use of AUTHID DEFINER allows a user to run functions from this package in the role of the definer (usually a developer or administrator).", FileName)
                 ctCodeTracker.IsNewPackage = False
             End If
             If ctCodeTracker.IsNewPackage = True And Regex.IsMatch(CodeLine, "\b(AS|IS)\b") Then
                 ' If we've reached this point then the package has been defined with no specified privileges and so is running as definer
-                frmMain.ListCodeIssue("Package Running Under Potentially Excessive Permissions", "The failure to use AUTHID CURRENT_USER allows a user to run functions from this package in the role of the definer (usually a developer or administrator).", FileName, CodeIssue.STANDARD, "1")
+                overFlowArg = New CheckOverFlowArg("Package Running Under Potentially Excessive Permissions", "The failure to use AUTHID CURRENT_USER allows a user to run functions from this package in the role of the definer (usually a developer or administrator).", FileName, CodeIssue.STANDARD, "1")
                 ctCodeTracker.IsNewPackage = False
             End If
         End If
@@ -166,7 +166,7 @@ Module modPlSqlCheck
 
         '== If the procedure is not autonomous identify any transactional controls ==
         If ctCodeTracker.IsAutonomousProcedure = False And (CodeLine.Contains("COMMIT") Or CodeLine.Contains("ROLLBACK")) Then
-            frmMain.ListCodeIssue("Stored Procedure Contains COMMIT and/or ROLLBACK Statements in Procedures/Functions, Without the Use of PRAGMA AUTONOMOUS_TRANSACTION.", "This can result in data corruption, since rolling back or committing will split a wider logical transaction into two possibly conflicting sub-transactions. Exceptions to this include auditing procedures and long-running worker procedures.", FileName, CodeIssue.LOW)
+            overFlowArg = New CheckOverFlowArg("Stored Procedure Contains COMMIT and/or ROLLBACK Statements in Procedures/Functions, Without the Use of PRAGMA AUTONOMOUS_TRANSACTION.", "This can result in data corruption, since rolling back or committing will split a wider logical transaction into two possibly conflicting sub-transactions. Exceptions to this include auditing procedures and long-running worker procedures.", FileName, CodeIssue.LOW)
         End If
 
     End Sub
@@ -178,7 +178,7 @@ Module modPlSqlCheck
 
         '== Check for error handling with output parameters and magic numbers ==
         If CodeLine.Contains("ERROR") And CodeLine.Contains("OUT") And CodeLine.Contains("NUMBER") Then
-            frmMain.ListCodeIssue("Error Handling With Output Parameters.", "The code appears to use output parameter(s) which implicitly signal an error by returning a special value, rather than raising an exception. This can make code harder to maintain and more error prone and can result in unexpected behaviour and data corruption.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Error Handling With Output Parameters.", "The code appears to use output parameter(s) which implicitly signal an error by returning a special value, rather than raising an exception. This can make code harder to maintain and more error prone and can result in unexpected behaviour and data corruption.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -195,7 +195,7 @@ Module modPlSqlCheck
             If CodeLine.Contains("\") And ((InStr(CodeLine, "\*") <> InStr(CodeLine, "\")) And (InStr(CodeLine, "\\") <> InStr(CodeLine, "\"))) Then
                 ctCodeTracker.IsView = False
             ElseIf CodeLine.Contains("TO_CHAR") Or CodeLine.Contains("TRIM(") Or CodeLine.Contains("TO_NUMBER") Or CodeLine.Contains("UPPER(") Or CodeLine.Contains("LOWER(") Then
-                frmMain.ListCodeIssue("Data Formatting Within VIEW.", "This can can result in performance issues and can facilitate DoS attacks in any situation where any attacker manages to cause repeated queries against the view. There is also a possibility of data corruption due to mismatch between views and underlying tables.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Data Formatting Within VIEW.", "This can can result in performance issues and can facilitate DoS attacks in any situation where any attacker manages to cause repeated queries against the view. There is also a possibility of data corruption due to mismatch between views and underlying tables.", FileName, CodeIssue.STANDARD, CodeLine)
             End If
         End If
 

@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore", "VisualCodeGrepper\VisualCodeGrepper.NETCore.vbproj", "{916A391D-4E8C-42D7-97E4-64C8ECF0052A}"
 EndProject
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore.Linux", "VisualCodeGrepper\VisualCodeGrepper.NETCore.Linux.vbproj", "{0740524F-7588-4D55-AECA-2B575C7DF002}"
+EndProject
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore.Lib", "VisualCodeGrepper\VisualCodeGrepper.NETCore.Lib.vbproj", "{4696AA52-0CC3-498D-845C-C8BCFBD1FC41}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{916A391D-4E8C-42D7-97E4-64C8ECF0052A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{916A391D-4E8C-42D7-97E4-64C8ECF0052A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{916A391D-4E8C-42D7-97E4-64C8ECF0052A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0740524F-7588-4D55-AECA-2B575C7DF002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0740524F-7588-4D55-AECA-2B575C7DF002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0740524F-7588-4D55-AECA-2B575C7DF002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0740524F-7588-4D55-AECA-2B575C7DF002}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4696AA52-0CC3-498D-845C-C8BCFBD1FC41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4696AA52-0CC3-498D-845C-C8BCFBD1FC41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4696AA52-0CC3-498D-845C-C8BCFBD1FC41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4696AA52-0CC3-498D-845C-C8BCFBD1FC41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

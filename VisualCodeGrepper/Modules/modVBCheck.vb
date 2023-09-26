@@ -44,7 +44,7 @@ Module modVBCheck
         CheckWebConfig(CodeLine, FileName)              ' Check config file to determine whether .NET debugging and default errors are enabled
 
         If Regex.IsMatch(CodeLine, "\S*(Password|password|pwd|passwd)\S*\.(ToLower|ToUpper)\s*\(") Then
-            frmMain.ListCodeIssue("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Password Management", "The application appears to handle passwords in a case-insensitive manner. This can greatly increase the likelihood of successful brute-force and/or dictionary attacks.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -63,9 +63,9 @@ Module modVBCheck
         '== Check for unsafe functions Next() or NextBytes() ==
         If Regex.IsMatch(CodeLine, "\bRnd\b\s*\(") Then
             If ctCodeTracker.HasSeed Then
-                frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker, although this is partly mitigated by a seed that does not appear to be time-based.", FileName, CodeIssue.STANDARD, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker, although this is partly mitigated by a seed that does not appear to be time-based.", FileName, CodeIssue.STANDARD, CodeLine)
             Else
-                frmMain.ListCodeIssue("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions without a seed to generate pseudo-random values. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Use of Deterministic Pseudo-Random Values", "The code appears to use the Next() and/or NextBytes() functions without a seed to generate pseudo-random values. The resulting values, while appearing random to a casual observer, are predictable and may be enumerated by a skilled and determined attacker.", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -85,7 +85,7 @@ Module modVBCheck
             Else
                 ctCodeTracker.IsSamlFunction = ctCodeTracker.TrackBraces(CodeLine, ctCodeTracker.ClassBraces)
                 If ctCodeTracker.IsSamlFunction = False Then
-                    frmMain.ListCodeIssue("Insufficient SAML2 Condition Validation", "The code includes a token handling class that inherits from Saml2SecurityTokenHandler. It appears not to perform any validation on the Saml2Conditions object passed, violating its contract with the superclass and undermining authentication/authorisation conditions.", FileName, CodeIssue.MEDIUM)
+                    overFlowArg = New CheckOverFlowArg("Insufficient SAML2 Condition Validation", "The code includes a token handling class that inherits from Saml2SecurityTokenHandler. It appears not to perform any validation on the Saml2Conditions object passed, violating its contract with the superclass and undermining authentication/authorisation conditions.", FileName, CodeIssue.MEDIUM)
                 End If
             End If
             If Regex.IsMatch(CodeLine, "\bEnd\b\s+\b(Sub|Function)\b") Then ctCodeTracker.IsSamlFunction = True
@@ -98,7 +98,7 @@ Module modVBCheck
         '======================================================
 
         If Regex.IsMatch(CodeLine, "(file\S*|File\S*|\.FileName)\s+\=\s+\""\S*(temp|tmp)\S*\""\,") Then
-            frmMain.ListCodeIssue("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic linbk attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Unsafe Temporary File Allocation", "The application appears to create a temporary file with a static, hard-coded name. This causes security issues in the form of a classic race condition (an attacker creates a file with the same name between the application's creation and attempted usage) or a symbolic linbk attack where an attacker creates a symbolic link at the temporary file location.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub
@@ -109,7 +109,7 @@ Module modVBCheck
 
         If Regex.IsMatch(CodeLine, "\b(Private|Public|Dim)\b\s+\b(Const|ReadOnly)\b\s+\w*(crypt|Crypt|CRYPT|key|Key|KEY)\w*\s+As\s+String\s*\=\s*\""") Or _
             Regex.IsMatch(CodeLine, "\b(Private|Public|Dim)\b\s+\b(Const|ReadOnly)\b\s+\w*(iv|Iv|IV)\s+As\s+Byte\(\)\s*\=\s*New\s+Byte\s*\(\w*\)\s*\{") Then
-            frmMain.ListCodeIssue("Hardcoded Crypto Key", "The code appears to use hardcoded encryption keys. These can be rendered visible with the use of debugger or hex editor, exposing encrypted data.", FileName, CodeIssue.MEDIUM, CodeLine)
+            overFlowArg = New CheckOverFlowArg("Hardcoded Crypto Key", "The code appears to use hardcoded encryption keys. These can be rendered visible with the use of debugger or hex editor, exposing encrypted data.", FileName, CodeIssue.MEDIUM, CodeLine)
         End If
 
     End Sub

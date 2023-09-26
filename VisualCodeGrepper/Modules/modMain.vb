@@ -48,7 +48,10 @@ Friend Module modMain
         '== Deal with any command line options ==
         If arrArgs.Count <> 1 Then
             intIndex = 1
-            While intIndex < arrArgs.Count()
+            Dim showHelpAndExit = False
+
+            'TODO: Test me to make sure the new condition in the while is correct
+            While intIndex < arrArgs.Count() And Not showHelpAndExit
 
                 Select Case arrArgs(intIndex)
 
@@ -60,12 +63,10 @@ Friend Module modMain
 
                             If String.IsNullOrWhiteSpace(rtResultsTracker.TargetDirectory) Then
                                 LogError("No target specified (-t)")
-                                ShowHelp()
-                                Return -1
+                                showHelpAndExit = True
                             ElseIf (Directory.Exists(rtResultsTracker.TargetDirectory) = False) Then
                                 LogError("Target does not exist: {0}", rtResultsTracker.TargetDirectory)
-                                ShowHelp()
-                                Return -1
+                                showHelpAndExit = True
                             End If
                         End If
                     Case "-l", "--language"
@@ -75,16 +76,14 @@ Friend Module modMain
                             Dim language = arrArgs(intIndex)
                             If Not SetLanguage(language) Then
                                 LogError("Unrecognised language: {0}", language)
-                                ShowHelp()
-                                Return -1
+                                showHelpAndExit = True
                             End If
 
                             ' Set up associated extensions with language
                             SetSuffixes(asAppSettings.TestType)
                         Else
                             LogError("No language specified (-l)")
-                            ShowHelp()
-                            Return -1
+                            showHelpAndExit = True
                         End If
 
                     Case "-e", "--extensions"
@@ -94,8 +93,7 @@ Friend Module modMain
                             asAppSettings.FileSuffixes = arrArgs(intIndex).Split("|")
                         Else
                             LogError("No extensions provided (-e)")
-                            ShowHelp()
-                            Return -1
+                            showHelpAndExit = True
                         End If
 
                     Case "-i", "--import"
@@ -105,8 +103,7 @@ Friend Module modMain
                             If arrArgs(intIndex).ToLower.EndsWith(".xml") Then
                                 If File.Exists(arrArgs(intIndex)) = False Then
                                     LogError("Import XML file does not exist: {0}", arrArgs(intIndex))
-                                    ShowHelp()
-                                    Return -1
+                                    showHelpAndExit = True
                                 End If
 
                                 asAppSettings.IsXmlInputFile = True
@@ -116,8 +113,7 @@ Friend Module modMain
 
                                 If File.Exists(arrArgs(intIndex)) = False Then
                                     LogError("Import CSV file does not exist: {0}", arrArgs(intIndex))
-                                    ShowHelp()
-                                    Return -1
+                                    showHelpAndExit = True
                                 End If
 
                                 asAppSettings.IsCsvInputFile = True
@@ -142,8 +138,7 @@ Friend Module modMain
                             exportFlagSet = True
                         Else
                             LogError("No XML results filename provided (-x)")
-                            ShowHelp()
-                            Return -1
+                            showHelpAndExit = True
                         End If
 
                     Case "-f", "--csv-export"
@@ -155,8 +150,7 @@ Friend Module modMain
                             exportFlagSet = True
                         Else
                             LogError("No CSV results filename provided (-f)")
-                            ShowHelp()
-                            Return -1
+                            showHelpAndExit = True
                         End If
 
                     Case "-r", "--results"
@@ -168,8 +162,7 @@ Friend Module modMain
                             exportFlagSet = True
                         Else
                             LogError("No results filename provided (-r)")
-                            ShowHelp()
-                            Return -1
+                            showHelpAndExit = True
                         End If
 
                     Case "-c", "--console"
@@ -186,19 +179,28 @@ Friend Module modMain
                         ' Verbose mode
                         asAppSettings.IsVerbose = True
                     Case "--help", "/?", "-h"
-                        ShowHelp()
-                        Return -1
+                        showHelpAndExit = True
                     Case "--debug"
                         ' Expected flag, dealt with in AttachDebugger.. function
                     Case Else
                         ' Help
                         LogError($"Unknown option {arrArgs(intIndex)}")
-                        ShowHelp()
-                        Return -1
+                        showHelpAndExit = True
                 End Select
 
                 intIndex += 1
             End While
+        End If
+
+#If FIX_ME Then
+        If showHelpAndExit Then
+            HelpText()
+            If asAppSettings.IsConsole Then
+                LogBlank(strHelp)
+            Else
+                MessageBox.Show(strHelp, "Help", MessageBoxButtons.OK)
+            End If
+            Return EXIT_CODE
         End If
 
         If asAppSettings.IsConsole = True Then
@@ -208,20 +210,18 @@ Friend Module modMain
             End If
             frmMain.Hide()
         End If
-
+#End If
         Return intIndex
 
     End Function
 
 
 
-    Private Sub ShowHelp()
+    Private Function HelpText()
         ' Display help and show usage
         '============================
 
-        Dim strHelp As String
-
-        strHelp = "Visual Code Grepper (VCG) 2.0 (C) Nick Dunn And John Murray, 2012-2014.
+        Return "Visual Code Grepper (VCG) 2.0 (C) Nick Dunn And John Murray, 2012-2014.
             Usage:  VisualCodeGrepper [OPTIONS]       
     
             STARTUP:
@@ -255,15 +255,7 @@ Friend Module modMain
 
                 Supresses the UI, scans Target Directory for VB files, and saves output to a Flat File."
 
-
-        If asAppSettings.IsConsole Then
-            LogBlank(strHelp)
-        Else
-            MessageBox.Show(strHelp, "Help", MessageBoxButtons.OK)
-        End If
-
-
-    End Sub
+    End Function
 
     Private Function SetLanguage(NewLanguage As String) As Boolean
         ' Get new langauge from command line
@@ -612,13 +604,13 @@ Friend Module modMain
                 If asAppSettings.TestType = AppSettings.SQL Then
                     'TODO: Fix the cast so it will be a string
                     If (strCleanName <> "" And Regex.IsMatch(CodeLine.ToUpper, strCleanName)) Or (strCleanName = "" And CodeLine.ToUpper.Contains(CType(asAppSettings.BadFunctions(intIndex).FunctionName.toupper, String))) Then
-                        frmMain.ListCodeIssue(asAppSettings.BadFunctions(intIndex).FunctionName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
+                        overFlowArg = New CheckOverFlowArg(asAppSettings.BadFunctions(intIndex).FunctionName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
                     End If
                 Else
                     'If CodeLine.Contains(asAppSettings.BadFunctions(intIndex).FunctionName) Then
                     'TODO: Fix the cast so it will be a string
                     If (strCleanName <> "" And Regex.IsMatch(CodeLine, strCleanName)) Or (strCleanName = "" And CodeLine.Contains(CType(asAppSettings.BadFunctions(intIndex).FunctionName, String))) Then
-                        frmMain.ListCodeIssue(strTidyFuncName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
+                        overFlowArg = New CheckOverFlowArg(strTidyFuncName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
                     End If
                 End If
                 strCleanName = ""
@@ -650,7 +642,7 @@ Friend Module modMain
 
             '== Check for possible hard-coded passwords ==
             If CodeLine.ToLower().Contains("password ") And (InStr(CodeLine.ToLower(), "password") < InStr(CodeLine, "= """)) And Not (CodeLine.Contains("''") Or CodeLine.Contains("""""")) Then
-                frmMain.ListCodeIssue("Code Appears to Contain Hard-Coded Password", "The code may contain a hard-coded password which an attacker could obtain from the source or by dis-assembling the executable. Please manually review the code:", FileName, CodeIssue.MEDIUM, CodeLine)
+                overFlowArg = New CheckOverFlowArg("Code Appears to Contain Hard-Coded Password", "The code may contain a hard-coded password which an attacker could obtain from the source or by dis-assembling the executable. Please manually review the code:", FileName, CodeIssue.MEDIUM, CodeLine)
             End If
         End If
 
@@ -737,28 +729,28 @@ Friend Module modMain
                 .ListMemoryIssue(ctCodeTracker.GetMemAssign)
             ElseIf asAppSettings.TestType = AppSettings.JAVA Then
                 If ctCodeTracker.ImplementsClone = True Then
-                    .ListCodeIssue("Class Implements Public 'clone' Method", "Cloning allows an attacker to instantiate a class without running any of the class constructors by deploying hostile code in the JVM.", FileName, CodeIssue.MEDIUM)
+                    overFlowArg = New CheckOverFlowArg("Class Implements Public 'clone' Method", "Cloning allows an attacker to instantiate a class without running any of the class constructors by deploying hostile code in the JVM.", FileName, CodeIssue.MEDIUM)
                 End If
                 If ctCodeTracker.IsSerialize = True Then
-                    .ListCodeIssue("Class Implements Serialization", "Serialization can be used to save objects (and their state) when the JVM is switched off. The process flattens the object, saving it as a stream of bytes, allowing an attacker to view the inner state of an object and potentially view private attributes.", FileName, CodeIssue.MEDIUM)
+                    overFlowArg = New CheckOverFlowArg("Class Implements Serialization", "Serialization can be used to save objects (and their state) when the JVM is switched off. The process flattens the object, saving it as a stream of bytes, allowing an attacker to view the inner state of an object and potentially view private attributes.", FileName, CodeIssue.MEDIUM)
                 End If
                 If ctCodeTracker.IsDeserialize = True Then
-                    .ListCodeIssue("Class Implements Deserialization", "Deserialization allows the creation of an object from a stream of bytes, allowing the instantiation of a legitimate class without calling its constructor. This behaviour can be abused by an attacker to instantiate or replicate an object’s state.", FileName, CodeIssue.MEDIUM)
+                    overFlowArg = New CheckOverFlowArg("Class Implements Deserialization", "Deserialization allows the creation of an object from a stream of bytes, allowing the instantiation of a legitimate class without calling its constructor. This behaviour can be abused by an attacker to instantiate or replicate an object’s state.", FileName, CodeIssue.MEDIUM)
                 End If
                 If ctCodeTracker.HasXXEEnabled = True Then
-                    .ListCodeIssue("XML Entity Expansion", "The class Uses JAXB and may allow XML entity expansion, which can render the application vulnerable to the use of XML bombs. Manually confirm that JAXB 2.0 or later is in use, which is not vulnerable, otherwise check the feasibility of disabling this feature and check for validation of incoming data.", FileName, CodeIssue.STANDARD)
+                    overFlowArg = New CheckOverFlowArg("XML Entity Expansion", "The class Uses JAXB and may allow XML entity expansion, which can render the application vulnerable to the use of XML bombs. Manually confirm that JAXB 2.0 or later is in use, which is not vulnerable, otherwise check the feasibility of disabling this feature and check for validation of incoming data.", FileName, CodeIssue.STANDARD)
                 End If
                 If ctCodeTracker.IsFileOpen = True Then
-                    .ListCodeIssue("Failure To Release Resources In All Cases", "There appears to be no 'finally' block to release resources if an exception occurs, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
+                    overFlowArg = New CheckOverFlowArg("Failure To Release Resources In All Cases", "There appears to be no 'finally' block to release resources if an exception occurs, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
                     If ctCodeTracker.HasTry = False Then
-                        .ListCodeIssue("FileStream Opened Without Exception Handling", "There appears to be no 'try' block to safely open the filestream, potentially resulting in server-side exceptions.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
+                        overFlowArg = New CheckOverFlowArg("FileStream Opened Without Exception Handling", "There appears to be no 'try' block to safely open the filestream, potentially resulting in server-side exceptions.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
                     End If
                 End If
                 If ctCodeTracker.HasResourceRelease = False Then
-                    .ListCodeIssue("Failure To Release Resources In All Cases", "There appears to be no release of resources in the 'finally' block, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
+                    overFlowArg = New CheckOverFlowArg("Failure To Release Resources In All Cases", "There appears to be no release of resources in the 'finally' block, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
                 End If
             ElseIf asAppSettings.TestType = AppSettings.COBOL And ctCodeTracker.ProgramId.Trim() = "" Then
-                .ListCodeIssue("File Has No PROGRAM-ID", "The file does not appear to include a PROGRAM-ID. The lack of a properly formatted identification division can make code more difficult to read and maintain.", FileName, CodeIssue.LOW)
+                overFlowArg = New CheckOverFlowArg("File Has No PROGRAM-ID", "The file does not appear to include a PROGRAM-ID. The lack of a properly formatted identification division can make code more difficult to read and maintain.", FileName, CodeIssue.LOW)
             End If
         End With
 
