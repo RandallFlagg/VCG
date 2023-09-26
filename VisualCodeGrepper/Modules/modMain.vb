@@ -18,27 +18,27 @@ Option Explicit On
 Imports System.IO
 Imports System.Text.RegularExpressions
 
-Public Module modMain
+Friend Module modMain
 
     '== Array to be used when sorting on multiple coilumns ==
-    Public dicColumns As New Dictionary(Of String, Integer)
+    Friend dicColumns As New Dictionary(Of String, Integer)
 
     '== Class instance to hold app settings ==
-    Public asAppSettings As New AppSettings
+    Friend asAppSettings As New AppSettings
 
     '== Class instances to track details of file/code scanning operations ==
-    Public ctCodeTracker As New CodeTracker
-    Public rtResultsTracker As New ResultsTracker
+    Friend ctCodeTracker As New CodeTracker
+    Friend rtResultsTracker As New ResultsTracker
 
     '== Used for sharing data between main chart and individual charts ==
-    Public strCurrentFileName As String = ""
-    Public intComments As Integer = 0
-    Public intCodeIssues As Integer = 0
+    Friend strCurrentFileName As String = ""
+    Friend intComments As Integer = 0
+    Friend intCodeIssues As Integer = 0
 
     '== Placeholder to be used when modifying severity levels ==
-    Public intNewSeverity As Integer = -1
+    Friend intNewSeverity As Integer = -1
 
-    Public Function ParseArgs() As Integer
+    Friend Function ParseArgs() As Integer
         ' Read any command line args and start application as appropriate
         '================================================================
         Dim intIndex As Integer
@@ -215,7 +215,7 @@ Public Module modMain
 
 
 
-    Public Sub ShowHelp()
+    Private Sub ShowHelp()
         ' Display help and show usage
         '============================
 
@@ -297,7 +297,7 @@ Public Module modMain
 
     End Function
 
-    Public Sub LaunchNPP(FileName As String, Optional LineNumber As Integer = 1)
+    Friend Sub LaunchNPP(FileName As String, Optional LineNumber As Integer = 1)
         ' Launch NPP if available, launch Notepad if not
         '===============================================
 
@@ -311,7 +311,7 @@ Public Module modMain
     End Sub
 
     <Obsolete("Not currently integrated. Coming soon!", True)>
-    Public Sub LaunchVSCode(FileName As String, Optional LineNumber As Integer = 1)
+    Private Sub LaunchVSCode(FileName As String, Optional LineNumber As Integer = 1)
         ' Launch VS Codeif available, launch Notepad if not
         '===============================================
 
@@ -323,7 +323,7 @@ Public Module modMain
         End Try
 
     End Sub
-    Public Sub SelectLanguage(Language As Integer)
+    Friend Sub SelectLanguage(Language As Integer)
         ' Set language and characteristics 
         '=================================
 
@@ -448,7 +448,7 @@ Public Module modMain
 
     End Sub
 
-    Public Sub SetSuffixes(Language As Integer)
+    Private Sub SetSuffixes(Language As Integer)
         ' Set the filetypes to scan
         '==========================
 
@@ -482,7 +482,7 @@ Public Module modMain
 
     End Sub
 
-    Public Sub LoadUnsafeFunctionList(CurrentLanguage As Integer)
+    Friend Sub LoadUnsafeFunctionList(CurrentLanguage As Integer)
         ' Load appropriate list of bad functions from file (dependent on selected language)
         '==================================================================================
 
@@ -500,16 +500,17 @@ Public Module modMain
         ' Check file exists 
         If Not File.Exists(asAppSettings.BadFuncFile) Then
 
+            'TODO: Should AppSettings.ApplicationDirectory be changed to a different value?
             ' Restore default file in case of bad registry entries, user placing non-existent file in Options dialog, etc.
             Select Case CurrentLanguage
                 Case AppSettings.C
-                    asAppSettings.BadFuncFile = Path.Combine(Application.StartupPath, "config\cppfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "config\cppfunctions.conf")
                 Case AppSettings.JAVA
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "javafunctions.conf")
                 Case AppSettings.SQL
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "plsqlfunctions.conf")
                 Case AppSettings.CSHARP
-                    asAppSettings.BadFuncFile = Path.Combine(Application.StartupPath, "config\csfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "config\csfunctions.conf")
                 Case AppSettings.VB
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "vbfunctions.conf")
                 Case AppSettings.PHP
@@ -563,12 +564,12 @@ Public Module modMain
 
         ' Fix to stop temp content being wiped at start of scan
         If asAppSettings.TempGrepText <> "" Then
-            frmOptions.LoadTempGrepContent(asAppSettings.TempGrepText)
+            SharedCode.LoadTempGrepContent(asAppSettings.TempGrepText)
         End If
 
     End Sub
 
-    Public Sub LoadBadComments()
+    Friend Sub LoadBadComments()
         ' Get list of bad comments from config file
         '==========================================
 
@@ -586,7 +587,7 @@ Public Module modMain
 
     End Sub
 
-    Public Sub CheckCode(CodeLine As String, FileName As String)
+    Friend Sub CheckCode(CodeLine As String, FileName As String)
         ' Scan line of code for anything requiring attention and return results
         '======================================================================
 
@@ -654,7 +655,7 @@ Public Module modMain
         End If
 
     End Sub
-    Public Function GetVarName(CodeLine As String, Optional SplitOnEquals As Boolean = False) As String
+    Friend Function GetVarName(CodeLine As String, Optional SplitOnEquals As Boolean = False) As String
         ' Extract the variable name from a line of code
         '==============================================
         Dim strVarName As String = ""
@@ -681,7 +682,7 @@ Public Module modMain
 
     End Function
 
-    Public Function GetLastItem(ListString As String, Optional Separator As String = " ") As String
+    Friend Function GetLastItem(ListString As String, Optional Separator As String = " ") As String
         'Split string on specified character (default: space) and return last item
         '=========================================================================
         Dim strRetVal As String = ""
@@ -704,7 +705,7 @@ Public Module modMain
 
     End Function
 
-    Public Function GetFirstItem(ListString As String, Optional Separator As String = " ") As String
+    Friend Function GetFirstItem(ListString As String, Optional Separator As String = " ") As String
         'Split string on specified character (default: space) and return first item
         '=========================================================================
         Dim strRetVal As String = ""
@@ -727,7 +728,7 @@ Public Module modMain
 
     End Function
 
-    Public Sub CheckFileLevelIssues(FileName As String)
+    Friend Sub CheckFileLevelIssues(FileName As String)
         'List any file-level code issues (mis-matched deletes, mallocs, etc.)
         '====================================================================
 
