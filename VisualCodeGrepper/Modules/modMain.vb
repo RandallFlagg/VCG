@@ -95,7 +95,7 @@ Friend Module modMain
                             LogError("No extensions provided (-e)")
                             showHelpAndExit = True
                         End If
-
+#If FIX_ME Then
                     Case "-i", "--import"
                         ' Import XML results
                         intIndex += 1
@@ -128,7 +128,7 @@ Friend Module modMain
                         Else
                             LogError("No input filename provided (-i)")
                         End If
-
+#End If
                     Case "-x", "--export"
                         ' Automatically export XML results
                         intIndex += 1
@@ -168,7 +168,7 @@ Friend Module modMain
                     Case "-c", "--console"
                         AttachProcessToConsole()
                         asAppSettings.IsConsole = True
-                        frmMain.Visible = False
+                        'frmMain.Visible = False 'TODO: This is not the concern of this module but of who ever starts the console or the form
                         asAppSettings.DisplayBreakdownOption = False
                         asAppSettings.VisualBreakdownEnabled = False
 
@@ -315,132 +315,9 @@ Friend Module modMain
         End Try
 
     End Sub
-    Friend Sub SelectLanguage(Language As Integer)
-        ' Set language and characteristics 
-        '=================================
 
 
-        ' Set language type
-        asAppSettings.TestType = Language
-
-        '== Set the file types/suffixes for the chosen language ==
-        SetSuffixes(Language)
-
-        ' This covers most languages - the different ones will be set individually, below
-        asAppSettings.SingleLineComment = "//"
-        asAppSettings.AltSingleLineComment = ""
-
-        ' Load list of unsafe functions
-        Select Case Language
-            Case AppSettings.C
-                asAppSettings.BadFuncFile = asAppSettings.CConfFile
-                LoadUnsafeFunctionList(AppSettings.C)
-            Case AppSettings.JAVA
-                asAppSettings.BadFuncFile = asAppSettings.JavaConfFile
-                LoadUnsafeFunctionList(AppSettings.JAVA)
-            Case AppSettings.SQL
-                asAppSettings.BadFuncFile = asAppSettings.PLSQLConfFile
-                LoadUnsafeFunctionList(AppSettings.SQL)
-                asAppSettings.SingleLineComment = "--"
-            Case AppSettings.CSHARP
-                asAppSettings.BadFuncFile = asAppSettings.CSharpConfFile
-                LoadUnsafeFunctionList(AppSettings.CSHARP)
-            Case AppSettings.VB
-                asAppSettings.BadFuncFile = asAppSettings.VBConfFile
-                LoadUnsafeFunctionList(AppSettings.VB)
-                asAppSettings.SingleLineComment = "'"
-                asAppSettings.AltSingleLineComment = "REM"
-            Case AppSettings.PHP
-                asAppSettings.BadFuncFile = asAppSettings.PHPConfFile
-                LoadUnsafeFunctionList(AppSettings.PHP)
-                asAppSettings.SingleLineComment = "//"
-                asAppSettings.AltSingleLineComment = "\#"   ' This will be used in a regex so it must be escaped
-            Case AppSettings.COBOL
-                asAppSettings.BadFuncFile = asAppSettings.COBOLConfFile
-                LoadUnsafeFunctionList(AppSettings.COBOL)
-                asAppSettings.SingleLineComment = "*"
-                asAppSettings.AltSingleLineComment = "\/"   ' This will be used in a regex so it must be escaped
-            Case AppSettings.R
-                asAppSettings.BadFuncFile = asAppSettings.RConfFile
-                LoadUnsafeFunctionList(AppSettings.R)
-                asAppSettings.SingleLineComment = "#"
-        End Select
-
-        ' Set the GUI to display correct options for the language
-        If asAppSettings.IsConsole = True Then Exit Sub
-
-        With frmMain
-            Select Case Language
-                Case AppSettings.C
-                    .JavaToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .PHPToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: C/C++   File Suffixes: " & asAppSettings.CSuffixes
-                Case AppSettings.JAVA
-                    .CCToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .PHPToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: Java   File Suffixes: " & asAppSettings.JavaSuffixes
-                Case AppSettings.SQL
-                    .CCToolStripMenuItem.Checked = False
-                    .JavaToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .PHPToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    asAppSettings.SingleLineComment = "--"
-                    .sslLabel.Text = "Language: PL/SQL   File Suffixes: " & asAppSettings.PLSQLSuffixes
-                Case AppSettings.CSHARP
-                    .CCToolStripMenuItem.Checked = False
-                    .JavaToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .PHPToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: C#   File Suffixes: " & asAppSettings.CSharpSuffixes
-                Case AppSettings.VB
-                    .CCToolStripMenuItem.Checked = False
-                    .JavaToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .PHPToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: VB   File Suffixes: " & asAppSettings.VBSuffixes
-                Case AppSettings.PHP
-                    .CCToolStripMenuItem.Checked = False
-                    .JavaToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: PHP   File Suffixes: " & asAppSettings.PHPSuffixes
-                Case AppSettings.COBOL
-                    .CCToolStripMenuItem.Checked = False
-                    .JavaToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: COBOL   File Suffixes: " & asAppSettings.COBOLSuffixes
-                Case AppSettings.R
-                    .CCToolStripMenuItem.Checked = False
-                    .JavaToolStripMenuItem.Checked = False
-                    .PLSQLToolStripMenuItem.Checked = False
-                    .CSToolStripMenuItem.Checked = False
-                    .VBToolStripMenuItem.Checked = False
-                    .COBOLToolStripMenuItem.Checked = False
-                    .sslLabel.Text = "Language: R   File Suffixes: " & asAppSettings.RSuffixes
-            End Select
-        End With
-
-    End Sub
-
-    Private Sub SetSuffixes(Language As Integer)
+    Friend Sub SetSuffixes(Language As Integer)
         ' Set the filetypes to scan
         '==========================
 
@@ -720,40 +597,5 @@ Friend Module modMain
 
     End Function
 
-    Friend Sub CheckFileLevelIssues(FileName As String)
-        'List any file-level code issues (mis-matched deletes, mallocs, etc.)
-        '====================================================================
-
-        With frmMain
-            If asAppSettings.TestType = AppSettings.C And ctCodeTracker.GetMemAssign.Count > 0 Then
-                .ListMemoryIssue(ctCodeTracker.GetMemAssign)
-            ElseIf asAppSettings.TestType = AppSettings.JAVA Then
-                If ctCodeTracker.ImplementsClone = True Then
-                    overFlowArg = New CheckOverFlowArg("Class Implements Public 'clone' Method", "Cloning allows an attacker to instantiate a class without running any of the class constructors by deploying hostile code in the JVM.", FileName, CodeIssue.MEDIUM)
-                End If
-                If ctCodeTracker.IsSerialize = True Then
-                    overFlowArg = New CheckOverFlowArg("Class Implements Serialization", "Serialization can be used to save objects (and their state) when the JVM is switched off. The process flattens the object, saving it as a stream of bytes, allowing an attacker to view the inner state of an object and potentially view private attributes.", FileName, CodeIssue.MEDIUM)
-                End If
-                If ctCodeTracker.IsDeserialize = True Then
-                    overFlowArg = New CheckOverFlowArg("Class Implements Deserialization", "Deserialization allows the creation of an object from a stream of bytes, allowing the instantiation of a legitimate class without calling its constructor. This behaviour can be abused by an attacker to instantiate or replicate an object’s state.", FileName, CodeIssue.MEDIUM)
-                End If
-                If ctCodeTracker.HasXXEEnabled = True Then
-                    overFlowArg = New CheckOverFlowArg("XML Entity Expansion", "The class Uses JAXB and may allow XML entity expansion, which can render the application vulnerable to the use of XML bombs. Manually confirm that JAXB 2.0 or later is in use, which is not vulnerable, otherwise check the feasibility of disabling this feature and check for validation of incoming data.", FileName, CodeIssue.STANDARD)
-                End If
-                If ctCodeTracker.IsFileOpen = True Then
-                    overFlowArg = New CheckOverFlowArg("Failure To Release Resources In All Cases", "There appears to be no 'finally' block to release resources if an exception occurs, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
-                    If ctCodeTracker.HasTry = False Then
-                        overFlowArg = New CheckOverFlowArg("FileStream Opened Without Exception Handling", "There appears to be no 'try' block to safely open the filestream, potentially resulting in server-side exceptions.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
-                    End If
-                End If
-                If ctCodeTracker.HasResourceRelease = False Then
-                    overFlowArg = New CheckOverFlowArg("Failure To Release Resources In All Cases", "There appears to be no release of resources in the 'finally' block, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
-                End If
-            ElseIf asAppSettings.TestType = AppSettings.COBOL And ctCodeTracker.ProgramId.Trim() = "" Then
-                overFlowArg = New CheckOverFlowArg("File Has No PROGRAM-ID", "The file does not appear to include a PROGRAM-ID. The lack of a properly formatted identification division can make code more difficult to read and maintain.", FileName, CodeIssue.LOW)
-            End If
-        End With
-
-    End Sub
 
 End Module

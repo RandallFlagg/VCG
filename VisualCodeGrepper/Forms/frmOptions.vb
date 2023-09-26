@@ -59,7 +59,7 @@ Public Class frmOptions
         AssignFileSuffixes()
 
         ' Set test language 
-        SelectLanguage(cboCurrentLanguage.SelectedIndex)
+        frmMain.SelectLanguage(cboCurrentLanguage.SelectedIndex) 'TODO: Find a better way to call this method
         asAppSettings.StartType = cboStartUpLanguage.SelectedIndex
 
         ' Set conf file locations
