@@ -1,4 +1,5 @@
-﻿Public Class frmLoading
+﻿Imports VisualCodeGrepper.NETCore.Lib
+Public Class frmLoading
     Private Sub frmLoading_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         asAppSettings.AbortCurrentOperation = False
     End Sub

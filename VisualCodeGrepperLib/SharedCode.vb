@@ -1,20 +1,20 @@
 ﻿Imports System.Text.RegularExpressions
 
-Module CHANGE_THE_CODE
-    Friend overFlowArg As CheckOverFlowArg
+Public Module CHANGE_THE_CODE
+    Public overFlowArg As CheckOverFlowArg
 End Module
 
 Namespace SharedCode
 
     'TODO: If this will be changed to class all methods here should be Friend Shared
-    Friend Module SharedCode
+    Public Module SharedCode
         Friend Event CheckOverFlow_Event(sender As Object, args As CheckOverFlowArg)
 
         Friend Sub FireEvent(sender As Object, overFlowArg As CheckOverFlowArg)
             RaiseEvent CheckOverFlow_Event(sender, overFlowArg)
         End Sub
 
-        Friend Sub LoadTempGrepContent(TempGrepText As String)
+        Public Sub LoadTempGrepContent(TempGrepText As String)
             ' Take content of temp grep box and add to the list of bad functions
             '===================================================================
             Dim arrTempGrepContent As String()

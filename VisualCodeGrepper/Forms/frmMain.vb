@@ -21,6 +21,8 @@ Imports System.ComponentModel
 Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Xml
+Imports VisualCodeGrepper.NETCore.Lib
+
 'Imports System.Runtime.CompilerServices
 'Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 'Imports System.Windows.Controls

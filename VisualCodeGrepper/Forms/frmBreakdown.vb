@@ -14,6 +14,8 @@
 ' You should have received a copy of the GNU General Public License
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+Imports VisualCodeGrepper.NETCore.Lib
+
 Public Class frmBreakdown
 
     Private Sub dgvResults_CellContentClick(sender As System.Object, e As System.Windows.Forms.DataGridViewCellEventArgs) Handles dgvResults.CellDoubleClick

@@ -18,7 +18,7 @@ Option Explicit On
 
 Imports System.Text.RegularExpressions
 
-Module modPHPCheck
+Public Module modPHPCheck
 
     ' Specific checks for PHP code
     '=============================

@@ -15,6 +15,7 @@
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Imports System.Text.RegularExpressions
+Imports VisualCodeGrepper.NETCore.Lib
 
 
 Public Class frmOptions

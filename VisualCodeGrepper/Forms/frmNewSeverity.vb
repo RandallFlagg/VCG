@@ -1,4 +1,6 @@
-﻿Public Class frmNewSeverity
+﻿Imports VisualCodeGrepper.NETCore.Lib
+
+Public Class frmNewSeverity
 
     Private Sub btnCancel_Click(sender As System.Object, e As System.EventArgs) Handles btnCancel.Click
         ' Set severity marker to 'do nothing' and close form

@@ -1,4 +1,4 @@
-﻿Module modLogger
+﻿Public Module modLogger
     ''' <summary>
     ''' Writes a log message in the Information category.
     ''' </summary>

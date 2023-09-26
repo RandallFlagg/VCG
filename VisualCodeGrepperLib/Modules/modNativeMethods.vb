@@ -1,7 +1,7 @@
 ﻿Imports System.CodeDom
 Imports System.Runtime.InteropServices
 
-Module modNativeMethods
+Public Module modNativeMethods
 
     ' COM Function to attach the Windows app to the console
     ' Marked as Private as code below will check if they need to be called
@@ -14,7 +14,7 @@ Module modNativeMethods
     ''' Attaches the current process to the Console Window. Since this is compiled as a Windows Application,
     ''' we need to lock the Console, so it doesn't exit early.
     ''' </summary>
-    Friend Function AttachProcessToConsole() As Boolean
+    Public Function AttachProcessToConsole() As Boolean
 
         ' Only attach once, otherwise there will be COM errors
         If (attachAttempted = False) Then
@@ -37,7 +37,7 @@ Module modNativeMethods
     ''' <summary>
     ''' Detaches the Windows App from the Console. Otherwise, the Windows App will lock the Console upon exiting.
     ''' </summary>
-    Friend Sub DetachConsole()
+    Public Sub DetachConsole()
         If (attachAttempted = True) Then
             LogInfo("##############################################")
             LogInfo("   Press <Enter> to get your prompt back      ")

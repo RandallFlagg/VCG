@@ -65,6 +65,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\VisualCodeGrepperLib\VisualCodeGrepper.NETCore.Lib.vbproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="My Project\Application.Designer.vb">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
