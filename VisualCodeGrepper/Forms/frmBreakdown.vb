@@ -63,10 +63,10 @@ Public Class frmBreakdown
         frmMain.CountFixMeComments(Me.dgvResults.Rows(e.RowIndex).Cells(8).Value)
 
         With frmIndividualBreakdown
-            .lblResults.Text = "File: " & Me.dgvResults.Rows(e.RowIndex).Cells(0).Value & vbNewLine & "Total Line Count: " & (Me.dgvResults.Rows(e.RowIndex).Cells(1).Value) _
-            & vbNewLine & vbTab & "Number of Lines of Code (including comment-appended lines):" & (Me.dgvResults.Rows(e.RowIndex).Cells(3).Value) & vbNewLine & vbTab _
-            & "Number of Comments: " & (Me.dgvResults.Rows(e.RowIndex).Cells(4).Value) & vbNewLine & vbTab & "Lines of Whitespace: " & (Me.dgvResults.Rows(e.RowIndex).Cells(5).Value) _
-            & vbNewLine & vbNewLine & "Full Path: " & (Me.dgvResults.Rows(e.RowIndex).Cells(8).Value)
+            .lblResults.Text = "File: " & Me.dgvResults.Rows(e.RowIndex).Cells(0).Value & Environment.NewLine & "Total Line Count: " & (Me.dgvResults.Rows(e.RowIndex).Cells(1).Value) _
+            & Environment.NewLine & vbTab & "Number of Lines of Code (including comment-appended lines):" & (Me.dgvResults.Rows(e.RowIndex).Cells(3).Value) & Environment.NewLine & vbTab _
+            & "Number of Comments: " & (Me.dgvResults.Rows(e.RowIndex).Cells(4).Value) & Environment.NewLine & vbTab & "Lines of Whitespace: " & (Me.dgvResults.Rows(e.RowIndex).Cells(5).Value) _
+            & Environment.NewLine & Environment.NewLine & "Full Path: " & (Me.dgvResults.Rows(e.RowIndex).Cells(8).Value)
 
             .Show()
         End With

@@ -34,9 +34,9 @@ Public Class frmIndividualBreakdown
         If intCodeIssues > 0 Then
             For Each srItem As ScanResult In rtResultsTracker.ScanResults
                 If srItem.FileName = strCurrentFileName And srItem.Severity <> CodeIssue.INFO Then
-                    strCode &= "File: " & srItem.FileName & vbNewLine
-                    strCode &= "Line: " & srItem.LineNumber & vbNewLine
-                    strCode &= "Issue: " & srItem.Title & vbNewLine & srItem.Description & vbNewLine & srItem.CodeLine & vbNewLine & vbNewLine
+                    strCode &= "File: " & srItem.FileName & Environment.NewLine
+                    strCode &= "Line: " & srItem.LineNumber & Environment.NewLine
+                    strCode &= "Issue: " & srItem.Title & Environment.NewLine & srItem.Description & Environment.NewLine & srItem.CodeLine & Environment.NewLine & Environment.NewLine
                 End If
             Next
             Clipboard.SetText(strCode)
@@ -53,8 +53,8 @@ Public Class frmIndividualBreakdown
         If intComments > 0 Then
             For Each srItem As ScanResult In rtResultsTracker.FixMeList
                 If srItem.FileName = strCurrentFileName Then
-                    strComments &= "File: " & srItem.FileName & vbNewLine
-                    strComments &= "Line: " & srItem.LineNumber & vbNewLine & "Contains: '" & srItem.CodeLine & "'" & vbNewLine & vbNewLine
+                    strComments &= "File: " & srItem.FileName & Environment.NewLine
+                    strComments &= "Line: " & srItem.LineNumber & Environment.NewLine & "Contains: '" & srItem.CodeLine & "'" & Environment.NewLine & Environment.NewLine
                 End If
             Next
             Clipboard.SetText(strComments)

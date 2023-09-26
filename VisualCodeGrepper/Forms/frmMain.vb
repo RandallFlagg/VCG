@@ -638,8 +638,8 @@ Public Class frmMain
             If CodeLine.ToLower.Contains(strComment) Then
                 blnRetVal = True
 
-                strTitle = "Comment Indicates Potentially Unfinished Code - " & vbNewLine
-                strDescription = " Line: " & rtResultsTracker.LineCount & " - " & FileName & vbNewLine
+                strTitle = "Comment Indicates Potentially Unfinished Code - " & Environment.NewLine
+                strDescription = " Line: " & rtResultsTracker.LineCount & " - " & FileName & Environment.NewLine
                 WriteResult(strTitle, strDescription, CodeLine, CodeIssue.INFO)
 
                 rtResultsTracker.FixMeCount += 1
@@ -663,7 +663,7 @@ Public Class frmMain
         Return blnRetVal
 
     End Function
-    'TODO: Change vbNewLine to System.Environment.NewLine
+    'TODO: Change Environment.NewLine to System.Environment.NewLine
     Friend Sub ListCodeIssue(sender As Object, args As CheckOverFlowArg) 'Handles codeTracker.CheckOverFlow_Event
         ' Notify user of any code issues found for the bad function list from files or the language-specific tests
         '=========================================================================================================
@@ -681,8 +681,8 @@ Public Class frmMain
         If LineNumber = 0 Then LineNumber = rtResultsTracker.LineCount
 
         ' Set issue title and description
-        strTitle = "Potentially Unsafe Code - " & FunctionName & vbNewLine
-        strDescription = "Line: " & LineNumber & " - " & FileName & vbNewLine & Description & vbNewLine
+        strTitle = "Potentially Unsafe Code - " & FunctionName & Environment.NewLine
+        strDescription = "Line: " & LineNumber & " - " & FileName & Environment.NewLine & Description & Environment.NewLine
 
         WriteResult(strTitle, strDescription, CodeLine, Severity)
 
@@ -705,13 +705,13 @@ Public Class frmMain
         Dim arrFragments As String()
 
         For Each kyKey In IssueDictionary.Keys
-            strTitle = "Potential Memory Mis-management. Variable Name: " & kyKey & vbNewLine
+            strTitle = "Potential Memory Mis-management. Variable Name: " & kyKey & Environment.NewLine
             arrDescriptions = IssueDictionary(kyKey).Split("|")
 
             For Each strItem In arrDescriptions
-                strDescription &= strItem & vbNewLine
+                strDescription &= strItem & Environment.NewLine
             Next
-            strDescription &= vbNewLine
+            strDescription &= Environment.NewLine
 
             WriteResult(strTitle, strDescription, "")
 
@@ -785,7 +785,7 @@ Public Class frmMain
 
             ' Set font style and colour for code
             If CodeLine.Trim <> "" Then
-                CodeLine &= vbNewLine & vbNewLine
+                CodeLine &= Environment.NewLine & Environment.NewLine
 
                 rtbResults.Select(lngPosition, Len(CodeLine))
                 rtbResults.SelectionFont = fntCodeFont
@@ -794,8 +794,8 @@ Public Class frmMain
                 rtbResults.AppendText(CodeLine)
                 lngPosition += Len(CodeLine)
             Else
-                rtbResults.AppendText(vbNewLine)
-                lngPosition += Len(vbNewLine)
+                rtbResults.AppendText(Environment.NewLine)
+                lngPosition += Len(Environment.NewLine)
             End If
         End If
 
@@ -924,7 +924,7 @@ Public Class frmMain
         For Each srResultItem In rtResultsTracker.ScanResults
             If (srResultItem.Severity <= intFilterMin And srResultItem.Severity >= intFilterMax) Then
                 strDescription = srResultItem.Description
-                WriteResult(srResultItem.Title & vbNewLine, strDescription & vbNewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & vbNewLine, srResultItem.CodeLine.Trim, srResultItem.Severity)
+                WriteResult(srResultItem.Title & Environment.NewLine, strDescription & Environment.NewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & Environment.NewLine, srResultItem.CodeLine.Trim, srResultItem.Severity)
             End If
 
             '== Avoid the GUI locking or hanging during processing ==
@@ -952,12 +952,12 @@ Public Class frmMain
             ' Check it is within range of severity filter
             If (idIssueDic.Value.Severity <= intFilterMin And idIssueDic.Value.Severity >= intFilterMax) Then
                 For Each arrDetails As KeyValuePair(Of Integer, String()) In idIssueDic.Value.GetDetails
-                    strDescription &= vbNewLine & "Line: " & arrDetails.Value(IssueGroup.LINE) & " - Filename: " & arrDetails.Value(IssueGroup.FILE)
-                    If arrDetails.Value(IssueGroup.CODE).Trim <> "" Then strDescription &= vbNewLine & arrDetails.Value(IssueGroup.CODE).Trim
+                    strDescription &= Environment.NewLine & "Line: " & arrDetails.Value(IssueGroup.LINE) & " - Filename: " & arrDetails.Value(IssueGroup.FILE)
+                    If arrDetails.Value(IssueGroup.CODE).Trim <> "" Then strDescription &= Environment.NewLine & arrDetails.Value(IssueGroup.CODE).Trim
                 Next
             End If
 
-            WriteResult(strTitle, strDescription & vbNewLine, "", idIssueDic.Value.Severity)
+            WriteResult(strTitle, strDescription & Environment.NewLine, "", idIssueDic.Value.Severity)
 
             '== Avoid the GUI locking or hanging during processing ==
             'Application.DoEvents()
@@ -988,13 +988,13 @@ Public Class frmMain
                 If intSeverity > fdFileDic.Value.GetSeverity(arrDetails.Key) Then intSeverity = fdFileDic.Value.GetSeverity(arrDetails.Key)
 
                 If (intSeverity <= intFilterMin And intSeverity >= intFilterMax) Then
-                    strDescription &= vbNewLine & "Line: " & arrDetails.Value(FileGroup.LINE) & " - " & arrDetails.Value(FileGroup.SEVERITY) & ": " & arrDetails.Value(FileGroup.ISSUE) & vbNewLine & arrDetails.Value(FileGroup.DESC)
+                    strDescription &= Environment.NewLine & "Line: " & arrDetails.Value(FileGroup.LINE) & " - " & arrDetails.Value(FileGroup.SEVERITY) & ": " & arrDetails.Value(FileGroup.ISSUE) & Environment.NewLine & arrDetails.Value(FileGroup.DESC)
                     If arrDetails.Value(IssueGroup.CODE).Trim <> "" Then strDescription &= arrDetails.Value(IssueGroup.CODE).Trim
                 End If
             Next
 
             ' only write to screen if the issue is within filter bounds
-            If (intSeverity <= intFilterMin And intSeverity >= intFilterMax) Then WriteResult(strTitle, strDescription & vbNewLine, "", intSeverity)
+            If (intSeverity <= intFilterMin And intSeverity >= intFilterMax) Then WriteResult(strTitle, strDescription & Environment.NewLine, "", intSeverity)
         Next
 
         '== Avoid the GUI locking or hanging during processing ==
@@ -1057,7 +1057,7 @@ Public Class frmMain
             For Each srItem As ScanResult In rtResultsTracker.FixMeList
                 If srItem.FileName = FileName Then
                     frmIndividualBreakdown.pnlResults.Visible = True
-                    frmIndividualBreakdown.lblBreakdown.Text += "Line: " & srItem.LineNumber & vbNewLine & "Contains: '" & srItem.CodeLine & "'" & vbNewLine & vbNewLine
+                    frmIndividualBreakdown.lblBreakdown.Text += "Line: " & srItem.LineNumber & Environment.NewLine & "Contains: '" & srItem.CodeLine & "'" & Environment.NewLine & Environment.NewLine
                 End If
             Next
         End If
@@ -1081,8 +1081,8 @@ Public Class frmMain
             .ShowLoading("Formatting Results", "Formatting .... ", rtResultsTracker.FixMeList.Count)
 
             For Each srItem As ScanResult In rtResultsTracker.FixMeList
-                strTitle = vbNewLine & "File: " & srItem.FileName & vbNewLine
-                strDetails = "Line: " & srItem.LineNumber & vbNewLine & "Contains: '" & srItem.CodeLine & "'" & vbNewLine
+                strTitle = Environment.NewLine & "File: " & srItem.FileName & Environment.NewLine
+                strDetails = "Line: " & srItem.LineNumber & Environment.NewLine & "Contains: '" & srItem.CodeLine & "'" & Environment.NewLine
                 .SetRtbText(strTitle)
                 .SetRtbCode(strDetails)
                 .IncrementLoadingBar(strTitle)
@@ -1303,9 +1303,9 @@ Public Class frmMain
         End With
 
         '== Show percentage breakdowns ==
-        frmBreakdown.lblResults.Text = rtResultsTracker.OverallLineCount & " Lines: " & vbNewLine & rtResultsTracker.OverallCommentCount &
-            " Comments (~" & Math.Round(Math.Abs((rtResultsTracker.OverallCommentCount / rtResultsTracker.OverallLineCount) * 100), 1) & "%)" & vbNewLine & rtResultsTracker.OverallWhitespaceCount &
-            " Lines of Whitespace (~" & Math.Round(Math.Abs((rtResultsTracker.OverallWhitespaceCount / rtResultsTracker.OverallLineCount) * 100), 1) & "%)" & vbNewLine & rtResultsTracker.OverallLineCount - (rtResultsTracker.OverallCommentCount + rtResultsTracker.OverallWhitespaceCount) &
+        frmBreakdown.lblResults.Text = rtResultsTracker.OverallLineCount & " Lines: " & Environment.NewLine & rtResultsTracker.OverallCommentCount &
+            " Comments (~" & Math.Round(Math.Abs((rtResultsTracker.OverallCommentCount / rtResultsTracker.OverallLineCount) * 100), 1) & "%)" & Environment.NewLine & rtResultsTracker.OverallWhitespaceCount &
+            " Lines of Whitespace (~" & Math.Round(Math.Abs((rtResultsTracker.OverallWhitespaceCount / rtResultsTracker.OverallLineCount) * 100), 1) & "%)" & Environment.NewLine & rtResultsTracker.OverallLineCount - (rtResultsTracker.OverallCommentCount + rtResultsTracker.OverallWhitespaceCount) &
             " Lines of Code (including comment-appended code) (~" & (100 - ((Math.Round(Math.Abs((rtResultsTracker.OverallCommentCount / rtResultsTracker.OverallLineCount) * 100), 1) + Math.Round(Math.Abs((rtResultsTracker.OverallWhitespaceCount / rtResultsTracker.OverallLineCount) * 100), 1)))) & "%)"
 
     End Sub
@@ -2568,7 +2568,7 @@ Public Class frmMain
                             '== Place result in collection and write output to screen ==
                             AddToResultCollection(srResultItem.Title, srResultItem.Description, srResultItem.FileName, srResultItem.Severity, srResultItem.LineNumber, srResultItem.CodeLine, srResultItem.IsChecked, ccConverter.ConvertToString(srResultItem.CheckColour))
                             strDescription = srResultItem.Description
-                            WriteResult(srResultItem.Title & vbNewLine, strDescription & vbNewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & vbNewLine, srResultItem.CodeLine, srResultItem.Severity)
+                            WriteResult(srResultItem.Title & Environment.NewLine, strDescription & Environment.NewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & Environment.NewLine, srResultItem.CodeLine, srResultItem.Severity)
                         End If
                     End With
 
@@ -2774,7 +2774,7 @@ Public Class frmMain
                         ' Sanitise free-form text to prevent quotes from breaking things
                         strDescription = itmItem.Description.Replace("""", """""")
                         strCodeLine = itmItem.CodeLine.Replace("""", """""")
-                        strDescription = itmItem.Description.Replace(vbNewLine, "")
+                        strDescription = itmItem.Description.Replace(Environment.NewLine, "")
 
 
                         If SaveCheckState Then
@@ -2893,7 +2893,7 @@ Public Class frmMain
                             '== Place result in collection and write output to screen ==
                             AddToResultCollection(srResultItem.Title, srResultItem.Description, srResultItem.FileName, srResultItem.Severity, srResultItem.LineNumber, srResultItem.CodeLine, srResultItem.IsChecked, ccConverter.ConvertToString(srResultItem.CheckColour))
                             strDescription = srResultItem.Description
-                            WriteResult(srResultItem.Title & vbNewLine, strDescription & vbNewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & vbNewLine, srResultItem.CodeLine, srResultItem.Severity)
+                            WriteResult(srResultItem.Title & Environment.NewLine, strDescription & Environment.NewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & Environment.NewLine, srResultItem.CodeLine, srResultItem.Severity)
                         End If
 
                         If asAppSettings.IsConsole = False Then IncrementLoadingBar("Reading CSV element: " & srResultItem.Description)
@@ -2957,7 +2957,7 @@ Public Class frmMain
 
                 '== Add to rich text ==
                 strDescription = srResultItem.Description
-                WriteResult(srResultItem.Title & vbNewLine, strDescription & vbNewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & vbNewLine, srResultItem.CodeLine.Trim, srResultItem.Severity)
+                WriteResult(srResultItem.Title & Environment.NewLine, strDescription & Environment.NewLine & "Line: " & srResultItem.LineNumber & " - Filename: " & srResultItem.FileName & Environment.NewLine, srResultItem.CodeLine.Trim, srResultItem.Severity)
 
                 '== Add to listview ==
                 lviItem = New ListViewItem With {

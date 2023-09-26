@@ -85,7 +85,7 @@ Public Class AppSettings
     '== Initialise arrays at start - these hold bad stuff to look for ==
     '-------------------------------------------------------------------
     ' Comments indicating untrusted/unfinished code
-    'Public BadComments As Array = {"fixme", "fix me", "todo" & vbNewLine, "to do" & vbNewLine, "todo ", "todo:", "to do ", "wtf", "???", "hardcoded", "hard coded", "removeme", "dangerous method", "fixthis", "fix this", "crap", "shit", "bodge", "kludge", "kluge", "dunno", "assume"}
+    'Public BadComments As Array = {"fixme", "fix me", "todo" & Environment.NewLine, "to do" & Environment.NewLine, "todo ", "todo:", "to do ", "wtf", "???", "hardcoded", "hard coded", "removeme", "dangerous method", "fixthis", "fix this", "crap", "shit", "bodge", "kludge", "kluge", "dunno", "assume"}
     Public BadComments As New ArrayList
     'Public CommentArraySize As Integer = 21
 

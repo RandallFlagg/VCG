@@ -22,7 +22,7 @@ Namespace SharedCode
             Dim arrFuncList As String()
 
 
-            arrTempGrepContent = TempGrepText.Split(vbNewLine)
+            arrTempGrepContent = TempGrepText.Split(Environment.NewLine)
 
             Try
                 For Each strLine In arrTempGrepContent

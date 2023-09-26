@@ -373,7 +373,7 @@ Module modJavaCheck
 
                 For Each itmItem In ctCodeTracker.GlobalVars
                     If CodeLine.Contains(itmItem.Key) Then
-                        overFlowArg = New CheckOverFlowArg("Possible Race Condition", "A HttpServlet instance variable is being used/modified without a synchronize block: " & itmItem.Key & vbNewLine & "Check if any code which calls this code is thread-safe.", FileName, CodeIssue.MEDIUM)
+                        overFlowArg = New CheckOverFlowArg("Possible Race Condition", "A HttpServlet instance variable is being used/modified without a synchronize block: " & itmItem.Key & Environment.NewLine & "Check if any code which calls this code is thread-safe.", FileName, CodeIssue.MEDIUM)
                         Exit For
                     End If
                 Next
