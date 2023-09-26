@@ -5,13 +5,7 @@
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>WINDOWS,CONSOLE</DefineConstants>
-  </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>WINDOWS,CONSOLE</DefineConstants>
-  </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Forms\**" />

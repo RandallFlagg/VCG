@@ -18,7 +18,7 @@ Public Module modNativeMethods
 
         ' Only attach once, otherwise there will be COM errors
         If (attachAttempted = False) Then
-            AttachConsole(ATTACH_PARENT_PROCESS)
+            Dim a = AttachConsole(ATTACH_PARENT_PROCESS)
             attachAttempted = True
             LogBlank()
             LogInfo("==============================================")

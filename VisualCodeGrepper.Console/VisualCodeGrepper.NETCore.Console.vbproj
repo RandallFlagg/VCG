@@ -8,6 +8,14 @@
     <MyType></MyType>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>CONSOLE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>CONSOLE</DefineConstants>
+  </PropertyGroup>
+  
   <ItemGroup>
     <Compile Remove="My Project\AssemblyInfo.vb" />
     <Compile Remove="My Project\Resources.Designer.vb" />
@@ -53,11 +61,11 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup>
+  <!--ItemGroup>
     <Import Include="System.Data" />
     <Import Include="System.Drawing" />
     <Import Include="System.Windows.Forms" />
-  </ItemGroup>
+  </ItemGroup-->
 
   <ItemGroup>
     <ProjectReference Include="..\VisualCodeGrepperLib\VisualCodeGrepper.NETCore.Lib.vbproj" />

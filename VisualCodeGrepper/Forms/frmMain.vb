@@ -1513,7 +1513,7 @@ Public Class frmMain
         asAppSettings.RConfFile = GetSetting("VisualCodeGrepper", "Startup", "RConfFile", Application.StartupPath & "Config\rfunctions.conf")
 
         ' Parse and process any command line args
-        Dim intIndex = ParseArgs()
+        Dim intIndex = ParseArgs(Environment.GetCommandLineArgs())
 
         ' Early exit
         If intIndex = EXIT_CODE Then

@@ -2,6 +2,7 @@
 
 Public Module CHANGE_THE_CODE
     Public overFlowArg As CheckOverFlowArg
+    Public EXIT_CODE = -1
 End Module
 
 Namespace SharedCode

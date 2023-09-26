@@ -38,17 +38,17 @@ Public Module modMain
     '== Placeholder to be used when modifying severity levels ==
     Public intNewSeverity As Integer = -1
 
-    Public Function ParseArgs() As Integer
+    Public Function ParseArgs(arrArgs As IEnumerable(Of String)) As Integer
         ' Read any command line args and start application as appropriate
         '================================================================
-        Dim intIndex As Integer
-        Dim arrArgs() As String = Environment.GetCommandLineArgs()
+        Dim intIndex = 0
         Dim exportFlagSet = False
+        Dim showHelpAndExit = True
 
         '== Deal with any command line options ==
         If arrArgs.Count <> 1 Then
             intIndex = 1
-            Dim showHelpAndExit = False
+            showHelpAndExit = False
 
             'TODO: Test me to make sure the new condition in the while is correct
             While intIndex < arrArgs.Count() And Not showHelpAndExit
@@ -166,7 +166,9 @@ Public Module modMain
                         End If
 
                     Case "-c", "--console"
+#If WINDOWS Then
                         AttachProcessToConsole()
+#End If
                         asAppSettings.IsConsole = True
                         'frmMain.Visible = False 'TODO: This is not the concern of this module but of who ever starts the console or the form
                         asAppSettings.DisplayBreakdownOption = False
@@ -192,25 +194,30 @@ Public Module modMain
             End While
         End If
 
-#If FIX_ME Then
         If showHelpAndExit Then
-            HelpText()
+            Dim strHelp = HelpText()
+            '#If CONSOLE Then
             If asAppSettings.IsConsole Then
                 LogBlank(strHelp)
             Else
-                MessageBox.Show(strHelp, "Help", MessageBoxButtons.OK)
+                '#ElseIf WINDOWS Then
+#If FIX_ME Then
+                'MessageBox.Show(strHelp, "Help", MessageBoxButtons.OK)
+#End If
             End If
+            '#End If
+
             Return EXIT_CODE
         End If
 
         If asAppSettings.IsConsole = True Then
-            If exportFlagSet = False Then
+            If Not exportFlagSet Then
                 LogError("ERROR: No output flag set (i.e. XML, CSV, Flat), so no results will be generated. Exiting...")
-                Return -1
+                Return EXIT_CODE
             End If
-            frmMain.Hide()
+            'frmMain.Hide() 'This is the responsability of who ever is calling the windows or console application
         End If
-#End If
+
         Return intIndex
 
     End Function
@@ -222,6 +229,7 @@ Public Module modMain
         '============================
 
         Return "Visual Code Grepper (VCG) 2.0 (C) Nick Dunn And John Murray, 2012-2014.
+            Visual Code Grepper (VCG) 2.0 (C) RandallFlagg O@G, 2023.
             Usage:  VisualCodeGrepper [OPTIONS]       
     
             STARTUP:
