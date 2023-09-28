@@ -43,31 +43,32 @@ Public Module modMain
         '================================================================
         Dim intIndex = 0
         Dim exportFlagSet = False
-        Dim showHelpAndExit = True
+        Dim showHelpAndExit = False
 
         '== Deal with any command line options ==
         If arrArgs.Count <> 1 Then
             intIndex = 1
-            showHelpAndExit = False
 
-            'TODO: Test me to make sure the new condition in the while is correct
-            While intIndex < arrArgs.Count() And Not showHelpAndExit
+            While intIndex < arrArgs.Count AndAlso Not showHelpAndExit
 
                 Select Case arrArgs(intIndex)
 
                     Case "-t", "--target"
                         ' Set target
                         intIndex += 1
-                        If intIndex < arrArgs.Count() Then
+                        If intIndex < arrArgs.Count Then
                             rtResultsTracker.TargetDirectory = arrArgs(intIndex)
 
                             If String.IsNullOrWhiteSpace(rtResultsTracker.TargetDirectory) Then
                                 LogError("No target specified (-t)")
                                 showHelpAndExit = True
-                            ElseIf (Directory.Exists(rtResultsTracker.TargetDirectory) = False) Then
+                            ElseIf Not Directory.Exists(rtResultsTracker.TargetDirectory) Then
                                 LogError("Target does not exist: {0}", rtResultsTracker.TargetDirectory)
                                 showHelpAndExit = True
                             End If
+                        Else
+                            LogError("No target specified (-t)")
+                            showHelpAndExit = True
                         End If
                     Case "-l", "--language"
                         ' Set language
@@ -89,7 +90,7 @@ Public Module modMain
                     Case "-e", "--extensions"
                         ' Set file extensions
                         intIndex += 1
-                        If intIndex < arrArgs.Count() Then
+                        If intIndex < arrArgs.Count Then
                             asAppSettings.FileSuffixes = arrArgs(intIndex).Split("|")
                         Else
                             LogError("No extensions provided (-e)")
@@ -194,6 +195,7 @@ Public Module modMain
             End While
         End If
 
+        'TODO: All the logic from here on should be taken out and be handled by the consumer and not by the LIB?
         If showHelpAndExit Then
             Dim strHelp = HelpText()
             '#If CONSOLE Then
@@ -210,7 +212,7 @@ Public Module modMain
             Return EXIT_CODE
         End If
 
-        If asAppSettings.IsConsole = True Then
+        If asAppSettings.IsConsole Then
             If Not exportFlagSet Then
                 LogError("ERROR: No output flag set (i.e. XML, CSV, Flat), so no results will be generated. Exiting...")
                 Return EXIT_CODE

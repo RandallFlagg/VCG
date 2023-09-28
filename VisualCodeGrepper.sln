@@ -17,7 +17,7 @@ Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore",
 EndProject
 Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore.Lib", "VisualCodeGrepperLib\VisualCodeGrepper.NETCore.Lib.vbproj", "{398CA571-AFE3-43E4-AB55-37528CCD5FB5}"
 EndProject
-Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore.Console", "VisualCodeGrepper.Console\VisualCodeGrepper.NETCore.Console.vbproj", "{312D9E8A-C2FE-4C54-8A7B-D9A8BC8E0D0A}"
+Project("{778DAE3C-4631-46EA-AA77-85C1314464D9}") = "VisualCodeGrepper.NETCore.Terminal", "VisualCodeGrepper.Console\VisualCodeGrepper.NETCore.Terminal.vbproj", "{312D9E8A-C2FE-4C54-8A7B-D9A8BC8E0D0A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "VisualCodeGrepper.NETCore.Console": {
+      "commandName": "Project",
+      "commandLineArgs": "-l cs -r Output.txt -t \"V:\\VCG Test Project\""
+      //"commandLineArgs": "-c -l cs -r Output.txt -t"
+      //"commandLineArgs": "/?"
+    }
+  }
+}

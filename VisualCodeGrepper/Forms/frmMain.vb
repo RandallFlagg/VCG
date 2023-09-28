@@ -18,6 +18,7 @@
 Option Explicit On
 
 Imports System.ComponentModel
+Imports System.Drawing.Drawing2D
 Imports System.IO
 Imports System.Text.RegularExpressions
 Imports System.Xml
@@ -27,7 +28,8 @@ Imports VisualCodeGrepper.NETCore.Lib
 'Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 'Imports System.Windows.Controls
 
-Public Class frmMain
+Friend Class frmMain
+    Implements IAppMode
 
     '===============================
     '== Columns for summary table ==
@@ -93,7 +95,7 @@ Public Class frmMain
 
         If Not Windows.Forms.DialogResult.Cancel Then
             strTargetFolder = Me.fbFolderBrowser.SelectedPath.ToString
-            LoadFiles(strTargetFolder)
+            LoadFiles(Me, strTargetFolder)
         End If
 
     End Sub
@@ -109,31 +111,10 @@ Public Class frmMain
 
         If Not Windows.Forms.DialogResult.Cancel Then
             strTargetFile = ofdOpenFileDialog.FileName
-            LoadFiles(strTargetFile)
+            LoadFiles(Me, strTargetFile)
         End If
 
     End Sub
-
-    Private Function CheckFileType(ByVal TargetFile As String) As Boolean
-        ' Check file type is consistent with required language
-        ' This includes extensions, and exact filenames
-        '=====================================================
-
-        TargetFile = TargetFile.ToLower()
-
-        Dim ext = Path.GetExtension(TargetFile)
-        Dim fileName = Path.GetFileName(TargetFile)
-
-        If asAppSettings.FileSuffixes.Contains(ext) Then
-            Return True
-        ElseIf asAppSettings.FileSuffixes.Contains(fileName) Then
-            Return True
-        Else
-            Return False
-        End If
-
-
-    End Function
 
     Private Sub CCToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CCToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
@@ -322,19 +303,18 @@ Public Class frmMain
 
     End Sub
 
-    Public Sub DisplayError(exception As Exception, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
+    Private Sub IAppMode_DisplayError(exception As Exception, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = 64) Implements IAppMode.DisplayError
         ' Display error message to user, depending on GUI/Console mode
         '=============================================================
 
         If asAppSettings.IsConsole Then
             LogError($"{exception}")
         Else
-            DisplayError(exception.Message, Caption, MsgBoxStyle)
+            IAppMode_DisplayError(exception.Message, Caption, MsgBoxStyle)
         End If
-
     End Sub
 
-    Public Sub DisplayError(message As String, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
+    Private Sub IAppMode_DisplayError(message As String, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = 64) Implements IAppMode.DisplayError
         ' Display error message to user, depending on GUI/Console mode
         '=============================================================
 
@@ -343,10 +323,9 @@ Public Class frmMain
         Else
             MsgBox(message, MsgBoxStyle, Caption)
         End If
-
     End Sub
 
-    Public Sub ScanFiles(CommentScan As Boolean, CodeScan As Boolean)
+    Public Sub IAppMode_ScanFiles(CommentScan As Boolean, CodeScan As Boolean) Implements IAppMode.ScanFiles
         ' Iterate through the files in the directory and compile the results
         '===================================================================
 
@@ -375,7 +354,7 @@ Public Class frmMain
         If asAppSettings.IsOutputFile Then swOutputFile = New StreamWriter(asAppSettings.OutputFile)
 
         ' Ensure progress is reported correctly.
-        frmLoading.pbProgressBar.Value = 0
+        frmLoading.pbProgressBar.Value = 0 'TODO: need to add a check for  If Not asAppSettings.IsConsole Then
 
         '== Iterate through files in selected directory and perform selected scans ==
         If rtResultsTracker.FileList.Count <> Nothing Then
@@ -394,7 +373,7 @@ Public Class frmMain
                     Exit For
                 End If
 
-                IncrementLoadingBar(strItem, rtResultsTracker.FileList.Count)
+                IncrementLoadingBar(strItem, rtResultsTracker.FileList.Count) 'TODO: Add if console check?
 
                 ' Check that file is valid and exists 
                 ' This covers a potential issue when user selects a previously scanned file from dropdown list that no longer exists
@@ -458,7 +437,7 @@ Public Class frmMain
                                     CheckCode(strLine, strItem)
                                 ElseIf ((strLine.Contains(asAppSettings.SingleLineComment) And asAppSettings.SingleLineComment = "//" And Not strLine.ToLower.Contains("http:" + asAppSettings.SingleLineComment))) _
                                     Or (asAppSettings.TestType = AppSettings.R And strLine.Contains(asAppSettings.SingleLineComment)) _
-                                    Or (asAppSettings.TestType = AppSettings.SQL And strLine.Contains(asAppSettings.SingleLineComment)) Or (asAppSettings.TestType = AppSettings.VB And strLine.Contains(asAppSettings.SingleLineComment) And Not (strLine.Contains("""") And (InStr(strLine, """") < InStr(strLine, "'")))) Then
+                                    Or (asAppSettings.TestType = AppSettings.SQL And strLine.Contains(asAppSettings.SingleLineComment)) Or (asAppSettings.TestType = AppSettings.VB And strLine.Contains(asAppSettings.SingleLineComment) And Not (strLine.Contains(""""c) And (InStr(strLine, """") < InStr(strLine, "'")))) Then
                                     strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, asAppSettings.SingleLineComment, blnIsColoured)
 
                                 ElseIf ((Not asAppSettings.TestType = AppSettings.VB And Not asAppSettings.TestType = AppSettings.COBOL And Not asAppSettings.TestType = AppSettings.R) And (strLine.Contains(asAppSettings.BlockStartComment) And strLine.Contains(asAppSettings.BlockEndComment)) And (InStr(strLine, asAppSettings.BlockStartComment) < InStr(strLine, asAppSettings.BlockEndComment)) And Not (strLine.Contains("/*/"))) Then
@@ -502,7 +481,7 @@ Public Class frmMain
                 rtResultsTracker.FileCount += 1
 
                 '== Avoid the GUI locking or hanging during processing ==
-                Application.DoEvents()
+                Application.DoEvents() 'TODO: Do we need this?
             Next
         End If
 
@@ -556,7 +535,7 @@ Public Class frmMain
             End If
         ElseIf asAppSettings.TestType = AppSettings.COBOL And ctCodeTracker.ProgramId.Trim() = "" Then
             overFlowArg = New CheckOverFlowArg("File Has No PROGRAM-ID", "The file does not appear to include a PROGRAM-ID. The lack of a properly formatted identification division can make code more difficult to read and maintain.", FileName, CodeIssue.LOW)
-            End If
+        End If
 
     End Sub
 
@@ -663,8 +642,8 @@ Public Class frmMain
         Return blnRetVal
 
     End Function
-    'TODO: Change Environment.NewLine to System.Environment.NewLine
-    Friend Sub ListCodeIssue(sender As Object, args As CheckOverFlowArg) 'Handles codeTracker.CheckOverFlow_Event
+
+    Private Sub ListCodeIssue(sender As Object, args As CheckOverFlowArg) 'Handles codeTracker.CheckOverFlow_Event
         ' Notify user of any code issues found for the bad function list from files or the language-specific tests
         '=========================================================================================================
         Dim strTitle As String
@@ -695,7 +674,7 @@ Public Class frmMain
 
     End Sub
 
-    Public Sub ListMemoryIssue(IssueDictionary As Dictionary(Of String, String))
+    Private Sub ListMemoryIssue(IssueDictionary As Dictionary(Of String, String))
         ' Notify user of any issues found in the dictionary of variable names and associated memory mis-management
         '=========================================================================================================
         Dim strTitle As String
@@ -834,7 +813,7 @@ Public Class frmMain
         srScanResult.CodeLine = CodeLine
         srScanResult.IsChecked = IsChecked
 
-        If CheckColour.Contains(",") Then
+        If CheckColour.Contains(","c) Then
             arrInts = CheckColour.Split(",")
             intR = CInt(arrInts(0))
             intG = CInt(arrInts(1))
@@ -936,18 +915,14 @@ Public Class frmMain
     Private Sub GroupRTBByIssue()
         ' Re-write RTB results, grouped by issue
         '=======================================
-        Dim strDescription As String = ""
-        Dim strTitle As String = ""
-        Dim blnIsFirst As Boolean = True
-
 
         rtbResults.Text = ""
 
         ' Loop through the issues
         For Each idIssueDic As KeyValuePair(Of String, IssueGroup) In rtResultsTracker.IssueGroups
 
-            strTitle = idIssueDic.Key
-            strDescription = ""
+            Dim strTitle = idIssueDic.Key
+            Dim strDescription = ""
 
             ' Check it is within range of severity filter
             If (idIssueDic.Value.Severity <= intFilterMin And idIssueDic.Value.Severity >= intFilterMax) Then
@@ -1007,7 +982,7 @@ Public Class frmMain
         '=============================================================
         '== Store for later use ==
         Dim fdFileData As New FileData With {
-            .ShortName = ShortName(ShortName.Count - 1),
+            .ShortName = ShortName(ShortName.Length - 1), 'TODO: Check if we can use a better way to get the last element 
             .FileName = FileName,
             .LineCount = rtResultsTracker.LineCount,
             .CodeCount = rtResultsTracker.CodeCount,
@@ -1238,7 +1213,7 @@ Public Class frmMain
         '== GUI or console? ==
         If asAppSettings.IsConsole Then
             frmLoading.Hide()
-            ScanFiles(True, True)
+            ScanFiles(Me, True, True)
             Me.Hide()
         Else
             ' Disable some controls, so they don't interfere with the scan
@@ -1248,7 +1223,7 @@ Public Class frmMain
             If rtResultsTracker.OverallLineCount = 0 Then
                 frmBreakdown.dgvResults.SuspendLayout()
                 frmBreakdown.dgvResults.Rows.Clear()
-                ScanFiles(True, True)
+                ScanFiles(Me, True, True)
                 frmBreakdown.dgvResults.ResumeLayout()
             Else
                 For intIndex = 0 To rtResultsTracker.FileDataList.Count - 1
@@ -1327,7 +1302,7 @@ Public Class frmMain
 
         '== If no data available then scan files in 'code only' mode ==
         If rtResultsTracker.OverallLineCount = 0 Then
-            ScanFiles(False, True)
+            ScanFiles(Me, False, True)
         Else
             For intIndex = 0 To rtResultsTracker.FileDataList.Count - 1
                 UpdateFileView(rtResultsTracker.FileDataList.Item(intIndex), intIndex, False)
@@ -1375,7 +1350,7 @@ Public Class frmMain
 
         '== If no data available then scan files in 'code only' mode ==
         If rtResultsTracker.OverallLineCount = 0 Then
-            ScanFiles(True, False)
+            ScanFiles(Me, True, False)
         Else
             For intIndex = 0 To rtResultsTracker.FileDataList.Count - 1
                 UpdateFileView(rtResultsTracker.FileDataList.Item(intIndex), intIndex, False)
@@ -1399,7 +1374,7 @@ Public Class frmMain
         '== If no data available then scan files in 'comment only' mode ==
         If rtResultsTracker.OverallLineCount = 0 Then
             asAppSettings.IsConfigOnly = False
-            ScanFiles(True, False)
+            ScanFiles(Me, True, False)
         Else
             For intIndex = 0 To rtResultsTracker.FileDataList.Count - 1
                 UpdateFileView(rtResultsTracker.FileDataList.Item(intIndex), intIndex, False)
@@ -1521,7 +1496,7 @@ Public Class frmMain
             Return
         End If
 
-        If asAppSettings.IsConsole = False Then
+        If Not asAppSettings.IsConsole Then
             ' If asAppSettings.IsConsole Then AttachConsole(-1)
 
             ' Implement context menu for text boxes, etc.
@@ -1556,7 +1531,7 @@ Public Class frmMain
             Me.Visible = False
 
             ' Console apps just load files and scan. Thats it
-            Me.LoadFiles(rtResultsTracker.TargetDirectory)
+            LoadFiles(Me, rtResultsTracker.TargetDirectory)
             FullScan()
         End If
 
@@ -1638,7 +1613,7 @@ Public Class frmMain
         SetDeleteMenu()
     End Sub
 
-    Public Sub LoadFiles(ByVal TargetFolder As String, Optional ByVal ClearPrevious As Boolean = True)
+    Private Sub IAppMode_LoadFiles(targetFolder As String, clearPrevious As Boolean) Implements IAppMode.LoadFiles
         'Load files to be scanned
         '========================
         Dim objResults As Object
@@ -1696,7 +1671,7 @@ Public Class frmMain
 
 
             If rtResultsTracker.FileList.Count = 0 Then
-                DisplayError("No target files for the selected language could be found in this location", "Error", MsgBoxStyle.Exclamation)
+                DisplayError(Me, "No target files for the selected language could be found in this location", "Error", MsgBoxStyle.Exclamation)
             Else
 
                 'MsgBox(rtResultsTracker.FileList.Count & " Files loaded", MsgBoxStyle.Information, "Success")
@@ -1738,7 +1713,7 @@ Public Class frmMain
             End If
 
         Catch exError As Exception
-            DisplayError(exError.Message, "Error", MsgBoxStyle.Critical)
+            DisplayError(Me, exError.Message, "Error", MsgBoxStyle.Critical)
         End Try
 
     End Sub
@@ -1768,7 +1743,7 @@ Public Class frmMain
             '== Open file ==
             swResultFile = New StreamWriter(strResultsFile)
 
-            ShowLoading("Exporting Results", "Exporting results to file...", rtbResults.Lines.Count)
+            ShowLoading("Exporting Results", "Exporting results to file...", rtbResults.Lines.Length)
 
             '== Write results ==
             For Each strLine In rtbResults.Lines()
@@ -1783,7 +1758,7 @@ Public Class frmMain
             swResultFile.Close()
 
         Catch exError As Exception
-            DisplayError(exError.Message, "Error", MsgBoxStyle.Critical)
+            DisplayError(Me, exError.Message, "Error", MsgBoxStyle.Critical)
         End Try
 
     End Sub
@@ -2194,7 +2169,7 @@ Public Class frmMain
 
                 Process.Start(psiStart)
             Catch
-                DisplayError("Error reading file: " & strFileName, vbExclamation, "File Error")
+                DisplayError(Me, "Error reading file: " & strFileName, vbExclamation, "File Error")
             End Try
         End If
 
@@ -2323,6 +2298,7 @@ Public Class frmMain
         ExportResultsXML(intFilterMin, intFilterMax)
     End Sub
 
+    'TODO: Unify with the terminal version
     Public Sub ExportResultsXML(Optional FilterMinimum As Integer = CodeIssue.POSSIBLY_SAFE, Optional FilterMaximum As Integer = CodeIssue.CRITICAL, Optional ExportFile As String = "")
         ' Export all errors to XML file
         '==============================
@@ -2473,11 +2449,11 @@ Public Class frmMain
             xwWriter.Close()
 
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError("XML output successfully exported.", "Export Finished")
+            DisplayError(Me, "XML output successfully exported.", "Export Finished")
 
         Catch exError As Exception
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError(exError.Message)
+            DisplayError(Me, exError.Message)
         End Try
 
     End Sub
@@ -2553,7 +2529,7 @@ Public Class frmMain
 
                         If (.Name = "CheckColour") Then
                             strColour = .ReadInnerXml.ToString()
-                            If strColour.Contains(",") Then
+                            If strColour.Contains(","c) Then
                                 arrInts = strColour.Split(",")
                                 intR = CInt(arrInts(0))
                                 intG = CInt(arrInts(1))
@@ -2583,7 +2559,7 @@ Public Class frmMain
 
         Catch exError As Exception
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError(exError.Message)
+            DisplayError(Me, exError.Message)
         End Try
 
     End Sub
@@ -2703,15 +2679,16 @@ Public Class frmMain
             xwWriter.Close()
 
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError("XML output successfully exported.", "Export Finished")
+            DisplayError(Me, "XML output successfully exported.", "Export Finished")
 
         Catch exError As Exception
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError(exError.Message)
+            DisplayError(Me, exError.Message)
         End Try
 
     End Sub
 
+    'TODO: Unify with the terminal version
     Public Sub ExportResultsCSV(Optional FilterMinimum As Integer = CodeIssue.POSSIBLY_SAFE, Optional FilterMaximum As Integer = CodeIssue.CRITICAL, Optional ExportFile As String = "")
         ' Export all errors to XML file
         '==============================
@@ -2795,11 +2772,11 @@ Public Class frmMain
             swResultFile.Close()
 
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError("CSV output successfully exported.", "Success", vbOKOnly)
+            DisplayError(Me, "CSV output successfully exported.", "Success", vbOKOnly)
 
         Catch exError As Exception
             If asAppSettings.IsConsole = False Then frmLoading.Close()
-            DisplayError(exError.Message)
+            DisplayError(Me, exError.Message)
         End Try
 
     End Sub
@@ -2879,7 +2856,7 @@ Public Class frmMain
 
                             If arrItems.Length = 9 Then
                                 srResultItem.IsChecked = Convert.ToBoolean(arrItems(7))
-                                If arrItems(8).Contains(",") Then
+                                If arrItems(8).Contains(","c) Then
                                     arrInts = arrItems(8).Split(",")
                                     intR = CInt(arrInts(0))
                                     intG = CInt(arrInts(1))
@@ -2917,7 +2894,7 @@ Public Class frmMain
             Else
                 LogError($"Message: {exError.Message}")
                 LogError($"StackTrace: {exError.StackTrace}")
-                DisplayError(exError.Message)
+                DisplayError(Me, exError.Message)
             End If
         End Try
 
@@ -3320,7 +3297,7 @@ Public Class frmMain
 
         '== If no data available then scan files in 'code only' mode ==
         If rtResultsTracker.OverallLineCount = 0 Then
-            ScanFiles(False, True)
+            ScanFiles(Me, False, True)
         Else
             For intIndex = 0 To rtResultsTracker.FileDataList.Count - 1
                 UpdateFileView(rtResultsTracker.FileDataList.Item(intIndex), intIndex, False)
@@ -3392,7 +3369,7 @@ Public Class frmMain
         '====================================================================================
 
         If e.KeyCode = Keys.Enter Then
-            LoadFiles(cboTargetDir.Text)
+            LoadFiles(Me, cboTargetDir.Text)
         End If
 
     End Sub
@@ -3417,7 +3394,7 @@ Public Class frmMain
             MessageBox.Show(Me, "Please select a language to scan", "Validation Error", MessageBoxButtons.OK)
             Return
         Else
-            LoadFiles(cboTargetDir.Text)
+            LoadFiles(Me, cboTargetDir.Text)
         End If
 
     End Sub
@@ -3427,7 +3404,7 @@ Public Class frmMain
         '====================================================================================
 
         If e.KeyCode = Keys.Enter Then
-            LoadFiles(cboTargetDir.Text)
+            LoadFiles(Me, cboTargetDir.Text)
         End If
 
     End Sub
