@@ -18,7 +18,7 @@ Imports VisualCodeGrepper.NETCore.Lib
 
 Public Class frmBreakdownReminder
 
-    Private Sub btnOK_Click(sender As System.Object, e As System.EventArgs) Handles btnOK.Click
+    Private Sub btnOK_Click(sender As Object, e As EventArgs) Handles btnOK.Click
         ' Write user choice to registry
         '==============================
 

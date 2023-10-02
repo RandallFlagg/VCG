@@ -1,6 +1,6 @@
 ﻿Public NotInheritable Class AboutBox
 
-    Private Sub AboutBox_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+    Private Sub AboutBox_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Set the title of the form.
         Dim ApplicationTitle As String
         If My.Application.Info.Title <> "" Then
@@ -19,7 +19,7 @@
         Me.TextBoxDescription.Text = My.Application.Info.Description
     End Sub
 
-    Private Sub OKButton_Click(sender As System.Object, e As System.EventArgs) Handles OKButton.Click
+    Private Sub OKButton_Click(sender As Object, e As EventArgs) Handles OKButton.Click
         Me.Close()
     End Sub
 

@@ -17,15 +17,15 @@
 Imports VisualCodeGrepper.NETCore.Lib
 Public Class frmIndividualBreakdown
 
-    Private Sub ExitToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs)
         Me.Close()
     End Sub
 
-    Private Sub OpenWithNotepadToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles OpenWithNotepadToolStripMenuItem.Click
+    Private Sub OpenWithNotepadToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenWithNotepadToolStripMenuItem.Click
         LaunchNPP(strCurrentFileName)
     End Sub
 
-    Private Sub CopyUnsafeMethodsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CopyUnsafeMethodsToolStripMenuItem.Click
+    Private Sub CopyUnsafeMethodsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyUnsafeMethodsToolStripMenuItem.Click
         ' Loop throught comments, format them and add to clipboard
         '=========================================================
         Dim strCode As String = ""
@@ -44,7 +44,7 @@ Public Class frmIndividualBreakdown
 
     End Sub
 
-    Private Sub CopyCommentsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CopyCommentsToolStripMenuItem.Click
+    Private Sub CopyCommentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyCommentsToolStripMenuItem.Click
         ' Loop throught comments, format them and add to clipboard
         '=========================================================
         Dim strComments As String = ""

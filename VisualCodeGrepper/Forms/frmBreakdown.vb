@@ -18,7 +18,7 @@ Imports VisualCodeGrepper.NETCore.Lib
 
 Public Class frmBreakdown
 
-    Private Sub dgvResults_CellContentClick(sender As System.Object, e As System.Windows.Forms.DataGridViewCellEventArgs) Handles dgvResults.CellDoubleClick
+    Private Sub dgvResults_CellContentClick(sender As Object, e As System.Windows.Forms.DataGridViewCellEventArgs) Handles dgvResults.CellDoubleClick
         ' When user clicks a cell show the individual results for that file
         ' using the Individual Breakdown form
         '==================================================================
@@ -73,14 +73,14 @@ Public Class frmBreakdown
 
     End Sub
 
-    Private Sub OpenInNotepadToolStripMenuItem_Click(Sender As System.Object, GridArgs As System.EventArgs) Handles OpenInNotepadToolStripMenuItem.Click
+    Private Sub OpenInNotepadToolStripMenuItem_Click(Sender As Object, GridArgs As EventArgs) Handles OpenInNotepadToolStripMenuItem.Click
 
         If strCurrentFileName <> "" Then
             LaunchNPP(strCurrentFileName)
         End If
 
     End Sub
-    Private Sub OpenInCodeToolStripMenuItem_Click(Sender As System.Object, GridArgs As System.EventArgs) Handles OpenInNotepadToolStripMenuItem.Click
+    Private Sub OpenInCodeToolStripMenuItem_Click(Sender As Object, GridArgs As EventArgs) Handles OpenInNotepadToolStripMenuItem.Click
 
         If strCurrentFileName <> "" Then
             LaunchNPP(strCurrentFileName)
@@ -88,7 +88,7 @@ Public Class frmBreakdown
 
     End Sub
 
-    Private Sub dgvResults_CellContentClick_1(sender As System.Object, e As System.Windows.Forms.DataGridViewCellEventArgs)
+    Private Sub dgvResults_CellContentClick_1(sender As Object, e As System.Windows.Forms.DataGridViewCellEventArgs)
 
         If Not e.RowIndex = -1 Then
             strCurrentFileName = Me.dgvResults.Rows(e.RowIndex).Cells(8).Value '== Bodge for ordering columns ==
@@ -96,19 +96,19 @@ Public Class frmBreakdown
 
     End Sub
 
-    Private Sub ExitToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs)
         Me.Close()
     End Sub
 
-    Private Sub ExportToClipboardToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles ExportToClipboardToolStripMenuItem.Click
+    Private Sub ExportToClipboardToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExportToClipboardToolStripMenuItem.Click
         If frmMain.rtbResults.Text <> "" Then Clipboard.SetText(frmMain.rtbResults.Text)
     End Sub
 
-    Private Sub ExitToolStripMenuItem_Click_1(sender As System.Object, e As System.EventArgs) Handles ExitToolStripMenuItem.Click
+    Private Sub ExitToolStripMenuItem_Click_1(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Me.Close()
     End Sub
 
-    Private Sub btnApplyFilter_Click(sender As System.Object, e As System.EventArgs) Handles btnApplyFilter.Click
+    Private Sub btnApplyFilter_Click(sender As Object, e As EventArgs) Handles btnApplyFilter.Click
         ' Filter filename column, based on content of filter textbox
         '===========================================================
         Dim strText As String

@@ -17,7 +17,7 @@
 Imports VisualCodeGrepper.NETCore.Lib
 Public Class frmFilter
 
-    Private Sub frmFilter_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+    Private Sub frmFilter_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Start with a valid option selected
         '===================================
         cboAbove.SelectedIndex = 0
@@ -26,11 +26,11 @@ Public Class frmFilter
         cboMaximum.SelectedIndex = 6
     End Sub
 
-    Private Sub btnCancel_Click(sender As System.Object, e As System.EventArgs) Handles btnCancel.Click
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
 
-    Private Sub btnOK_Click(sender As System.Object, e As System.EventArgs) Handles btnOK.Click
+    Private Sub btnOK_Click(sender As Object, e As EventArgs) Handles btnOK.Click
         ' Conceal the form and apply the required updates
         '================================================
         Dim intMinimum As Integer = CodeIssue.POSSIBLY_SAFE
@@ -60,7 +60,7 @@ Public Class frmFilter
 
     End Sub
 
-    Private Sub rbAbove_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles rbAbove.CheckedChanged
+    Private Sub rbAbove_CheckedChanged(sender As Object, e As EventArgs) Handles rbAbove.CheckedChanged
         ' Enable/disable relevant controls
         '=================================
         cboAbove.Enabled = True
@@ -69,7 +69,7 @@ Public Class frmFilter
         cboMaximum.Enabled = False
     End Sub
 
-    Private Sub rbBelow_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles rbBelow.CheckedChanged
+    Private Sub rbBelow_CheckedChanged(sender As Object, e As EventArgs) Handles rbBelow.CheckedChanged
         ' Enable/disable relevant controls
         '=================================
         cboBelow.Enabled = True
@@ -78,7 +78,7 @@ Public Class frmFilter
         cboMaximum.Enabled = False
     End Sub
 
-    Private Sub rbRange_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles rbRange.CheckedChanged
+    Private Sub rbRange_CheckedChanged(sender As Object, e As EventArgs) Handles rbRange.CheckedChanged
         ' Enable/disable relevant controls
         '=================================
         cboMinimum.Enabled = True

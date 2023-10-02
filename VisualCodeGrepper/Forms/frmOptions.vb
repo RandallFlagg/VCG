@@ -20,31 +20,31 @@ Imports VisualCodeGrepper.NETCore.Lib
 
 Public Class frmOptions
 
-    Private Sub btnCPPEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnCPPEdit.Click
+    Private Sub btnCPPEdit_Click(sender As Object, e As EventArgs) Handles btnCPPEdit.Click
         LaunchNPP(asAppSettings.CConfFile)
     End Sub
 
-    Private Sub btnJavaEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnJavaEdit.Click
+    Private Sub btnJavaEdit_Click(sender As Object, e As EventArgs) Handles btnJavaEdit.Click
         LaunchNPP(asAppSettings.JavaConfFile)
     End Sub
 
-    Private Sub btnSQLEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnSQLEdit.Click
+    Private Sub btnSQLEdit_Click(sender As Object, e As EventArgs) Handles btnSQLEdit.Click
         LaunchNPP(asAppSettings.PLSQLConfFile)
     End Sub
 
-    Private Sub btnCSharpEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnCSharpEdit.Click
+    Private Sub btnCSharpEdit_Click(sender As Object, e As EventArgs) Handles btnCSharpEdit.Click
         LaunchNPP(asAppSettings.CSharpConfFile)
     End Sub
 
-    Private Sub btnVBEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnVBEdit.Click
+    Private Sub btnVBEdit_Click(sender As Object, e As EventArgs) Handles btnVBEdit.Click
         LaunchNPP(asAppSettings.VBConfFile)
     End Sub
 
-    Private Sub btnPHPEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnPHPEdit.Click
+    Private Sub btnPHPEdit_Click(sender As Object, e As EventArgs) Handles btnPHPEdit.Click
         LaunchNPP(asAppSettings.PHPConfFile)
     End Sub
 
-    Private Sub btnCobolEdit_Click(sender As System.Object, e As System.EventArgs) Handles btnCobolEdit.Click
+    Private Sub btnCobolEdit_Click(sender As Object, e As EventArgs) Handles btnCobolEdit.Click
         LaunchNPP(asAppSettings.COBOLConfFile)
     End Sub
 
@@ -52,7 +52,7 @@ Public Class frmOptions
         LaunchNPP(asAppSettings.RConfFile)
     End Sub
 
-    Private Sub btnOK_Click(sender As System.Object, e As System.EventArgs) Handles btnOK.Click
+    Private Sub btnOK_Click(sender As Object, e As EventArgs) Handles btnOK.Click
         ' Apply all new settings and exit
         '================================
 
@@ -122,7 +122,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub cbOutput_CheckedChanged(sender As System.Object, e As System.EventArgs)
+    Private Sub cbOutput_CheckedChanged(sender As Object, e As EventArgs)
         asAppSettings.IsOutputFile = cbOutput.CheckState
     End Sub
 
@@ -151,7 +151,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub frmOptions_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
+    Private Sub frmOptions_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         ' Get current settings and load values into controls
         '===================================================
 
@@ -207,7 +207,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub cboFileTypes_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles cboFileTypes.SelectedIndexChanged
+    Private Sub cboFileTypes_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cboFileTypes.SelectedIndexChanged
         ' Display suffixes for selected language
         '=======================================
 
@@ -232,11 +232,11 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnCancel_Click(sender As System.Object, e As System.EventArgs) Handles btnCancel.Click
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
 
-    Private Sub btnCPPBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnCPPBrowse.Click
+    Private Sub btnCPPBrowse_Click(sender As Object, e As EventArgs) Handles btnCPPBrowse.Click
         ' Show dialog box for new C++ config file
         '========================================
 
@@ -250,7 +250,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnJavaBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnJavaBrowse.Click
+    Private Sub btnJavaBrowse_Click(sender As Object, e As EventArgs) Handles btnJavaBrowse.Click
         ' Show dialog box for new Java config file
         '========================================
 
@@ -264,7 +264,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnSQLBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnSQLBrowse.Click
+    Private Sub btnSQLBrowse_Click(sender As Object, e As EventArgs) Handles btnSQLBrowse.Click
         ' Show dialog box for new PL/SQL config file
         '===========================================
 
@@ -278,7 +278,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnVBBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnVBBrowse.Click
+    Private Sub btnVBBrowse_Click(sender As Object, e As EventArgs) Handles btnVBBrowse.Click
         ' Show dialog box for new VB config file
         '=======================================
 
@@ -291,7 +291,7 @@ Public Class frmOptions
         End If
     End Sub
 
-    Private Sub btnPHPBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnPHPBrowse.Click
+    Private Sub btnPHPBrowse_Click(sender As Object, e As EventArgs) Handles btnPHPBrowse.Click
         ' Show dialog box for new PHP config file
         '=======================================
 
@@ -304,7 +304,7 @@ Public Class frmOptions
         End If
     End Sub
 
-    Private Sub btnCobolBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnCobolBrowse.Click
+    Private Sub btnCobolBrowse_Click(sender As Object, e As EventArgs) Handles btnCobolBrowse.Click
         ' Show dialog box for new COBOL config file
         '==========================================
 
@@ -332,7 +332,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnOutputBrowse_Click(sender As System.Object, e As System.EventArgs)
+    Private Sub btnOutputBrowse_Click(sender As Object, e As EventArgs)
         ' Show dialog box for new output file
         '====================================
 
@@ -346,7 +346,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnCSharpBrowse_Click(sender As System.Object, e As System.EventArgs) Handles btnCSharpBrowse.Click
+    Private Sub btnCSharpBrowse_Click(sender As Object, e As EventArgs) Handles btnCSharpBrowse.Click
         ' Show dialog box for new C++ config file
         '========================================
 
@@ -360,7 +360,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub rbAbove_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles rbAbove.CheckedChanged
+    Private Sub rbAbove_CheckedChanged(sender As Object, e As EventArgs) Handles rbAbove.CheckedChanged
         ' Enable/disable relevant controls
         '=================================
         cboAbove.Enabled = True
@@ -369,7 +369,7 @@ Public Class frmOptions
         cboMaximum.Enabled = False
     End Sub
 
-    Private Sub rbBelow_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles rbBelow.CheckedChanged
+    Private Sub rbBelow_CheckedChanged(sender As Object, e As EventArgs) Handles rbBelow.CheckedChanged
         ' Enable/disable relevant controls
         '=================================
         cboBelow.Enabled = True
@@ -378,7 +378,7 @@ Public Class frmOptions
         cboMaximum.Enabled = False
     End Sub
 
-    Private Sub rbRange_CheckedChanged(sender As System.Object, e As System.EventArgs) Handles rbRange.CheckedChanged
+    Private Sub rbRange_CheckedChanged(sender As Object, e As EventArgs) Handles rbRange.CheckedChanged
         ' Enable/disable relevant controls
         '=================================
         cboMinimum.Enabled = True
@@ -387,7 +387,7 @@ Public Class frmOptions
         cboAbove.Enabled = False
     End Sub
 
-    Private Sub btnExport_Click(sender As System.Object, e As System.EventArgs) Handles btnExport.Click
+    Private Sub btnExport_Click(sender As Object, e As EventArgs) Handles btnExport.Click
         ' Assign new values and then export to XML file
         '==============================================
         CheckFilters()
@@ -483,7 +483,7 @@ Public Class frmOptions
 
     End Sub
 
-    Private Sub btnColour_Click(sender As System.Object, e As System.EventArgs) Handles btnColour.Click
+    Private Sub btnColour_Click(sender As Object, e As EventArgs) Handles btnColour.Click
         ' Allow user to modify the colour for checked listbox items
         '==========================================================
 

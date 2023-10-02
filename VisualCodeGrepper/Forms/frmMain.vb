@@ -84,7 +84,7 @@ Friend Class frmMain
     Public intFilterMax As Integer = CodeIssue.CRITICAL
     Private WithEvents codeTracker As New CodeTracker
 
-    Private Sub NewTargetToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles NewTargetToolStripMenuItem.Click
+    Private Sub NewTargetToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles NewTargetToolStripMenuItem.Click
         'Load files to be scanned
         '========================
         Dim strTargetFolder As String
@@ -100,7 +100,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub NewTargetFileToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles NewTargetFileToolStripMenuItem.Click
+    Private Sub NewTargetFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles NewTargetFileToolStripMenuItem.Click
         'Load single file to be scanned
         '==============================
         Dim strTargetFile As String
@@ -116,7 +116,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub CCToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CCToolStripMenuItem.Click
+    Private Sub CCToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CCToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
         CCToolStripMenuItem.Checked = True
@@ -249,7 +249,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub JavaToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles JavaToolStripMenuItem.Click
+    Private Sub JavaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles JavaToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
 
@@ -258,7 +258,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub PLSQLToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles PLSQLToolStripMenuItem.Click
+    Private Sub PLSQLToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PLSQLToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
 
@@ -267,7 +267,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub CSToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CSToolStripMenuItem.Click
+    Private Sub CSToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CSToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
 
@@ -276,7 +276,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub VBToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles VBToolStripMenuItem.Click
+    Private Sub VBToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VBToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
 
@@ -285,7 +285,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub PHPToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles PHPToolStripMenuItem.Click
+    Private Sub PHPToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PHPToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
 
@@ -294,7 +294,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub COBOLToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles COBOLToolStripMenuItem.Click
+    Private Sub COBOLToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles COBOLToolStripMenuItem.Click
         ' Set code type to be tested and uncheck other menu items
         '========================================================
 
@@ -1165,11 +1165,11 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub ExitToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles ExitToolStripMenuItem.Click
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         Me.Close()
     End Sub
 
-    Private Sub BannedFunctionsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles BannedFunctionsToolStripMenuItem.Click
+    Private Sub BannedFunctionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BannedFunctionsToolStripMenuItem.Click
         ' Show relevant bad functions file for language
         '==============================================
 
@@ -1194,7 +1194,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub StartScanningToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles StartScanningToolStripMenuItem.Click
+    Private Sub StartScanningToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartScanningToolStripMenuItem.Click
         ' Ensure that config-only scanning is switched off before proceeding with full scan
         '==================================================================================
 
@@ -1293,7 +1293,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub VisualSecurityBreakdownToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles VisualSecurityBreakdownToolStripMenuItem.Click
+    Private Sub VisualSecurityBreakdownToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VisualSecurityBreakdownToolStripMenuItem.Click
         ' Show breakdown of good code/bad code
         '=====================================
         Dim intIndex As Integer
@@ -1341,7 +1341,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub VisualCommentBreakdownToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles VisualCommentBreakdownToolStripMenuItem.Click
+    Private Sub VisualCommentBreakdownToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VisualCommentBreakdownToolStripMenuItem.Click
         ' Show breakdown of code/comments and ToDo/FixMe comments
         '========================================================
         Dim intIndex As Integer
@@ -1361,12 +1361,12 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub AboutVCGToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles AboutVCGToolStripMenuItem.Click
+    Private Sub AboutVCGToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles AboutVCGToolStripMenuItem.Click
         Dim frmAbout As New AboutBox
         frmAbout.ShowDialog(Me)
     End Sub
 
-    Private Sub VisualCodeBreakdownToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles VisualCodeBreakdownToolStripMenuItem.Click
+    Private Sub VisualCodeBreakdownToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VisualCodeBreakdownToolStripMenuItem.Click
         ' Show breakdown of code/comments/whitespace
         '===========================================
         Dim intIndex As Integer
@@ -1385,11 +1385,11 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub ExportFixMeCommentsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles ExportFixMeCommentsToolStripMenuItem.Click
+    Private Sub ExportFixMeCommentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExportFixMeCommentsToolStripMenuItem.Click
         ExportComments()
     End Sub
 
-    Private Sub OptionsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles OptionsToolStripMenuItem.Click
+    Private Sub OptionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OptionsToolStripMenuItem.Click
         ' Show the options dialog
         '========================
         Dim frmOpt As New frmOptions
@@ -1398,7 +1398,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub FilterResultsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles FilterResultsToolStripMenuItem.Click
+    Private Sub FilterResultsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FilterResultsToolStripMenuItem.Click
         ' Filter results according to user requirements
         '==============================================
 
@@ -1407,7 +1407,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub DeleteItemToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles DeleteItemToolStripMenuItem.Click
+    Private Sub DeleteItemToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DeleteItemToolStripMenuItem.Click
         DeleteScanResult()
     End Sub
 
@@ -1466,7 +1466,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub frmMain_Load(sender As Object, e As System.EventArgs) Handles MyBase.Load
+    Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
         ' Get settings from registry and apply to app
         '============================================
@@ -1568,7 +1568,7 @@ Friend Class frmMain
         End If
     End Sub
 
-    Private Sub frmMain_Shown(sender As Object, e As System.EventArgs) Handles MyBase.Shown
+    Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles MyBase.Shown
         'If we are in console mode then begin the scan, otherwise show the form
         '======================================================================
 
@@ -1605,11 +1605,11 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub lbTargets_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles lbTargets.SelectedIndexChanged
+    Private Sub lbTargets_SelectedIndexChanged(sender As Object, e As EventArgs) Handles lbTargets.SelectedIndexChanged
         SetDeleteMenu()
     End Sub
 
-    Private Sub tcMain_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles tcMain.SelectedIndexChanged
+    Private Sub tcMain_SelectedIndexChanged(sender As Object, e As EventArgs) Handles tcMain.SelectedIndexChanged
         SetDeleteMenu()
     End Sub
 
@@ -1624,18 +1624,18 @@ Friend Class frmMain
 
         'If TargetFolder.Count = 0 Then Exit Sub
 
-        TargetFolder = TargetFolder.Trim
-        If TargetFolder = "" Or TargetFolder = rtResultsTracker.TargetDirectory Then Exit Sub
+        targetFolder = targetFolder.Trim
+        If targetFolder = "" Or targetFolder = rtResultsTracker.TargetDirectory Then Exit Sub
 
-        If ClearPrevious Then ClearResults()
+        If clearPrevious Then ClearResults()
 
         Try
             ' Check whether we have a file or directory
-            If Directory.Exists(TargetFolder) Then
+            If Directory.Exists(targetFolder) Then
                 ' Iterate through files from target directory and obtain all relevant filenames
-                objResults = Directory.EnumerateFiles(TargetFolder, "*.*", SearchOption.AllDirectories)
+                objResults = Directory.EnumerateFiles(targetFolder, "*.*", SearchOption.AllDirectories)
 
-                Dim lstResults As List(Of String) = New List(Of String)(Directory.EnumerateFiles(TargetFolder, "*.*", SearchOption.AllDirectories))
+                Dim lstResults As List(Of String) = New List(Of String)(Directory.EnumerateFiles(targetFolder, "*.*", SearchOption.AllDirectories))
                 If asAppSettings.IsConsole = False Then
                     ShowLoading("Loading files from target directory...", lstResults.Count)
                 Else
@@ -1644,7 +1644,7 @@ Friend Class frmMain
                 End If
             Else
                 objResults = New Collection
-                objResults.Add(TargetFolder)
+                objResults.Add(targetFolder)
             End If
 
             For Each objTargetFile In objResults
@@ -1686,8 +1686,8 @@ Friend Class frmMain
                         lbTargets.Items.Add(item)
                     Next
 
-                    rtResultsTracker.TargetDirectory = TargetFolder
-                    cboTargetDir.Text = TargetFolder
+                    rtResultsTracker.TargetDirectory = targetFolder
+                    cboTargetDir.Text = targetFolder
 
                     '== Check if new target is in list of previous targets ==
                     For Each cboItem As Object In cboTargetDir.Items
@@ -1718,7 +1718,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub SaveResultsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles SaveResultsToolStripMenuItem.Click
+    Private Sub SaveResultsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveResultsToolStripMenuItem.Click
         ' Show dialog box for output file and save results from RichTextBox
         '==================================================================
         Dim strResultsFile As String = ""
@@ -1956,7 +1956,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub CutToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CutToolStripMenuItem.Click
+    Private Sub CutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CutToolStripMenuItem.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -1971,7 +1971,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub CopyToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles CopyToolStripMenuItem.Click
+    Private Sub CopyToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyToolStripMenuItem.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -1985,7 +1985,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub PasteToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles PasteToolStripMenuItem.Click
+    Private Sub PasteToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PasteToolStripMenuItem.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -1997,7 +1997,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub FindToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles FindToolStripMenuItem.Click
+    Private Sub FindToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FindToolStripMenuItem.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -2007,7 +2007,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub SelectAllToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles SelectAllToolStripMenuItem.Click
+    Private Sub SelectAllToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SelectAllToolStripMenuItem.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -2032,7 +2032,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub ToolStripMenuItem9_Click(sender As System.Object, e As System.EventArgs) Handles ClearResultsMenuItem.Click
+    Private Sub ToolStripMenuItem9_Click(sender As Object, e As EventArgs) Handles ClearResultsMenuItem.Click
         ' Clear all results and target directory
         '=======================================
         ClearResults()
@@ -2120,7 +2120,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub lvResults_Click(sender As Object, e As System.EventArgs) Handles lvResults.Click
+    Private Sub lvResults_Click(sender As Object, e As EventArgs) Handles lvResults.Click
         ' If an item is selected then enable the 'delete' menu item
         '==========================================================
 
@@ -2132,7 +2132,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub lvResults_DoubleClick(sender As Object, e As System.EventArgs) Handles lvResults.DoubleClick
+    Private Sub lvResults_DoubleClick(sender As Object, e As EventArgs) Handles lvResults.DoubleClick
         ' If an item is selected then enable the 'delete' menu item
         ' Open any file that has been double-clicked in the appropriate editor
         '=====================================================================
@@ -2211,31 +2211,31 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub ToolStripMenuItem10_Click(sender As System.Object, e As System.EventArgs) Handles ExportResultsXMLMenuItem.Click
+    Private Sub ToolStripMenuItem10_Click(sender As Object, e As EventArgs) Handles ExportResultsXMLMenuItem.Click
         ExportResultsXML()
     End Sub
 
-    Private Sub ToolStripMenuItem11_Click(sender As System.Object, e As System.EventArgs) Handles ImportXmlResultsMenuItem.Click
+    Private Sub ToolStripMenuItem11_Click(sender As Object, e As EventArgs) Handles ImportXmlResultsMenuItem.Click
         ImportResultsXML()
     End Sub
 
-    Private Sub ToolStripMenuItem14_Click(sender As System.Object, e As System.EventArgs) Handles ExportCsvResultsMenuItem.Click
+    Private Sub ToolStripMenuItem14_Click(sender As Object, e As EventArgs) Handles ExportCsvResultsMenuItem.Click
         ExportResultsCSV()
     End Sub
 
-    Private Sub ToolStripMenuItem15_Click(sender As System.Object, e As System.EventArgs) Handles ImportCsvResultsMenuItem.Click
+    Private Sub ToolStripMenuItem15_Click(sender As Object, e As EventArgs) Handles ImportCsvResultsMenuItem.Click
         ImportResultsCSV()
     End Sub
 
-    Private Sub SortRichTextResultsOnSeverityToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles SortRichTextResultsOnSeverityToolStripMenuItem.Click
+    Private Sub SortRichTextResultsOnSeverityToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SortRichTextResultsOnSeverityToolStripMenuItem.Click
         SortRTBResults()
     End Sub
 
-    Private Sub SortRichTextResultsOnFileNameToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles SortRichTextResultsOnFileNameToolStripMenuItem.Click
+    Private Sub SortRichTextResultsOnFileNameToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SortRichTextResultsOnFileNameToolStripMenuItem.Click
         SortRTBResults(FILE_COL)
     End Sub
 
-    Private Sub StatusBarToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles StatusBarToolStripMenuItem.Click
+    Private Sub StatusBarToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StatusBarToolStripMenuItem.Click
         ' Show/hide status bar
         '=====================
 
@@ -2243,7 +2243,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub GroupRichTextResultsByIssueToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles GroupRichTextResultsByIssueToolStripMenuItem.Click
+    Private Sub GroupRichTextResultsByIssueToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GroupRichTextResultsByIssueToolStripMenuItem.Click
         ' Set grouping style for RTB results and uncheck other menu items
         '================================================================
 
@@ -2251,7 +2251,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub GroupRichTextResultsByFileToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles GroupRichTextResultsByFileToolStripMenuItem.Click
+    Private Sub GroupRichTextResultsByFileToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GroupRichTextResultsByFileToolStripMenuItem.Click
         ' Set grouping style for RTB results and uncheck other menu items
         '================================================================
 
@@ -2259,7 +2259,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub ShowIndividualRichTextResultsToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles ShowIndividualRichTextResultsToolStripMenuItem.Click
+    Private Sub ShowIndividualRichTextResultsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ShowIndividualRichTextResultsToolStripMenuItem.Click
         ' Show individual results
         '========================
 
@@ -2294,7 +2294,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub ExportFilteredResultsXML(sender As System.Object, e As System.EventArgs)
+    Private Sub ExportFilteredResultsXML(sender As Object, e As EventArgs)
         ExportResultsXML(intFilterMin, intFilterMax)
     End Sub
 
@@ -3287,7 +3287,7 @@ Friend Class frmMain
 
     End Class
 
-    Private Sub VisualBadFuncBreakdownToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles VisualBadFuncBreakdownToolStripMenuItem.Click
+    Private Sub VisualBadFuncBreakdownToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles VisualBadFuncBreakdownToolStripMenuItem.Click
         ' Scan the code only for items listed in the associated config file
         '==================================================================
         Dim intIndex As Integer

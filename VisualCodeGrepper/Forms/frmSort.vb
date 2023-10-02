@@ -18,11 +18,11 @@ Imports VisualCodeGrepper.NETCore.Lib
 
 Public Class frmSort
 
-    Private Sub btnCancel_Click(sender As System.Object, e As System.EventArgs) Handles btnCancel.Click
+    Private Sub btnCancel_Click(sender As Object, e As EventArgs) Handles btnCancel.Click
         Me.Close()
     End Sub
 
-    Private Sub btnOK_Click(sender As System.Object, e As System.EventArgs) Handles btnOK.Click
+    Private Sub btnOK_Click(sender As Object, e As EventArgs) Handles btnOK.Click
         ' Store sort order on main form and exit
         '=======================================
 
