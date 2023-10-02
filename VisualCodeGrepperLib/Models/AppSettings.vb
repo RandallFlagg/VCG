@@ -18,20 +18,6 @@ Imports System.Reflection
 
 Public Class AppSettings
 
-    '=============================================
-    '== Constants to identify the language type ==
-    '---------------------------------------------
-    Public Const C = 0
-    Public Const JAVA = 1
-    Public Const SQL = 2
-    Public Const CSHARP = 3
-    Public Const VB = 4
-    Public Const PHP = 5
-    Public Const COBOL = 6
-    Public Const R = 7
-    '=============================================
-
-
     '==========================================
     '== Identifiers for RTB results grouping ==
     '------------------------------------------
@@ -40,7 +26,8 @@ Public Class AppSettings
     Public Const FILEGROUP = 2
     '==========================================
 
-
+    'TODO: Change to Friend or Private
+    'TODO: Change to Const
     '====================================================================
     '== Config files to hold dangerous function names and descriptions ==
     '--------------------------------------------------------------------
@@ -98,8 +85,8 @@ Public Class AppSettings
     '===================================================
     '== Start with C/C++ as the default language type ==
     '---------------------------------------------------
-    Public TestType As Integer = C
-    Public StartType As Integer = C
+    Public TestType As Integer = Language.C
+    Public StartType As Integer = Language.C
     Public SingleLineComment As String = "//"
     Public AltSingleLineComment As String = ""      ' Some languages (VB, PHP...) have more than one single line comment indicator, e.g. VB allows REM or '
     Public BlockStartComment As String = "/*"

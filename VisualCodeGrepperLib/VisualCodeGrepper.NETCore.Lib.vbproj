@@ -28,6 +28,7 @@
 
   <ItemGroup>
     <Compile Include="Models\AppSettings.vb" />
+    <Compile Include="Models\Language.VB" />
     <Compile Include="Models\CodeIssue.vb" />
     <Compile Include="Models\CodeTracker.vb" />
     <Compile Include="Models\FileData.vb" />

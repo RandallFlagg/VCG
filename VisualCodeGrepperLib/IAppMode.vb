@@ -20,4 +20,5 @@ Public Interface IAppMode
     Sub DisplayError(exception As Exception, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
     Sub DisplayError(message As String, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
     Sub ScanFiles(CommentScan As Boolean, CodeScan As Boolean)
+    Function CheckComment(CodeLine As String, FileName As String, ByRef IsColoured As Boolean) As Boolean
 End Interface

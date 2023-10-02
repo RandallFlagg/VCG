@@ -69,8 +69,8 @@ Friend Class frmMain
     Dim strPrevSearch As String = ""
 
     '== Output files ==
-    Dim swOutputFile As StreamWriter
-    Dim swCsvOutputFile As StreamWriter
+    Private swOutputFile As StreamWriter 'TODO: Check how this can be removed from class level or how can the use of this be improved
+    'Private swCsvOutputFile As StreamWriter
     Dim xwsXMLOutputSettings As New XmlWriterSettings()
     Dim xwOutputWriter As XmlWriter
 
@@ -120,67 +120,16 @@ Friend Class frmMain
         ' Set code type to be tested and uncheck other menu items
         '========================================================
         CCToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.C)
+        UpdateLanguage(Language.C)
 
     End Sub
 
-    Friend Sub SelectLanguage(Language As Integer)
-        ' Set language and characteristics 
-        '=================================
 
 
-        ' Set language type
-        asAppSettings.TestType = Language
-
-        '== Set the file types/suffixes for the chosen language ==
-        SetSuffixes(Language)
-
-        ' This covers most languages - the different ones will be set individually, below
-        asAppSettings.SingleLineComment = "//"
-        asAppSettings.AltSingleLineComment = ""
-
-        ' Load list of unsafe functions
-        Select Case Language
-            Case AppSettings.C
-                asAppSettings.BadFuncFile = asAppSettings.CConfFile
-                LoadUnsafeFunctionList(AppSettings.C)
-            Case AppSettings.JAVA
-                asAppSettings.BadFuncFile = asAppSettings.JavaConfFile
-                LoadUnsafeFunctionList(AppSettings.JAVA)
-            Case AppSettings.SQL
-                asAppSettings.BadFuncFile = asAppSettings.PLSQLConfFile
-                LoadUnsafeFunctionList(AppSettings.SQL)
-                asAppSettings.SingleLineComment = "--"
-            Case AppSettings.CSHARP
-                asAppSettings.BadFuncFile = asAppSettings.CSharpConfFile
-                LoadUnsafeFunctionList(AppSettings.CSHARP)
-            Case AppSettings.VB
-                asAppSettings.BadFuncFile = asAppSettings.VBConfFile
-                LoadUnsafeFunctionList(AppSettings.VB)
-                asAppSettings.SingleLineComment = "'"
-                asAppSettings.AltSingleLineComment = "REM"
-            Case AppSettings.PHP
-                asAppSettings.BadFuncFile = asAppSettings.PHPConfFile
-                LoadUnsafeFunctionList(AppSettings.PHP)
-                asAppSettings.SingleLineComment = "//"
-                asAppSettings.AltSingleLineComment = "\#"   ' This will be used in a regex so it must be escaped
-            Case AppSettings.COBOL
-                asAppSettings.BadFuncFile = asAppSettings.COBOLConfFile
-                LoadUnsafeFunctionList(AppSettings.COBOL)
-                asAppSettings.SingleLineComment = "*"
-                asAppSettings.AltSingleLineComment = "\/"   ' This will be used in a regex so it must be escaped
-            Case AppSettings.R
-                asAppSettings.BadFuncFile = asAppSettings.RConfFile
-                LoadUnsafeFunctionList(AppSettings.R)
-                asAppSettings.SingleLineComment = "#"
-        End Select
-
-        ' Set the GUI to display correct options for the language
-        If asAppSettings.IsConsole = True Then Exit Sub
-
+    Private Sub SelectedLanguageUIChanges(lang As Integer)
         With Me
-            Select Case Language
-                Case AppSettings.C
+            Select Case lang
+                Case Language.C
                     .JavaToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
                     .CSToolStripMenuItem.Checked = False
@@ -188,7 +137,7 @@ Friend Class frmMain
                     .PHPToolStripMenuItem.Checked = False
                     .COBOLToolStripMenuItem.Checked = False
                     .sslLabel.Text = "Language: C/C++   File Suffixes: " & asAppSettings.CSuffixes
-                Case AppSettings.JAVA
+                Case Language.JAVA
                     .CCToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
                     .CSToolStripMenuItem.Checked = False
@@ -196,7 +145,7 @@ Friend Class frmMain
                     .PHPToolStripMenuItem.Checked = False
                     .COBOLToolStripMenuItem.Checked = False
                     .sslLabel.Text = "Language: Java   File Suffixes: " & asAppSettings.JavaSuffixes
-                Case AppSettings.SQL
+                Case Language.SQL
                     .CCToolStripMenuItem.Checked = False
                     .JavaToolStripMenuItem.Checked = False
                     .CSToolStripMenuItem.Checked = False
@@ -205,7 +154,7 @@ Friend Class frmMain
                     .COBOLToolStripMenuItem.Checked = False
                     asAppSettings.SingleLineComment = "--"
                     .sslLabel.Text = "Language: PL/SQL   File Suffixes: " & asAppSettings.PLSQLSuffixes
-                Case AppSettings.CSHARP
+                Case Language.CSHARP
                     .CCToolStripMenuItem.Checked = False
                     .JavaToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
@@ -213,7 +162,7 @@ Friend Class frmMain
                     .PHPToolStripMenuItem.Checked = False
                     .COBOLToolStripMenuItem.Checked = False
                     .sslLabel.Text = "Language: C#   File Suffixes: " & asAppSettings.CSharpSuffixes
-                Case AppSettings.VB
+                Case Language.VB
                     .CCToolStripMenuItem.Checked = False
                     .JavaToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
@@ -221,7 +170,7 @@ Friend Class frmMain
                     .PHPToolStripMenuItem.Checked = False
                     .COBOLToolStripMenuItem.Checked = False
                     .sslLabel.Text = "Language: VB   File Suffixes: " & asAppSettings.VBSuffixes
-                Case AppSettings.PHP
+                Case Language.PHP
                     .CCToolStripMenuItem.Checked = False
                     .JavaToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
@@ -229,14 +178,14 @@ Friend Class frmMain
                     .VBToolStripMenuItem.Checked = False
                     .COBOLToolStripMenuItem.Checked = False
                     .sslLabel.Text = "Language: PHP   File Suffixes: " & asAppSettings.PHPSuffixes
-                Case AppSettings.COBOL
+                Case Language.COBOL
                     .CCToolStripMenuItem.Checked = False
                     .JavaToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
                     .CSToolStripMenuItem.Checked = False
                     .VBToolStripMenuItem.Checked = False
                     .sslLabel.Text = "Language: COBOL   File Suffixes: " & asAppSettings.COBOLSuffixes
-                Case AppSettings.R
+                Case Language.R
                     .CCToolStripMenuItem.Checked = False
                     .JavaToolStripMenuItem.Checked = False
                     .PLSQLToolStripMenuItem.Checked = False
@@ -246,7 +195,6 @@ Friend Class frmMain
                     .sslLabel.Text = "Language: R   File Suffixes: " & asAppSettings.RSuffixes
             End Select
         End With
-
     End Sub
 
     Private Sub JavaToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles JavaToolStripMenuItem.Click
@@ -254,7 +202,7 @@ Friend Class frmMain
         '========================================================
 
         JavaToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.JAVA)
+        UpdateLanguage(Language.JAVA)
 
     End Sub
 
@@ -263,8 +211,14 @@ Friend Class frmMain
         '========================================================
 
         PLSQLToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.SQL)
+        UpdateLanguage(Language.SQL)
 
+
+    End Sub
+
+    Friend Sub UpdateLanguage(languageId As Integer)
+        SelectLanguage(Me, languageId)
+        SelectedLanguageUIChanges(languageId)
     End Sub
 
     Private Sub CSToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CSToolStripMenuItem.Click
@@ -272,7 +226,7 @@ Friend Class frmMain
         '========================================================
 
         CSToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.CSHARP)
+        UpdateLanguage(Language.CSHARP)
 
     End Sub
 
@@ -281,7 +235,7 @@ Friend Class frmMain
         '========================================================
 
         VBToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.VB)
+        UpdateLanguage(Language.VB)
 
     End Sub
 
@@ -290,7 +244,7 @@ Friend Class frmMain
         '========================================================
 
         PHPToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.PHP)
+        UpdateLanguage(Language.PHP)
 
     End Sub
 
@@ -299,7 +253,7 @@ Friend Class frmMain
         '========================================================
 
         COBOLToolStripMenuItem.Checked = True
-        SelectLanguage(AppSettings.COBOL)
+        UpdateLanguage(Language.COBOL)
 
     End Sub
 
@@ -329,7 +283,7 @@ Friend Class frmMain
         ' Iterate through the files in the directory and compile the results
         '===================================================================
 
-        Dim arrShortName() As String
+        'Dim arrShortName() As String
         Dim strLine As String
         Dim strTrimmedComment = ""
 
@@ -379,11 +333,11 @@ Friend Class frmMain
                 ' This covers a potential issue when user selects a previously scanned file from dropdown list that no longer exists
                 If (File.Exists(strItem) <> True) Then Continue For
 
-                arrShortName = strItem.Split("\")
+                Dim arrShortName = strItem.Split("\")
                 modMain.ctCodeTracker.Reset()
 
                 ' Check for php.ini file and handle this separately
-                If (asAppSettings.TestType = AppSettings.PHP And arrShortName.Last.ToLower() = "php.ini") And asAppSettings.IsConfigOnly = False Then
+                If (asAppSettings.TestType = Language.PHP And arrShortName.Last.ToLower() = "php.ini") And asAppSettings.IsConfigOnly = False Then
 
                     ctCodeTracker.HasDisableFunctions = False
 
@@ -408,7 +362,7 @@ Friend Class frmMain
 
                         '== If this is a COBOL program then we need to trim the specified number of characters from start of line ==
                         '== These represent line numbers, name of copybook, etc. ==
-                        If asAppSettings.TestType = AppSettings.COBOL And asAppSettings.COBOLStartColumn > 1 Then
+                        If asAppSettings.TestType = Language.COBOL And asAppSettings.COBOLStartColumn > 1 Then
                             If asAppSettings.COBOLStartColumn > strLine.Length Then
                                 strLine = ""
                             Else
@@ -424,27 +378,27 @@ Friend Class frmMain
                                 ' A lot of the difficulties caused by VB, COBOL and PHP which have two types of single line comment 
                                 ' and VB/COBOL which have no multiple line comment.
 
-                                If asAppSettings.TestType = AppSettings.COBOL And (strLine.Substring(0, 1) = asAppSettings.SingleLineComment) Then
+                                If asAppSettings.TestType = Language.COBOL And (strLine.Substring(0, 1) = asAppSettings.SingleLineComment) Then
                                     ' COBOL's system for whole-line comments is simpler than other languages
-                                    strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, asAppSettings.SingleLineComment, blnIsColoured)
-                                ElseIf asAppSettings.TestType = AppSettings.COBOL And (strLine.Substring(0, 1) = strTrimmedComment And asAppSettings.IsZOS) Then
+                                    strScanResult = ScanLine(Me, CommentScan, CodeScan, strLine, strItem, asAppSettings.SingleLineComment, blnIsColoured)
+                                ElseIf asAppSettings.TestType = Language.COBOL And (strLine.Substring(0, 1) = strTrimmedComment And asAppSettings.IsZOS) Then
                                     ' COBOL's system for whole-line comments is simpler than other languages. IBM allows single line comments with '/'
-                                    strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, strTrimmedComment, blnIsColoured)
-                                ElseIf asAppSettings.TestType = AppSettings.COBOL Then
+                                    strScanResult = ScanLine(Me, CommentScan, CodeScan, strLine, strItem, strTrimmedComment, blnIsColoured)
+                                ElseIf asAppSettings.TestType = Language.COBOL Then
                                     ' If line of COBOL has no comment in column 1, then it's all code
                                     rtResultsTracker.OverallCodeCount += 1
                                     rtResultsTracker.CodeCount += 1
                                     CheckCode(strLine, strItem)
                                 ElseIf ((strLine.Contains(asAppSettings.SingleLineComment) And asAppSettings.SingleLineComment = "//" And Not strLine.ToLower.Contains("http:" + asAppSettings.SingleLineComment))) _
-                                    Or (asAppSettings.TestType = AppSettings.R And strLine.Contains(asAppSettings.SingleLineComment)) _
-                                    Or (asAppSettings.TestType = AppSettings.SQL And strLine.Contains(asAppSettings.SingleLineComment)) Or (asAppSettings.TestType = AppSettings.VB And strLine.Contains(asAppSettings.SingleLineComment) And Not (strLine.Contains(""""c) And (InStr(strLine, """") < InStr(strLine, "'")))) Then
-                                    strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, asAppSettings.SingleLineComment, blnIsColoured)
+                                    Or (asAppSettings.TestType = Language.R And strLine.Contains(asAppSettings.SingleLineComment)) _
+                                    Or (asAppSettings.TestType = Language.SQL And strLine.Contains(asAppSettings.SingleLineComment)) Or (asAppSettings.TestType = Language.VB And strLine.Contains(asAppSettings.SingleLineComment) And Not (strLine.Contains(""""c) And (InStr(strLine, """") < InStr(strLine, "'")))) Then
+                                    strScanResult = ScanLine(Me, CommentScan, CodeScan, strLine, strItem, asAppSettings.SingleLineComment, blnIsColoured)
 
-                                ElseIf ((Not asAppSettings.TestType = AppSettings.VB And Not asAppSettings.TestType = AppSettings.COBOL And Not asAppSettings.TestType = AppSettings.R) And (strLine.Contains(asAppSettings.BlockStartComment) And strLine.Contains(asAppSettings.BlockEndComment)) And (InStr(strLine, asAppSettings.BlockStartComment) < InStr(strLine, asAppSettings.BlockEndComment)) And Not (strLine.Contains("/*/"))) Then
-                                    strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, "both", blnIsColoured)
-                                ElseIf (Not asAppSettings.TestType = AppSettings.VB And Not asAppSettings.TestType = AppSettings.COBOL And Not asAppSettings.TestType = AppSettings.R) And (strLine.Contains(asAppSettings.BlockStartComment) And Not (strLine.Contains("/*/")) And Not (strLine.Contains("print") And (InStr(strLine, asAppSettings.BlockStartComment) > InStr(strLine, "print")))) Then
+                                ElseIf ((Not asAppSettings.TestType = Language.VB And Not asAppSettings.TestType = Language.COBOL And Not asAppSettings.TestType = Language.R) And (strLine.Contains(asAppSettings.BlockStartComment) And strLine.Contains(asAppSettings.BlockEndComment)) And (InStr(strLine, asAppSettings.BlockStartComment) < InStr(strLine, asAppSettings.BlockEndComment)) And Not (strLine.Contains("/*/"))) Then
+                                    strScanResult = ScanLine(Me, CommentScan, CodeScan, strLine, strItem, "both", blnIsColoured)
+                                ElseIf (Not asAppSettings.TestType = Language.VB And Not asAppSettings.TestType = Language.COBOL And Not asAppSettings.TestType = Language.R) And (strLine.Contains(asAppSettings.BlockStartComment) And Not (strLine.Contains("/*/")) And Not (strLine.Contains("print") And (InStr(strLine, asAppSettings.BlockStartComment) > InStr(strLine, "print")))) Then
                                     blnIsCommented = True
-                                    strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, asAppSettings.BlockStartComment, blnIsColoured)
+                                    strScanResult = ScanLine(Me, CommentScan, CodeScan, strLine, strItem, asAppSettings.BlockStartComment, blnIsColoured)
                                 Else
                                     rtResultsTracker.OverallCodeCount += 1
                                     rtResultsTracker.CodeCount += 1
@@ -453,9 +407,9 @@ Friend Class frmMain
                                     CheckCode(strLine, strItem)
                                 End If
 
-                            ElseIf (Not asAppSettings.TestType = AppSettings.VB And Not asAppSettings.TestType = AppSettings.COBOL And Not asAppSettings.TestType = AppSettings.R) And strLine.Contains(asAppSettings.BlockEndComment) Then    ' End of a comment block
+                            ElseIf (Not asAppSettings.TestType = Language.VB And Not asAppSettings.TestType = Language.COBOL And Not asAppSettings.TestType = Language.R) And strLine.Contains(asAppSettings.BlockEndComment) Then    ' End of a comment block
                                 blnIsCommented = False
-                                strScanResult = ScanLine(CommentScan, CodeScan, strLine, strItem, asAppSettings.BlockEndComment, blnIsColoured)
+                                strScanResult = ScanLine(Me, CommentScan, CodeScan, strLine, strItem, asAppSettings.BlockEndComment, blnIsColoured)
                             Else
                                 rtResultsTracker.CommentCount += 1
                                 rtResultsTracker.OverallCommentCount += 1
@@ -469,7 +423,7 @@ Friend Class frmMain
                     Next
 
                     '== List any file-level code issues (mis-matched deletes, mallocs, etc.) ==
-                    If (asAppSettings.TestType = AppSettings.C Or asAppSettings.TestType = AppSettings.JAVA Or asAppSettings.TestType = AppSettings.COBOL) Then CheckFileLevelIssues(strItem)
+                    If (asAppSettings.TestType = Language.C Or asAppSettings.TestType = Language.JAVA Or asAppSettings.TestType = Language.COBOL) Then CheckFileLevelIssues(strItem)
                 End If
 
                 '== Update graphs and tables ==
@@ -509,9 +463,9 @@ Friend Class frmMain
         'List any file-level code issues (mis-matched deletes, mallocs, etc.)
         '====================================================================
 
-        If asAppSettings.TestType = AppSettings.C And ctCodeTracker.GetMemAssign.Count > 0 Then
+        If asAppSettings.TestType = Language.C And ctCodeTracker.GetMemAssign.Count > 0 Then
             ListMemoryIssue(ctCodeTracker.GetMemAssign)
-        ElseIf asAppSettings.TestType = AppSettings.JAVA Then
+        ElseIf asAppSettings.TestType = Language.JAVA Then
             If ctCodeTracker.ImplementsClone = True Then
                 overFlowArg = New CheckOverFlowArg("Class Implements Public 'clone' Method", "Cloning allows an attacker to instantiate a class without running any of the class constructors by deploying hostile code in the JVM.", FileName, CodeIssue.MEDIUM)
             End If
@@ -533,67 +487,13 @@ Friend Class frmMain
             If ctCodeTracker.HasResourceRelease = False Then
                 overFlowArg = New CheckOverFlowArg("Failure To Release Resources In All Cases", "There appears to be no release of resources in the 'finally' block, potentially resulting in DoS conditions from excessive resource consumption.", FileName, CodeIssue.MEDIUM, "", ctCodeTracker.FileOpenLine)
             End If
-        ElseIf asAppSettings.TestType = AppSettings.COBOL And ctCodeTracker.ProgramId.Trim() = "" Then
+        ElseIf asAppSettings.TestType = Language.COBOL And ctCodeTracker.ProgramId.Trim() = "" Then
             overFlowArg = New CheckOverFlowArg("File Has No PROGRAM-ID", "The file does not appear to include a PROGRAM-ID. The lack of a properly formatted identification division can make code more difficult to read and maintain.", FileName, CodeIssue.LOW)
         End If
 
     End Sub
 
-
-    Public Function ScanLine(CommentScan As Boolean, CodeScan As Boolean, CodeLine As String, FileName As String, Comment As String, ByRef IsColoured As Boolean) As Boolean
-        ' Split the line into comments and code before carrying out the relevant checks
-        ' N.B. - InStr has been used as Split requires a single character
-        '==============================================================================
-
-        Dim strCode As String = ""
-        Dim strComment As String = ""
-
-        Dim blnRetVal As Boolean = False
-
-        Dim arrSubStrings() As String = {}
-        Dim arrTemp() As String = {}
-
-        Dim intPos As Integer
-
-
-        '== Split line into comments and code ==
-        If Comment = "both" Then
-            intPos = InStr(CodeLine, asAppSettings.BlockStartComment)
-            arrSubStrings = {CodeLine.Substring(0, intPos - 1), CodeLine.Substring(intPos + 1)}
-            intPos = InStr(arrSubStrings(1), asAppSettings.BlockEndComment)
-            arrTemp = {arrSubStrings(1).Substring(0, intPos - 1), arrSubStrings(1).Substring(intPos + 1)}
-        Else
-            intPos = InStr(CodeLine, Comment)
-            If CodeLine.Length > intPos Then
-                arrSubStrings = {CodeLine.Substring(0, intPos - 1), CodeLine.Substring(intPos + Comment.Length - 1)}
-            Else
-                arrSubStrings = {CodeLine.Substring(0, intPos - 1), ""}
-            End If
-        End If
-
-        '== The position of code and comments in the array depends on type of comment ==
-        If Comment = asAppSettings.SingleLineComment Or Comment = asAppSettings.BlockStartComment Then
-            strCode = arrSubStrings(0).Trim()
-            strComment = arrSubStrings(1).Trim()
-        ElseIf Comment = asAppSettings.BlockEndComment Then
-            strCode = arrSubStrings(1).Trim()
-            strComment = arrSubStrings(0).Trim()
-        ElseIf Comment = "both" Then
-            strCode = arrSubStrings(0).Trim() + arrTemp(1).Trim()
-            strComment = arrSubStrings(1).Trim()
-        End If
-
-        '== Check comment content ==
-        If CommentScan And strComment.Length > 0 Then blnRetVal = CheckComment(strComment, FileName, IsColoured)
-
-        '== Scan code for dangerous functions ==
-        If CodeScan And strCode.Length > 0 Then CheckCode(strCode, FileName)
-
-        Return blnRetVal
-
-    End Function
-
-    Public Function CheckComment(CodeLine As String, FileName As String, ByRef IsColoured As Boolean) As Boolean
+    Private Function IAppMode_CheckComment(CodeLine As String, FileName As String, ByRef IsColoured As Boolean) As Boolean Implements IAppMode.CheckComment
         ' Scan comment content for anything requiring attention and return results
         '=========================================================================
         ' First two params used for the scan, and to create return val
@@ -711,15 +611,13 @@ Friend Class frmMain
         ' Write results out to main screen in appropriate format
         '=======================================================
 
-        Dim fntTitleFont As New Font("Century Gothic", 9, FontStyle.Bold, GraphicsUnit.Point)
-        Dim fntTextFont As New Font("Century Gothic", 9, FontStyle.Regular, GraphicsUnit.Point)
-        Dim fntCodeFont As New Font("Consolas", 9, FontStyle.Regular, GraphicsUnit.Point)
-
         If asAppSettings.OutputLevel < Severity Then Exit Sub
 
 
-        If asAppSettings.IsConsole = False Then
-
+        If Not asAppSettings.IsConsole Then
+            Dim fntTitleFont As New Font("Century Gothic", 9, FontStyle.Bold, GraphicsUnit.Point)
+            Dim fntTextFont As New Font("Century Gothic", 9, FontStyle.Regular, GraphicsUnit.Point)
+            Dim fntCodeFont As New Font("Consolas", 9, FontStyle.Regular, GraphicsUnit.Point)
 
             ' Set font style and colour for title
             rtbResults.Select(lngPosition, Len(Title))
@@ -1172,25 +1070,25 @@ Friend Class frmMain
     Private Sub BannedFunctionsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles BannedFunctionsToolStripMenuItem.Click
         ' Show relevant bad functions file for language
         '==============================================
-
-        Select Case asAppSettings.TestType
-            Case AppSettings.C
-                LaunchNPP(asAppSettings.CConfFile)
-            Case AppSettings.JAVA
-                LaunchNPP(asAppSettings.JavaConfFile)
-            Case AppSettings.SQL
-                LaunchNPP(asAppSettings.PLSQLConfFile)
-            Case AppSettings.CSHARP
-                LaunchNPP(asAppSettings.CSharpConfFile)
-            Case AppSettings.PHP
-                LaunchNPP(asAppSettings.PHPConfFile)
-            Case AppSettings.VB
-                LaunchNPP(asAppSettings.VBConfFile)
-            Case AppSettings.COBOL
-                LaunchNPP(asAppSettings.COBOLConfFile)
-            Case AppSettings.R
-                LaunchNPP(asAppSettings.RConfFile)
-        End Select
+        LaunchNPP()
+        'Select Case asAppSettings.TestType
+        '    Case Language.C
+        '        LaunchNPP(asAppSettings.CConfFile)
+        '    Case Language.JAVA
+        '        LaunchNPP(asAppSettings.JavaConfFile)
+        '    Case Language.SQL
+        '        LaunchNPP(asAppSettings.PLSQLConfFile)
+        '    Case Language.CSHARP
+        '        LaunchNPP(asAppSettings.CSharpConfFile)
+        '    Case Language.PHP
+        '        LaunchNPP(asAppSettings.PHPConfFile)
+        '    Case Language.VB
+        '        LaunchNPP(asAppSettings.VBConfFile)
+        '    Case Language.COBOL
+        '        LaunchNPP(asAppSettings.COBOLConfFile)
+        '    Case Language.R
+        '        LaunchNPP(asAppSettings.RConfFile)
+        'End Select
 
     End Sub
 
@@ -1437,14 +1335,15 @@ Friend Class frmMain
         End If
 
         ' Save Language and test settings to registry
-        SaveSetting("VisualCodeGrepper", "Startup", "Language", asAppSettings.StartType)
-        SaveSetting("VisualCodeGrepper", "Startup", "CConfFile", asAppSettings.CConfFile)
-        SaveSetting("VisualCodeGrepper", "Startup", "JavaConfFile", asAppSettings.JavaConfFile)
-        SaveSetting("VisualCodeGrepper", "Startup", "PLSQLConfFile", asAppSettings.PLSQLConfFile)
-        SaveSetting("VisualCodeGrepper", "Startup", "CSConfFile", asAppSettings.CSharpConfFile)
-        SaveSetting("VisualCodeGrepper", "Startup", "VBConfFile", asAppSettings.VBConfFile)
-        SaveSetting("VisualCodeGrepper", "Startup", "PHPConfFile", asAppSettings.PHPConfFile)
-        SaveSetting("VisualCodeGrepper", "Startup", "COBOLConfFile", asAppSettings.COBOLConfFile)
+        ' TODO: Do we need to open this code block?
+        'SaveSetting("VisualCodeGrepper", "Startup", "Language", asAppSettings.StartType)
+        'SaveSetting("VisualCodeGrepper", "Startup", "CConfFile", asAppSettings.CConfFile)
+        'SaveSetting("VisualCodeGrepper", "Startup", "JavaConfFile", asAppSettings.JavaConfFile)
+        'SaveSetting("VisualCodeGrepper", "Startup", "PLSQLConfFile", asAppSettings.PLSQLConfFile)
+        'SaveSetting("VisualCodeGrepper", "Startup", "CSConfFile", asAppSettings.CSharpConfFile)
+        'SaveSetting("VisualCodeGrepper", "Startup", "VBConfFile", asAppSettings.VBConfFile)
+        'SaveSetting("VisualCodeGrepper", "Startup", "PHPConfFile", asAppSettings.PHPConfFile)
+        'SaveSetting("VisualCodeGrepper", "Startup", "COBOLConfFile", asAppSettings.COBOLConfFile)
 
     End Sub
 
@@ -1477,15 +1376,16 @@ Friend Class frmMain
         LoadBadComments()
 
         ' Get Language and test settings from registry
-        asAppSettings.TestType = GetSetting("VisualCodeGrepper", "Startup", "Language", "0")
-        asAppSettings.CConfFile = GetSetting("VisualCodeGrepper", "Startup", "CConfFile", Application.StartupPath & "Config\cppfunctions.conf")
-        asAppSettings.JavaConfFile = GetSetting("VisualCodeGrepper", "Startup", "JavaConfFile", Application.StartupPath & "Config\javafunctions.conf")
-        asAppSettings.PLSQLConfFile = GetSetting("VisualCodeGrepper", "Startup", "PLSQLConfFile", Application.StartupPath & "Config\plsqlfunctions.conf")
-        asAppSettings.CSharpConfFile = GetSetting("VisualCodeGrepper", "Startup", "CSConfFile", Application.StartupPath & "Config\csfunctions.conf")
-        asAppSettings.VBConfFile = GetSetting("VisualCodeGrepper", "Startup", "VBConfFile", Application.StartupPath & "Config\vbfunctions.conf")
-        asAppSettings.PHPConfFile = GetSetting("VisualCodeGrepper", "Startup", "PHPConfFile", Application.StartupPath & "Config\phpfunctions.conf")
-        asAppSettings.COBOLConfFile = GetSetting("VisualCodeGrepper", "Startup", "COBOLConfFile", Application.StartupPath & "Config\cobolfunctions.conf")
-        asAppSettings.RConfFile = GetSetting("VisualCodeGrepper", "Startup", "RConfFile", Application.StartupPath & "Config\rfunctions.conf")
+        'TODO: Do we need to open this code block?
+        'asAppSettings.TestType = GetSetting("VisualCodeGrepper", "Startup", "Language", "0")
+        'asAppSettings.CConfFile = GetSetting("VisualCodeGrepper", "Startup", "CConfFile", Application.StartupPath & "Config\cppfunctions.conf")
+        'asAppSettings.JavaConfFile = GetSetting("VisualCodeGrepper", "Startup", "JavaConfFile", Application.StartupPath & "Config\javafunctions.conf")
+        'asAppSettings.PLSQLConfFile = GetSetting("VisualCodeGrepper", "Startup", "PLSQLConfFile", Application.StartupPath & "Config\plsqlfunctions.conf")
+        'asAppSettings.CSharpConfFile = GetSetting("VisualCodeGrepper", "Startup", "CSConfFile", Application.StartupPath & "Config\csfunctions.conf")
+        'asAppSettings.VBConfFile = GetSetting("VisualCodeGrepper", "Startup", "VBConfFile", Application.StartupPath & "Config\vbfunctions.conf")
+        'asAppSettings.PHPConfFile = GetSetting("VisualCodeGrepper", "Startup", "PHPConfFile", Application.StartupPath & "Config\phpfunctions.conf")
+        'asAppSettings.COBOLConfFile = GetSetting("VisualCodeGrepper", "Startup", "COBOLConfFile", Application.StartupPath & "Config\cobolfunctions.conf")
+        'asAppSettings.RConfFile = GetSetting("VisualCodeGrepper", "Startup", "RConfFile", Application.StartupPath & "Config\rfunctions.conf")
 
         ' Parse and process any command line args
         Dim intIndex = ParseArgs(Environment.GetCommandLineArgs())
@@ -1514,9 +1414,9 @@ Friend Class frmMain
             If (Me.Left < 0) Or (Me.Left > Screen.PrimaryScreen.Bounds.Width - 50) Then Me.Left = 100
 
             ' Set current language
-            If asAppSettings.TestType = AppSettings.COBOL Then asAppSettings.IncludeCobol = True
-            If asAppSettings.TestType = AppSettings.R Then asAppSettings.IncludeR = True
-            SelectLanguage(asAppSettings.TestType)
+            If asAppSettings.TestType = Language.COBOL Then asAppSettings.IncludeCobol = True
+            If asAppSettings.TestType = Language.R Then asAppSettings.IncludeR = True
+            UpdateLanguage(asAppSettings.TestType)
 
             ' Get previous filenames from registry and load into combo box
             For intIndex = 0 To 4
@@ -2299,6 +2199,7 @@ Friend Class frmMain
     End Sub
 
     'TODO: Unify with the terminal version
+    'TODO: Unify with ExportMetaDataXML Method
     Public Sub ExportResultsXML(Optional FilterMinimum As Integer = CodeIssue.POSSIBLY_SAFE, Optional FilterMaximum As Integer = CodeIssue.CRITICAL, Optional ExportFile As String = "")
         ' Export all errors to XML file
         '==============================
@@ -2324,19 +2225,19 @@ Friend Class frmMain
 
         '== Get language for results in text form in order to put meaningful comment at start of file ==
         Select Case asAppSettings.TestType
-            Case AppSettings.C
+            Case Language.C
                 strLanguage = "C"
-            Case AppSettings.JAVA
+            Case Language.JAVA
                 strLanguage = "Java"
-            Case AppSettings.SQL
+            Case Language.SQL
                 strLanguage = "PL/SQL"
-            Case AppSettings.CSHARP
+            Case Language.CSHARP
                 strLanguage = "C#"
-            Case AppSettings.PHP
+            Case Language.PHP
                 strLanguage = "PHP"
-            Case AppSettings.COBOL
+            Case Language.COBOL
                 strLanguage = "COBOL"
-            Case AppSettings.R
+            Case Language.R
                 strLanguage = "R"
         End Select
 
@@ -2564,6 +2465,8 @@ Friend Class frmMain
 
     End Sub
 
+    'TODO: Unify with ExportResultsXML Method
+    'TODO: Unify with the terminal version?
     Public Sub ExportMetaDataXML(Optional ExportFile As String = "")
         ' Export details of LoC, comments, whitespace, etc. to XML file
         '==============================================================
@@ -2582,19 +2485,19 @@ Friend Class frmMain
 
         '== Get language for results in text form in order to put meaningful comment at start of file ==
         Select Case asAppSettings.TestType
-            Case AppSettings.C
+            Case Language.C
                 strLanguage = "C"
-            Case AppSettings.JAVA
+            Case Language.JAVA
                 strLanguage = "Java"
-            Case AppSettings.SQL
+            Case Language.SQL
                 strLanguage = "PL/SQL"
-            Case AppSettings.CSHARP
+            Case Language.CSHARP
                 strLanguage = "C#"
-            Case AppSettings.PHP
+            Case Language.PHP
                 strLanguage = "PHP"
-            Case AppSettings.COBOL
+            Case Language.COBOL
                 strLanguage = "COBOL"
-            Case AppSettings.R
+            Case Language.R
                 strLanguage = "R"
         End Select
 
@@ -3316,7 +3219,7 @@ Friend Class frmMain
         ' If language change then update application settings to match
         '=============================================================
 
-        SelectLanguage(cboLanguage.SelectedItem.Value)
+        UpdateLanguage(cboLanguage.SelectedItem.Value)
 
         ' TODO: SET SELECTED LANGUAGE IN TOOLSTRIP BASED ON THEIR SELECTION
 
@@ -3328,18 +3231,18 @@ Friend Class frmMain
         '==============================================================
 
         Dim lstLanguagePairs = New List(Of KeyValuePair(Of String, Integer)) From {
-            New KeyValuePair(Of String, Integer)("C/C++", AppSettings.C),
-            New KeyValuePair(Of String, Integer)("Java", AppSettings.JAVA),
-            New KeyValuePair(Of String, Integer)("PL/SQL", AppSettings.SQL),
-            New KeyValuePair(Of String, Integer)("C#", AppSettings.CSHARP),
-            New KeyValuePair(Of String, Integer)("VB", AppSettings.VB),
-            New KeyValuePair(Of String, Integer)("PHP", AppSettings.PHP),
-            New KeyValuePair(Of String, Integer)("COBOL", AppSettings.COBOL)
+            New KeyValuePair(Of String, Integer)("C/C++", Language.C),
+            New KeyValuePair(Of String, Integer)("Java", Language.JAVA),
+            New KeyValuePair(Of String, Integer)("PL/SQL", Language.SQL),
+            New KeyValuePair(Of String, Integer)("C#", Language.CSHARP),
+            New KeyValuePair(Of String, Integer)("VB", Language.VB),
+            New KeyValuePair(Of String, Integer)("PHP", Language.PHP),
+            New KeyValuePair(Of String, Integer)("COBOL", Language.COBOL)
         }
 
         ' Add R to the list if user has selected to include R scanning in beta functionality
-        If (asAppSettings.IncludeR = True Or asAppSettings.StartType = AppSettings.R) Then
-            lstLanguagePairs.Add(New KeyValuePair(Of String, Integer)("R", AppSettings.R))
+        If (asAppSettings.IncludeR Or asAppSettings.StartType = Language.R) Then
+            lstLanguagePairs.Add(New KeyValuePair(Of String, Integer)("R", Language.R))
         End If
 
         ' Clear combo box before repopulating it, in case beta languages have been added or removed
@@ -3378,7 +3281,7 @@ Friend Class frmMain
         ' Set target language to the selected language
         '=============================================
 
-        SelectLanguage(cboLanguage.SelectedIndex)
+        UpdateLanguage(cboLanguage.SelectedIndex)
 
     End Sub
 

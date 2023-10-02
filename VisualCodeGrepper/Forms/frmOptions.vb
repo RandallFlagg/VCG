@@ -17,7 +17,7 @@
 Imports System.Text.RegularExpressions
 Imports VisualCodeGrepper.NETCore.Lib
 
-
+'TODO: Get rid of all frmMain in this class
 Public Class frmOptions
 
     Private Sub btnCPPEdit_Click(sender As Object, e As EventArgs) Handles btnCPPEdit.Click
@@ -60,7 +60,7 @@ Public Class frmOptions
         AssignFileSuffixes()
 
         ' Set test language 
-        frmMain.SelectLanguage(cboCurrentLanguage.SelectedIndex) 'TODO: Find a better way to call this method
+        frmMain.UpdateLanguage(cboCurrentLanguage.SelectedIndex) 'TODO: Find a better way to call this method
         asAppSettings.StartType = cboStartUpLanguage.SelectedIndex
 
         ' Set conf file locations
@@ -108,11 +108,11 @@ Public Class frmOptions
         ' Load contents of temporary grep box into bad function array
         If txtTempGrep.Text.Trim = "" Then
             asAppSettings.TempGrepText = ""
-            modMain.LoadUnsafeFunctionList(asAppSettings.TestType)
+            modMain.LoadUnsafeFunctionList(frmMain, asAppSettings.TestType) 'TODO: Find a way to get rid of this call. The LoadUnsafeFunctionList method should be private.
             Exit Sub
         Else
             asAppSettings.TempGrepText = txtTempGrep.Text
-            SharedCode.LoadTempGrepContent(txtTempGrep.Text)
+            SharedCode.LoadTempGrepContent(frmMain, txtTempGrep.Text)
         End If
 
 
@@ -131,21 +131,21 @@ Public Class frmOptions
         '====================================================
 
         Select Case cboFileTypes.SelectedIndex
-            Case AppSettings.C
+            Case Language.C
                 asAppSettings.CSuffixes = txtFileTypes.Text
-            Case AppSettings.JAVA
+            Case Language.JAVA
                 asAppSettings.JavaSuffixes = txtFileTypes.Text
-            Case AppSettings.SQL
+            Case Language.SQL
                 asAppSettings.PLSQLSuffixes = txtFileTypes.Text
-            Case AppSettings.CSHARP
+            Case Language.CSHARP
                 asAppSettings.CSharpSuffixes = txtFileTypes.Text
-            Case AppSettings.VB
+            Case Language.VB
                 asAppSettings.VBSuffixes = txtFileTypes.Text
-            Case AppSettings.PHP
+            Case Language.PHP
                 asAppSettings.PHPSuffixes = txtFileTypes.Text
-            Case AppSettings.COBOL
+            Case Language.COBOL
                 asAppSettings.COBOLSuffixes = txtFileTypes.Text
-            Case AppSettings.R
+            Case Language.R
                 asAppSettings.RSuffixes = txtFileTypes.Text
         End Select
 
@@ -212,21 +212,21 @@ Public Class frmOptions
         '=======================================
 
         Select Case cboFileTypes.SelectedIndex
-            Case AppSettings.C
+            Case Language.C
                 txtFileTypes.Text = asAppSettings.CSuffixes
-            Case AppSettings.JAVA
+            Case Language.JAVA
                 txtFileTypes.Text = asAppSettings.JavaSuffixes
-            Case AppSettings.SQL
+            Case Language.SQL
                 txtFileTypes.Text = asAppSettings.PLSQLSuffixes
-            Case AppSettings.CSHARP
+            Case Language.CSHARP
                 txtFileTypes.Text = asAppSettings.CSharpSuffixes
-            Case AppSettings.VB
+            Case Language.VB
                 txtFileTypes.Text = asAppSettings.VBSuffixes
-            Case AppSettings.PHP
+            Case Language.PHP
                 txtFileTypes.Text = asAppSettings.PHPSuffixes
-            Case AppSettings.COBOL
+            Case Language.COBOL
                 txtFileTypes.Text = asAppSettings.COBOLSuffixes
-            Case AppSettings.R
+            Case Language.R
                 txtFileTypes.Text = asAppSettings.RSuffixes
         End Select
 

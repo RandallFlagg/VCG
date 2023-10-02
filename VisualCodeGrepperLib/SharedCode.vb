@@ -10,9 +10,9 @@ End Module
 
 'TODO: If this will be changed to class all methods here should be Friend Shared
 Public Module SharedCode
-    Friend Event CheckOverFlow_Event(sender As Object, args As CheckOverFlowArg)
+    Private Event CheckOverFlow_Event(sender As Object, args As CheckOverFlowArg)
 
-    Friend Sub FireEvent(sender As Object, overFlowArg As CheckOverFlowArg)
+    Public Sub FireEvent(sender As Object, overFlowArg As CheckOverFlowArg)
         RaiseEvent CheckOverFlow_Event(sender, overFlowArg)
     End Sub
 
@@ -35,7 +35,7 @@ Public Module SharedCode
         End If
     End Function
 
-    Public Sub LoadTempGrepContent(TempGrepText As String)
+    Public Sub LoadTempGrepContent(mode As IAppMode, TempGrepText As String)
         ' Take content of temp grep box and add to the list of bad functions
         '===================================================================
         Dim arrTempGrepContent As String()
@@ -77,7 +77,7 @@ Public Module SharedCode
             Next
 
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            DisplayError(mode, ex.ToString) 'TODO: Check how it looks in Windows
         End Try
 
     End Sub
@@ -86,17 +86,17 @@ Public Module SharedCode
         If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
         mode.LoadFiles(TargetFolder, ClearPrevious)
     End Sub
-    Sub DisplayError(mode As IAppMode, exception As Exception, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
+    Private Sub DisplayError(mode As IAppMode, exception As Exception, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
         If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
         mode.DisplayError(exception, Caption, MsgBoxStyle)
     End Sub
 
-    Sub DisplayError(mode As IAppMode, message As String, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
+    Public Sub DisplayError(mode As IAppMode, message As String, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
         If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
         mode.DisplayError(message, Caption, MsgBoxStyle)
     End Sub
 
-    Sub ScanFiles(mode As IAppMode, CommentScan As Boolean, CodeScan As Boolean)
+    Public Sub ScanFiles(mode As IAppMode, CommentScan As Boolean, CodeScan As Boolean)
         If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
         mode.ScanFiles(CommentScan, CodeScan)
     End Sub

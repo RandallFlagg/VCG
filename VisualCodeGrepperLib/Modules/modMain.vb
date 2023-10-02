@@ -272,25 +272,23 @@ Public Module modMain
         '===================================
         Dim blnRetVal As Boolean = True
 
-        NewLanguage = NewLanguage.ToUpper
-
-        Select Case NewLanguage
+        Select Case NewLanguage.ToUpper
             Case "C", "C++", "CPP"
-                asAppSettings.TestType = AppSettings.C
+                asAppSettings.TestType = Language.C
             Case "JAVA"
-                asAppSettings.TestType = AppSettings.JAVA
+                asAppSettings.TestType = Language.JAVA
             Case "PL/SQL", "PLSQL", "SQL"
-                asAppSettings.TestType = AppSettings.SQL
+                asAppSettings.TestType = Language.SQL
             Case "C#", "C-SHARP", "CS", "CSHARP"
-                asAppSettings.TestType = AppSettings.CSHARP
+                asAppSettings.TestType = Language.CSHARP
             Case "VB", "VISUALBASIC", "VISUAL-BASIC"
-                asAppSettings.TestType = AppSettings.VB
+                asAppSettings.TestType = Language.VB
             Case "PHP"
-                asAppSettings.TestType = AppSettings.PHP
+                asAppSettings.TestType = Language.PHP
             Case "COBOL"
-                asAppSettings.TestType = AppSettings.COBOL
+                asAppSettings.TestType = Language.COBOL
             Case "R"
-                asAppSettings.TestType = AppSettings.R
+                asAppSettings.TestType = Language.R
             Case Else
                 blnRetVal = False
         End Select
@@ -299,9 +297,50 @@ Public Module modMain
 
     End Function
 
-    Public Sub LaunchNPP(FileName As String, Optional LineNumber As Integer = 1)
+    'TODO: DELETE this method
+    Private Sub LaunchNPP_ORIG(FileName As String, Optional LineNumber As Integer = 1)
         ' Launch NPP if available, launch Notepad if not
         '===============================================
+
+        Try
+            ' If we're trying to open a file on a specific line in Notepad++ then the filename *must* be quoted to avoid erratic behaviour from Windows
+            System.Diagnostics.Process.Start("notepad++.exe", $"-n{LineNumber} ""{FileName}""")
+        Catch ex As Exception
+            System.Diagnostics.Process.Start("Notepad.exe", """" & FileName & """")
+        End Try
+
+    End Sub
+
+    Public Sub LaunchNPP(FileName As String, Optional LineNumber As Integer = 1)
+        If asAppSettings.TestType <> FileName Then
+            Throw New Exception("Why Like this? Check me please and understand what is the right behaviour")
+        End If
+
+        LaunchNPP()
+    End Sub
+
+    Public Sub LaunchNPP(Optional LineNumber As Integer = 1)
+        ' Launch NPP if available, launch Notepad if not
+        '===============================================
+        Dim FileName ' As String
+        Select Case asAppSettings.TestType
+            Case Language.C
+                FileName = asAppSettings.CConfFile
+            Case Language.JAVA
+                FileName = asAppSettings.JavaConfFile
+            Case Language.SQL
+                FileName = asAppSettings.PLSQLConfFile
+            Case Language.CSHARP
+                FileName = asAppSettings.CSharpConfFile
+            Case Language.PHP
+                FileName = asAppSettings.PHPConfFile
+            Case Language.VB
+                FileName = asAppSettings.VBConfFile
+            Case Language.COBOL
+                FileName = asAppSettings.COBOLConfFile
+            Case Language.R
+                FileName = asAppSettings.RConfFile
+        End Select
 
         Try
             ' If we're trying to open a file on a specific line in Notepad++ then the filename *must* be quoted to avoid erratic behaviour from Windows
@@ -327,7 +366,7 @@ Public Module modMain
     End Sub
 
 
-    Public Sub SetSuffixes(Language As Integer)
+    Private Sub SetSuffixes(lang As Integer)
         ' Set the filetypes to scan
         '==========================
 
@@ -337,22 +376,22 @@ Public Module modMain
         If asAppSettings.CSuffixes.Contains(".*") Or asAppSettings.CSuffixes.Trim = "" Then
             asAppSettings.IsAllFileTypes = True
         Else
-            Select Case Language
-                Case AppSettings.C
+            Select Case lang
+                Case Language.C
                     asAppSettings.FileSuffixes = asAppSettings.CSuffixes.Split("|")
-                Case AppSettings.JAVA
+                Case Language.JAVA
                     asAppSettings.FileSuffixes = asAppSettings.JavaSuffixes.Split("|")
-                Case AppSettings.SQL
+                Case Language.SQL
                     asAppSettings.FileSuffixes = asAppSettings.PLSQLSuffixes.Split("|")
-                Case AppSettings.CSHARP
+                Case Language.CSHARP
                     asAppSettings.FileSuffixes = asAppSettings.CSharpSuffixes.Split("|")
-                Case AppSettings.VB
+                Case Language.VB
                     asAppSettings.FileSuffixes = asAppSettings.VBSuffixes.Split("|")
-                Case AppSettings.PHP
+                Case Language.PHP
                     asAppSettings.FileSuffixes = asAppSettings.PHPSuffixes.Split("|")
-                Case AppSettings.COBOL
+                Case Language.COBOL
                     asAppSettings.FileSuffixes = asAppSettings.COBOLSuffixes.Split("|")
-                Case AppSettings.R
+                Case Language.R
                     asAppSettings.FileSuffixes = asAppSettings.RSuffixes.Split("|")
             End Select
 
@@ -361,7 +400,60 @@ Public Module modMain
 
     End Sub
 
-    Public Sub LoadUnsafeFunctionList(CurrentLanguage As Integer)
+    Public Sub SelectLanguage(mode As IAppMode, lang As Integer)
+        ' Set language and characteristics 
+        '=================================
+
+        ' Set language type
+        asAppSettings.TestType = lang
+
+        '== Set the file types/suffixes for the chosen language ==
+        SetSuffixes(lang)
+
+        ' This covers most languages - the different ones will be set individually, below
+        asAppSettings.SingleLineComment = "//"
+        asAppSettings.AltSingleLineComment = ""
+
+        ' Load list of unsafe functions
+        'TODO: Change to the following code instead of the rest of this sub: LoadUnsafeFunctionList(mode, lang)
+        Select Case lang
+            Case Language.C
+                asAppSettings.BadFuncFile = asAppSettings.CConfFile
+                LoadUnsafeFunctionList(mode, Language.C)
+            Case Language.JAVA
+                asAppSettings.BadFuncFile = asAppSettings.JavaConfFile
+                LoadUnsafeFunctionList(mode, Language.JAVA)
+            Case Language.SQL
+                asAppSettings.BadFuncFile = asAppSettings.PLSQLConfFile
+                LoadUnsafeFunctionList(mode, Language.SQL)
+                asAppSettings.SingleLineComment = "--"
+            Case Language.CSHARP
+                asAppSettings.BadFuncFile = asAppSettings.CSharpConfFile
+                LoadUnsafeFunctionList(mode, Language.CSHARP)
+            Case Language.VB
+                asAppSettings.BadFuncFile = asAppSettings.VBConfFile
+                LoadUnsafeFunctionList(mode, Language.VB)
+                asAppSettings.SingleLineComment = "'"
+                asAppSettings.AltSingleLineComment = "REM"
+            Case Language.PHP
+                asAppSettings.BadFuncFile = asAppSettings.PHPConfFile
+                LoadUnsafeFunctionList(mode, Language.PHP)
+                asAppSettings.SingleLineComment = "//"
+                asAppSettings.AltSingleLineComment = "\#"   ' This will be used in a regex so it must be escaped
+            Case Language.COBOL
+                asAppSettings.BadFuncFile = asAppSettings.COBOLConfFile
+                LoadUnsafeFunctionList(mode, Language.COBOL)
+                asAppSettings.SingleLineComment = "*"
+                asAppSettings.AltSingleLineComment = "\/"   ' This will be used in a regex so it must be escaped
+            Case Language.R
+                asAppSettings.BadFuncFile = asAppSettings.RConfFile
+                LoadUnsafeFunctionList(mode, Language.R)
+                asAppSettings.SingleLineComment = "#"
+        End Select
+
+    End Sub
+
+    Public Sub LoadUnsafeFunctionList(mode As IAppMode, CurrentLanguage As Integer) 'TODO: Change this to private
         ' Load appropriate list of bad functions from file (dependent on selected language)
         '==================================================================================
 
@@ -382,68 +474,75 @@ Public Module modMain
             'TODO: Should AppSettings.ApplicationDirectory be changed to a different value?
             ' Restore default file in case of bad registry entries, user placing non-existent file in Options dialog, etc.
             Select Case CurrentLanguage
-                Case AppSettings.C
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "config\cppfunctions.conf")
-                Case AppSettings.JAVA
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "javafunctions.conf")
-                Case AppSettings.SQL
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "plsqlfunctions.conf")
-                Case AppSettings.CSHARP
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "config\csfunctions.conf")
-                Case AppSettings.VB
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "vbfunctions.conf")
-                Case AppSettings.PHP
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "phpfunctions.conf")
-                Case AppSettings.COBOL
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "cobolfunctions.conf")
-                Case AppSettings.R
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ApplicationDirectory, "rfunctions.conf")
+                Case Language.C
+                    asAppSettings.BadFuncFile = "config\cppfunctions.conf"'Path.Combine(asAppSettings.ApplicationDirectory, "config\cppfunctions.conf")
+                Case Language.JAVA
+                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "javafunctions.conf")
+                Case Language.SQL
+                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "plsqlfunctions.conf")
+                Case Language.CSHARP
+                    asAppSettings.BadFuncFile = "config\csfunctions.conf" 'Path.Combine(asAppSettings.ApplicationDirectory, "config\csfunctions.conf")
+                Case Language.VB
+                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "vbfunctions.conf")
+                Case Language.PHP
+                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "phpfunctions.conf")
+                Case Language.COBOL
+                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "cobolfunctions.conf")
+                Case Language.R
+                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "rfunctions.conf")
             End Select
 
             If Not File.Exists(asAppSettings.BadFuncFile) Then
-                MsgBox("No config file found for bad functions.", MsgBoxStyle.Critical, "Error")
+                DisplayError(mode, "No config file found for bad functions.", MsgBoxStyle.Critical, "Error") 'TODO: Check how it looks in Windows
             End If
 
-        Else
-            Try
-                For Each strLine In File.ReadLines(asAppSettings.BadFuncFile)
+        End If
+        'TODO: When do we get here?
+        'Throw New Exception("How did we get here? Do we need this path?")
+        If Not File.Exists(asAppSettings.BadFuncFile) Then
+            Throw New Exception($"The file {asAppSettings.BadFuncFile} doesn't exist. Please fix and run again.")
+        End If
 
-                    ' Check for comments/whitespace
-                    If (strLine.Trim() <> Nothing) And (Not strLine.Trim().StartsWith("//")) Then
+        Try
+            For Each strLine In File.ReadLines(asAppSettings.BadFuncFile)
 
-                        Dim ciCodeIssue As New CodeIssue
+                ' Check for comments/whitespace
+                'TODO: Rewrite the condition with String.IsNullOrWhitespace
+                If (strLine.Trim() <> Nothing) And (Not strLine.Trim().StartsWith("//")) Then
 
-                        ' Build up array of bad functions and any associated descriptions
-                        If strLine.Contains("=>") Then
-                            arrFuncList = Regex.Split(strLine, "=>")
-                            ciCodeIssue.FunctionName = arrFuncList.First
+                    Dim ciCodeIssue As New CodeIssue
 
-                            strDescription = arrFuncList.Last.Trim
+                    ' Build up array of bad functions and any associated descriptions
+                    If strLine.Contains("=>") Then
+                        arrFuncList = Regex.Split(strLine, "=>")
+                        ciCodeIssue.FunctionName = arrFuncList.First
 
-                            ' Extract severity level from description (if present)
-                            If strDescription.StartsWith("[0]") Or strDescription.StartsWith("[1]") Or strDescription.StartsWith("[2]") Or strDescription.StartsWith("[3]") Then
-                                ciCodeIssue.Severity = CInt(strDescription.Substring(1, 1))
-                                strDescription = strDescription.Substring(3).Trim
-                            End If
+                        strDescription = arrFuncList.Last.Trim
 
-                            ciCodeIssue.Description = strDescription
-                        Else
-                            ciCodeIssue.FunctionName = strLine
-                            ciCodeIssue.Description = ""
+                        ' Extract severity level from description (if present)
+                        If strDescription.StartsWith("[0]") Or strDescription.StartsWith("[1]") Or strDescription.StartsWith("[2]") Or strDescription.StartsWith("[3]") Then
+                            ciCodeIssue.Severity = CInt(strDescription.Substring(1, 1))
+                            strDescription = strDescription.Substring(3).Trim
                         End If
 
-                        If Not asAppSettings.BadFunctions.Contains(ciCodeIssue) Then asAppSettings.BadFunctions.Add(ciCodeIssue)
+                        ciCodeIssue.Description = strDescription
+                    Else
+                        ciCodeIssue.FunctionName = strLine
+                        ciCodeIssue.Description = ""
                     End If
-                Next
 
-            Catch ex As Exception
-                MsgBox(ex.ToString)
-            End Try
-        End If
+                    If Not asAppSettings.BadFunctions.Contains(ciCodeIssue) Then asAppSettings.BadFunctions.Add(ciCodeIssue)
+                End If
+            Next
+
+        Catch ex As Exception
+            DisplayError(mode, ex.ToString) 'TODO: Check how it looks in Windows
+        End Try
+
 
         ' Fix to stop temp content being wiped at start of scan
         If asAppSettings.TempGrepText <> "" Then
-            SharedCode.LoadTempGrepContent(asAppSettings.TempGrepText)
+            SharedCode.LoadTempGrepContent(mode, asAppSettings.TempGrepText)
         End If
 
     End Sub
@@ -466,29 +565,81 @@ Public Module modMain
 
     End Sub
 
+    Public Function ScanLine(mode As IAppMode, CommentScan As Boolean, CodeScan As Boolean, CodeLine As String, FileName As String, Comment As String, ByRef IsColoured As Boolean) As Boolean
+        If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
+        ' Split the line into comments and code before carrying out the relevant checks
+        ' N.B. - InStr has been used as Split requires a single character
+        '==============================================================================
+
+        Dim strCode As String = ""
+        Dim strComment As String = ""
+
+        Dim blnRetVal As Boolean = False
+
+        Dim arrSubStrings() As String = {}
+        Dim arrTemp() As String = {}
+
+        Dim intPos As Integer
+
+
+        '== Split line into comments and code ==
+        If Comment = "both" Then
+            intPos = InStr(CodeLine, asAppSettings.BlockStartComment)
+            arrSubStrings = {CodeLine.Substring(0, intPos - 1), CodeLine.Substring(intPos + 1)}
+            intPos = InStr(arrSubStrings(1), asAppSettings.BlockEndComment)
+            arrTemp = {arrSubStrings(1).Substring(0, intPos - 1), arrSubStrings(1).Substring(intPos + 1)}
+        Else
+            intPos = InStr(CodeLine, Comment)
+            If CodeLine.Length > intPos Then
+                arrSubStrings = {CodeLine.Substring(0, intPos - 1), CodeLine.Substring(intPos + Comment.Length - 1)}
+            Else
+                arrSubStrings = {CodeLine.Substring(0, intPos - 1), ""}
+            End If
+        End If
+
+        '== The position of code and comments in the array depends on type of comment ==
+        If Comment = asAppSettings.SingleLineComment Or Comment = asAppSettings.BlockStartComment Then
+            strCode = arrSubStrings(0).Trim()
+            strComment = arrSubStrings(1).Trim()
+        ElseIf Comment = asAppSettings.BlockEndComment Then
+            strCode = arrSubStrings(1).Trim()
+            strComment = arrSubStrings(0).Trim()
+        ElseIf Comment = "both" Then
+            strCode = arrSubStrings(0).Trim() + arrTemp(1).Trim()
+            strComment = arrSubStrings(1).Trim()
+        End If
+
+        '== Check comment content ==
+        If CommentScan And strComment.Length > 0 Then blnRetVal = mode.CheckComment(strComment, FileName, IsColoured)
+
+        '== Scan code for dangerous functions ==
+        If CodeScan And strCode.Length > 0 Then CheckCode(strCode, FileName)
+
+        Return blnRetVal
+
+    End Function
+
     Public Sub CheckCode(CodeLine As String, FileName As String)
         ' Scan line of code for anything requiring attention and return results
         '======================================================================
 
-        Dim intIndex As Integer
-        Dim strCleanName As String = ""
-        Dim strTidyFuncName As String = ""
-
         '== Locate any unsafe functions for the language in question ==
         If asAppSettings.BadFunctions.Count > 0 Then
             For intIndex = 0 To asAppSettings.BadFunctions.Count - 1
+                Dim strTidyFuncName As String
+                Dim strCleanName As String = "" 'TODO: Change to Nothing?
 
                 '== Sanitise the expression ready for insertion into regex ==
                 strTidyFuncName = asAppSettings.BadFunctions(intIndex).FunctionName.Trim
 
                 '== Important - comparison MUST be case-sensitive for everything except PL/SQL, where it MUST be case-insenstive ==
-                If asAppSettings.TestType = AppSettings.SQL Then strTidyFuncName = strTidyFuncName.ToUpper
+                If asAppSettings.TestType = Language.SQL Then strTidyFuncName = strTidyFuncName.ToUpper
 
                 '== Add word boundaries ONLY IF the expression does not contain whitespace or dots ==
                 If ((Not Regex.IsMatch(strTidyFuncName, "\s+")) And (Not strTidyFuncName.Contains("."))) Then strCleanName = "\b" & Regex.Escape(strTidyFuncName) & "\b"
 
                 '== Important - comparison MUST be case-sensitive for everything except PL/SQL, where it MUST be case-insenstive ==
-                If asAppSettings.TestType = AppSettings.SQL Then
+                If asAppSettings.TestType = Language.SQL Then
                     'TODO: Fix the cast so it will be a string
                     If (strCleanName <> "" And Regex.IsMatch(CodeLine.ToUpper, strCleanName)) Or (strCleanName = "" And CodeLine.ToUpper.Contains(CType(asAppSettings.BadFunctions(intIndex).FunctionName.toupper, String))) Then
                         overFlowArg = New CheckOverFlowArg(asAppSettings.BadFunctions(intIndex).FunctionName, asAppSettings.BadFunctions(intIndex).Description, FileName, asAppSettings.BadFunctions(intIndex).Severity, CodeLine)
@@ -505,25 +656,25 @@ Public Module modMain
         End If
 
         '== Only carry out further code checks if required by user ==
-        If asAppSettings.IsConfigOnly = False Then
-
+        If Not asAppSettings.IsConfigOnly Then
+            'TODO: Write this the OOP way
             '== Carry out any language-specific tests ==
             Select Case asAppSettings.TestType
-                Case AppSettings.C
+                Case Language.C
                     CheckCPPCode(CodeLine, FileName)
-                Case AppSettings.JAVA
+                Case Language.JAVA
                     CheckJavaCode(CodeLine, FileName)
-                Case AppSettings.SQL
+                Case Language.SQL
                     CheckPLSQLCode(CodeLine.ToUpper, FileName)
-                Case AppSettings.CSHARP
+                Case Language.CSHARP
                     CheckCSharpCode(CodeLine, FileName)
-                Case AppSettings.VB
+                Case Language.VB
                     CheckVBCode(CodeLine, FileName)
-                Case AppSettings.PHP
+                Case Language.PHP
                     CheckPHPCode(CodeLine, FileName)
-                Case AppSettings.COBOL
+                Case Language.COBOL
                     CheckCobolCode(CodeLine, FileName)
-                Case AppSettings.R
+                Case Language.R
                     CheckRCode(CodeLine, FileName)
             End Select
 
@@ -555,7 +706,7 @@ Public Module modMain
         strVarName = strVarName.TrimStart("(").Trim()
         strVarName = strVarName.TrimEnd(")").Trim()
 
-        If asAppSettings.TestType = AppSettings.PHP Then strVarName = "\" & strVarName
+        If asAppSettings.TestType = Language.PHP Then strVarName = "\" & strVarName
 
         Return strVarName
 
