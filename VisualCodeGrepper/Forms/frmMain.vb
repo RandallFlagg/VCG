@@ -1373,7 +1373,7 @@ Friend Class frmMain
         AttachDebuggerIfConsoleRequestsIt()
 
         '== Get bad comments from config file ==
-        LoadBadComments()
+        LoadBadComments(Me)
 
         ' Get Language and test settings from registry
         'TODO: Do we need to open this code block?

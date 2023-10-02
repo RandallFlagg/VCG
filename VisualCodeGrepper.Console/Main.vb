@@ -18,6 +18,7 @@ Module MyConsole
         End If
 
         Dim program As New Program
+        LoadBadComments(program)
         SelectLanguage(program, asAppSettings.TestType)
         LoadFiles(program, rtResultsTracker.TargetDirectory)
         ScanFiles(program, True, True)

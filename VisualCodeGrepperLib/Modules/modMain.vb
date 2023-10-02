@@ -547,7 +547,7 @@ Public Module modMain
 
     End Sub
 
-    Public Sub LoadBadComments()
+    Public Sub LoadBadComments(mode As IAppMode)
         ' Get list of bad comments from config file
         '==========================================
 
@@ -560,7 +560,7 @@ Public Module modMain
                 End If
             Next
         Catch ex As Exception
-            MsgBox(ex.ToString)
+            DisplayError(mode, ex.ToString)
         End Try
 
     End Sub
