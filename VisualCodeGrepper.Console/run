@@ -1,0 +1,1 @@
+dotnet run --project VisualCodeGrepper.NETCore.Terminal.vbproj -- -l cs -r Output.txt -t ../VCG\ TEST/ -v
