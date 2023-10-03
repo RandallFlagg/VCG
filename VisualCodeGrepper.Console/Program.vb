@@ -15,10 +15,10 @@ Class Program
         'Load files to be scanned
         '========================
         Dim objResults As Object
-        Dim intIndex As Integer
-        Dim intFileCount As Integer = 0
-        Dim intPreviousDirCount = 0
-        Dim blnIsPrevious = False
+        'Dim intIndex As Integer
+        'Dim intFileCount As Integer = 0
+        'Dim intPreviousDirCount = 0
+        'Dim blnIsPrevious = False
 
         'If TargetFolder.Count = 0 Then Exit Sub
 
@@ -260,12 +260,12 @@ Class Program
         DisplayError(exception.Message, Caption, MsgBoxStyle) 'TODO: Only Forms?
     End Sub
 
+    'TODO: Do we need all the parameters for terminal pretty display or to take only what is needed and easy?
     Public Sub DisplayError(message As String, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = 64) Implements IAppMode.DisplayError
         ' Display error message to user, depending on GUI/Console mode
         '=============================================================
 
         LogError(message)
-        MsgBox(message, MsgBoxStyle, Caption) 'TODO: Only Forms?
     End Sub
 
     Private Sub WriteResult(Title As String, Description As String, CodeLine As String, Optional Severity As Integer = CodeIssue.STANDARD)
