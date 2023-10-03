@@ -16,6 +16,7 @@
 
 Option Explicit On
 Imports System.IO
+Imports System.Reflection
 Imports System.Text.RegularExpressions
 
 Public Module modMain
@@ -158,7 +159,7 @@ Public Module modMain
                         ' Automatically export flat text results
                         intIndex += 1
                         If intIndex < arrArgs.Count() Then
-                            asAppSettings.OutputFile = arrArgs(intIndex)
+                            asAppSettings.OutputFile = arrArgs(intIndex) 'TODO: Fix this code to support any location and not only relative to the running app on Windows and on Linux e.g. App is in C:\VCG and output is in D:\VCG\out.txt
                             asAppSettings.IsOutputFile = True
                             exportFlagSet = True
                         Else
@@ -477,23 +478,23 @@ Public Module modMain
                 Case Language.C
                     asAppSettings.BadFuncFile = "config\cppfunctions.conf"'Path.Combine(asAppSettings.ApplicationDirectory, "config\cppfunctions.conf")
                 Case Language.JAVA
-                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "javafunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "javafunctions.conf")
                 Case Language.SQL
-                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "plsqlfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "plsqlfunctions.conf")
                 Case Language.CSHARP
-                    asAppSettings.BadFuncFile = "config\csfunctions.conf" 'Path.Combine(asAppSettings.ApplicationDirectory, "config\csfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "csfunctions.conf")
                 Case Language.VB
-                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "vbfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "vbfunctions.conf")
                 Case Language.PHP
-                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "phpfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "phpfunctions.conf")
                 Case Language.COBOL
-                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "cobolfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "cobolfunctions.conf")
                 Case Language.R
-                    asAppSettings.BadFuncFile = Path.Combine(asAppSettings.ApplicationDirectory, "rfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "rfunctions.conf")
             End Select
 
             If Not File.Exists(asAppSettings.BadFuncFile) Then
-                DisplayError(mode, "No config file found for bad functions.", MsgBoxStyle.Critical, "Error") 'TODO: Check how it looks in Windows
+                DisplayError(mode, $"The config file {asAppSettings.BadFuncFile} wasn't found for bad functions.", "Error", MsgBoxStyle.Critical) 'TODO: Check how it looks in Windows
             End If
 
         End If
@@ -552,7 +553,7 @@ Public Module modMain
         '==========================================
 
         Try
-            For Each strLine In File.ReadLines("./config/" & asAppSettings.BadCommentFile)
+            For Each strLine In File.ReadLines(AppSettings.BadCommentFilePath)
 
                 ' Check for comments/whitespace
                 If (strLine.Trim() <> Nothing) And (Not strLine.Trim().StartsWith("//")) Then

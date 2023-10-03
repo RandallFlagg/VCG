@@ -14,6 +14,7 @@
 ' You should have received a copy of the GNU General Public License
 ' along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+Imports System.IO
 Imports System.Reflection
 
 Public Class AppSettings
@@ -135,7 +136,10 @@ Public Class AppSettings
     '=========================================================
 
     ' == Runtime Settings
-    Public Shared ReadOnly ApplicationDirectory = Assembly.GetExecutingAssembly().Location
+    Friend Shared ReadOnly ApplicationDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ' Get the path to the executable file.
+    Friend Shared ReadOnly ConfigPath = Path.Combine(ApplicationDirectory, "./config/")
+    Friend Shared ReadOnly BadCommentFilePath = Path.Combine(ConfigPath, asAppSettings.BadCommentFile)
+
     Public AbortCurrentOperation As Boolean = False
 
     '== The current colour for items which have been checked in the results list ==
