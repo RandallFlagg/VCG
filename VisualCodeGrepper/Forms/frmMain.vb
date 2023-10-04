@@ -1399,8 +1399,6 @@ Friend Class frmMain
         If Not asAppSettings.IsConsole Then
             ' If asAppSettings.IsConsole Then AttachConsole(-1)
 
-            ' Implement context menu for text boxes, etc.
-            AddContextMenu()
             PopulateLanguageOptions()
             cboLanguage.SelectedIndex = 3 'set to C#
             ' Get previous window size and location from Registry
@@ -1431,7 +1429,7 @@ Friend Class frmMain
             Me.Visible = False
 
             ' Console apps just load files and scan. Thats it
-            LoadFiles(Me, rtResultsTracker.TargetDirectory)
+            LoadFiles(Me, rtResultsTracker.TargetDirectory) 'TODO: If in console mode when loading we reach here. Can be deleted? I think yes
             FullScan()
         End If
 
@@ -1663,116 +1661,6 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub AddContextMenu()
-        ' Provide pop-up-menu for the relevant controls
-        '==============================================
-
-        If asAppSettings.IsConsole = True Then Exit Sub
-
-        Dim cmFullContextMenu As New ContextMenuStrip        ' The filenames combobox allows cut/copy/paste
-        Dim cmResultsContextMenu As New ContextMenuStrip     ' The results are just for copying, not modification
-        Dim cmResultsListContextMenu As New ContextMenuStrip ' The results table allows a file to be opened in its associated app or Notepad++
-
-        ' ComboBox
-        Dim menuItem1Cut As New ToolStripMenuItem("Cut")
-        Dim menuItem2Copy As New ToolStripMenuItem("Copy")
-        Dim menuItem3Paste As New ToolStripMenuItem("Paste")
-        Dim menuItem4Divider As New ToolStripMenuItem("-")
-        Dim menuItem5SelectAll As New ToolStripMenuItem("Select All")
-
-        ' RichTextBox
-        Dim menuItem6Copy As New ToolStripMenuItem("Copy")
-        Dim menuItem9Divider As New ToolStripMenuItem("-")
-        Dim menuItem10SelectAll As New ToolStripMenuItem("Select All")
-        Dim menuItem7Divider As New ToolStripMenuItem("-")
-        Dim menuItem8Find As New ToolStripMenuItem("Find")
-        Dim menuItem13Divider As New ToolStripMenuItem("-")
-        Dim menuItem11Sort As New ToolStripMenuItem("Sort on Severity")
-        Dim menuItem12Sort As New ToolStripMenuItem("Sort on FileName")
-        Dim menuItem18Divider As New ToolStripMenuItem("-")
-        Dim menuItem19FilterResults As New ToolStripMenuItem("Filter Results...")
-        Dim menuItem20ExportFiltered As New ToolStripMenuItem("Export Filtered XML Results...")
-
-        ' ListBox
-        Dim menuItem14OpenFile As New ToolStripMenuItem("Open Code in Associated Editor")
-        Dim menuItem15OpenAtLine As New ToolStripMenuItem("Open Code at This Line in Notepad++")
-        Dim menuItem16Divider As New ToolStripMenuItem("-")
-        Dim menuItem17Order As New ToolStripMenuItem("Order on Multiple Columns...")
-        Dim menuItem21Divider As New ToolStripMenuItem("-")
-        Dim menuItem22FilterResults As New ToolStripMenuItem("Filter Results...")
-        Dim menuItem23ExportFiltered As New ToolStripMenuItem("Export Filtered XML Results...")
-        Dim menuItem24Divider As New ToolStripMenuItem("-")
-        Dim menuItem25SelectColour As New ToolStripMenuItem("Select Colour When Checked...")
-        Dim menuItem28ChangeSeverity As New ToolStripMenuItem("Change Severity...")
-        Dim menuItem26Divider As New ToolStripMenuItem("-")
-        Dim menuItem27DeleteItem As New ToolStripMenuItem("Delete Selected Item(s)")
-
-        '== Full context menu for combo box ==
-        AddHandler menuItem1Cut.Click, AddressOf CutToolStripMenuItem_Click
-        AddHandler menuItem2Copy.Click, AddressOf CopyToolStripMenuItem_Click
-        AddHandler menuItem3Paste.Click, AddressOf PasteToolStripMenuItem_Click
-        AddHandler menuItem5SelectAll.Click, AddressOf SelectAllToolStripMenuItem_Click
-
-        cmFullContextMenu.Items.Add(menuItem1Cut)
-        cmFullContextMenu.Items.Add(menuItem2Copy)
-        cmFullContextMenu.Items.Add(menuItem3Paste)
-        cmFullContextMenu.Items.Add(menuItem4Divider)
-        cmFullContextMenu.Items.Add(menuItem5SelectAll)
-
-
-        '== Specialised menu for results ==
-        AddHandler menuItem6Copy.Click, AddressOf CopyToolStripMenuItem_Click
-        AddHandler menuItem10SelectAll.Click, AddressOf SelectAllToolStripMenuItem_Click
-        AddHandler menuItem8Find.Click, AddressOf FindToolStripMenuItem_Click
-        AddHandler menuItem11Sort.Click, AddressOf SortRichTextResultsOnSeverityToolStripMenuItem_Click
-        AddHandler menuItem12Sort.Click, AddressOf SortRichTextResultsOnFileNameToolStripMenuItem_Click
-        AddHandler menuItem19FilterResults.Click, AddressOf FilterResultsToolStripMenuItem_Click
-        AddHandler menuItem20ExportFiltered.Click, AddressOf ExportFilteredResultsXML
-
-        cmResultsContextMenu.Items.Add(menuItem6Copy)
-        cmResultsContextMenu.Items.Add(menuItem9Divider)
-        cmResultsContextMenu.Items.Add(menuItem10SelectAll)
-        cmResultsContextMenu.Items.Add(menuItem7Divider)
-        cmResultsContextMenu.Items.Add(menuItem8Find)
-        cmResultsContextMenu.Items.Add(menuItem13Divider)
-        cmResultsContextMenu.Items.Add(menuItem11Sort)
-        cmResultsContextMenu.Items.Add(menuItem12Sort)
-        cmResultsContextMenu.Items.Add(menuItem18Divider)
-        cmResultsContextMenu.Items.Add(menuItem19FilterResults)
-        cmResultsContextMenu.Items.Add(menuItem20ExportFiltered)
-
-
-        '== File menu for results table ==
-        AddHandler menuItem14OpenFile.Click, AddressOf OpenFileInEditor
-        AddHandler menuItem15OpenAtLine.Click, AddressOf OpenAtCodeBlock
-        AddHandler menuItem17Order.Click, AddressOf OrderOnMultColumns
-        AddHandler menuItem22FilterResults.Click, AddressOf FilterResultsToolStripMenuItem_Click
-        AddHandler menuItem23ExportFiltered.Click, AddressOf ExportFilteredResultsXML
-        AddHandler menuItem25SelectColour.Click, AddressOf SelectCheckColour
-        AddHandler menuItem28ChangeSeverity.Click, AddressOf SetSeverity
-        AddHandler menuItem27DeleteItem.Click, AddressOf DeleteScanResult
-
-        cmResultsListContextMenu.Items.Add(menuItem14OpenFile)
-        cmResultsListContextMenu.Items.Add(menuItem15OpenAtLine)
-        cmResultsListContextMenu.Items.Add(menuItem16Divider)
-        cmResultsListContextMenu.Items.Add(menuItem17Order)
-        cmResultsListContextMenu.Items.Add(menuItem21Divider)
-        cmResultsListContextMenu.Items.Add(menuItem22FilterResults)
-        cmResultsListContextMenu.Items.Add(menuItem23ExportFiltered)
-        cmResultsListContextMenu.Items.Add(menuItem24Divider)
-        cmResultsListContextMenu.Items.Add(menuItem25SelectColour)
-        cmResultsListContextMenu.Items.Add(menuItem28ChangeSeverity)
-        cmResultsListContextMenu.Items.Add(menuItem26Divider)
-        cmResultsListContextMenu.Items.Add(menuItem27DeleteItem)
-
-        '== Assign menus to controls ==
-        'TODO: MAKE THIS WORK!
-        'cboTargetDir.ContextMenu = cmFullContextMenu
-        'rtbResults.ContextMenu = cmResultsContextMenu
-        'lvResults.ContextMenu = cmResultsListContextMenu
-
-    End Sub
-
     Private Sub SelectCheckColour()
         ' Allow user to modify the colour for checked listbox items
         '==========================================================
@@ -1856,7 +1744,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub CutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CutToolStripMenuItem.Click
+    Private Sub CutToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CutToolStripMenuItem.Click, menuItem1Cut.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -1871,7 +1759,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub CopyToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyToolStripMenuItem.Click
+    Private Sub CopyToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyToolStripMenuItem.Click, menuItem2Copy.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -1885,7 +1773,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub PasteToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PasteToolStripMenuItem.Click
+    Private Sub PasteToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PasteToolStripMenuItem.Click, menuItem3Paste.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
@@ -1907,7 +1795,7 @@ Friend Class frmMain
 
     End Sub
 
-    Private Sub SelectAllToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SelectAllToolStripMenuItem.Click
+    Private Sub SelectAllToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SelectAllToolStripMenuItem.Click, menuItem5SelectAll.Click
         ' Handle each control as appropriate
         ' Has to be done in a slightly awkward way as ActiveControl returns the container but we 
         ' need the control which has focus (and we don't always want same action for controls)
