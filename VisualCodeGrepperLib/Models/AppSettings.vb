@@ -36,7 +36,7 @@ Public Class AppSettings
     Public CConfFile As String = "cppfunctions.conf"
     Public JavaConfFile As String = "javafunctions.conf"
     Public PLSQLConfFile As String = "plsqlfunctions.conf"
-    Public CSharpConfFile As String = "csfunctions.conf"
+    Public Shared CSharpConfFile As String = "csfunctions.conf" 'TODO: DEL
     Public VBConfFile As String = "vbfunctions.conf"
     Public PHPConfFile As String = "phpfunctions.conf"
     Public COBOLConfFile As String = "cobolfunctions.conf"
@@ -137,7 +137,7 @@ Public Class AppSettings
 
     ' == Runtime Settings
     Friend Shared ReadOnly ApplicationDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ' Get the path to the executable file.
-    Friend Shared ReadOnly ConfigPath = Path.Combine(ApplicationDirectory, "./config/")
+    Friend Shared ReadOnly ConfigPath = Path.Combine(ApplicationDirectory, "config")
     Friend Shared ReadOnly BadCommentFilePath = Path.Combine(ConfigPath, asAppSettings.BadCommentFile)
 
     Public AbortCurrentOperation As Boolean = False

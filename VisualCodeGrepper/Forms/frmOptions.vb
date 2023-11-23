@@ -33,7 +33,7 @@ Public Class frmOptions
     End Sub
 
     Private Sub btnCSharpEdit_Click(sender As Object, e As EventArgs) Handles btnCSharpEdit.Click
-        LaunchNPP(asAppSettings.CSharpConfFile)
+        LaunchNPP(AppSettings.CSharpConfFile)
     End Sub
 
     Private Sub btnVBEdit_Click(sender As Object, e As EventArgs) Handles btnVBEdit.Click
@@ -57,6 +57,7 @@ Public Class frmOptions
         '================================
 
         ' Assign the new file suffixes to the appropriate language
+
         AssignFileSuffixes()
 
         ' Set test language 
@@ -64,6 +65,7 @@ Public Class frmOptions
         asAppSettings.StartType = cboStartUpLanguage.SelectedIndex
 
         ' Set conf file locations
+        'TODO: Do we need this code block?
         If txtCPP.Text.Trim() <> "" Then asAppSettings.CConfFile = txtCPP.Text.Trim()
         If txtJava.Text.Trim() <> "" Then asAppSettings.JavaConfFile = txtJava.Text.Trim()
         If txtPLSQL.Text.Trim() <> "" Then asAppSettings.PLSQLConfFile = txtPLSQL.Text.Trim()
@@ -353,9 +355,9 @@ Public Class frmOptions
         ' Get target directory
         ofdOpenFileDialog.ShowDialog()
 
-        If Not Windows.Forms.DialogResult.Cancel And ofdOpenFileDialog.FileName <> "" Then
+        If Not DialogResult.Cancel And ofdOpenFileDialog.FileName <> "" Then
             txtCSharp.Text = ofdOpenFileDialog.FileName
-            asAppSettings.CSharpConfFile = ofdOpenFileDialog.FileName
+            CSharpLang.CSharpConfFile = ofdOpenFileDialog.FileName
         End If
 
     End Sub

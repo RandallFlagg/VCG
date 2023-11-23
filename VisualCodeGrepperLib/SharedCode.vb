@@ -86,6 +86,7 @@ Public Module SharedCode
         If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
         mode.LoadFiles(TargetFolder, ClearPrevious)
     End Sub
+
     Private Sub DisplayError(mode As IAppMode, exception As Exception, Optional Caption As String = "Error", Optional MsgBoxStyle As Integer = MsgBoxStyle.Information)
         If (mode Is Nothing) Then Throw New Exception("mode must be initialized")
         mode.DisplayError(exception, Caption, MsgBoxStyle)

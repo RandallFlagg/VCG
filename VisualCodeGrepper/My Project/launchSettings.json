@@ -2,6 +2,9 @@
   "profiles": {
     "VisualCodeGrepper.NETCore": {
       "commandName": "Project",
+      //"commandLineArgs": "-l cs -r Output.txt -v -t \"D:\\Ohad\\Projects\\VCG\\VCG TEST\" -c"
+      //"commandLineArgs": "-c -l cs -r Output.txt -t"
+      //"commandLineArgs": "/?"
       "commandLineArgs": ""
     }
   }

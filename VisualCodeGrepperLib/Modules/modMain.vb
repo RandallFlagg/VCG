@@ -332,7 +332,7 @@ Public Module modMain
             Case Language.SQL
                 FileName = asAppSettings.PLSQLConfFile
             Case Language.CSHARP
-                FileName = asAppSettings.CSharpConfFile
+                FileName = AppSettings.CSharpConfFile
             Case Language.PHP
                 FileName = asAppSettings.PHPConfFile
             Case Language.VB
@@ -341,13 +341,15 @@ Public Module modMain
                 FileName = asAppSettings.COBOLConfFile
             Case Language.R
                 FileName = asAppSettings.RConfFile
+            Case Else
+                Exit Sub
         End Select
 
         Try
             ' If we're trying to open a file on a specific line in Notepad++ then the filename *must* be quoted to avoid erratic behaviour from Windows
-            System.Diagnostics.Process.Start("notepad++.exe", $"-n{LineNumber} ""{FileName}""")
+            Process.Start("notepad++.exe", $"-n{LineNumber} ""{FileName}""")
         Catch ex As Exception
-            System.Diagnostics.Process.Start("Notepad.exe", """" & FileName & """")
+            Process.Start("Notepad.exe", """" & FileName & """")
         End Try
 
     End Sub
@@ -429,7 +431,7 @@ Public Module modMain
                 LoadUnsafeFunctionList(mode, Language.SQL)
                 asAppSettings.SingleLineComment = "--"
             Case Language.CSHARP
-                asAppSettings.BadFuncFile = asAppSettings.CSharpConfFile
+                asAppSettings.BadFuncFile = AppSettings.CSharpConfFile
                 LoadUnsafeFunctionList(mode, Language.CSHARP)
             Case Language.VB
                 asAppSettings.BadFuncFile = asAppSettings.VBConfFile
@@ -482,7 +484,7 @@ Public Module modMain
                 Case Language.SQL
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "plsqlfunctions.conf")
                 Case Language.CSHARP
-                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "csfunctions.conf")
+                    asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, AppSettings.CSharpConfFile)
                 Case Language.VB
                     asAppSettings.BadFuncFile = Path.Combine(AppSettings.ConfigPath, "vbfunctions.conf")
                 Case Language.PHP

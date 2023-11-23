@@ -23,10 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Remove="My Project\Resources.resx" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="My Project\app.manifest" />
     <None Remove="My Project\Settings.settings" />
   </ItemGroup>
@@ -81,6 +77,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="My Project\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>

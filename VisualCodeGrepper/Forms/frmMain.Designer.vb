@@ -744,7 +744,7 @@ Partial Class frmMain
         cmResultsListContextMenu.ImageScalingSize = New Size(20, 20)
         cmResultsListContextMenu.Items.AddRange(New ToolStripItem() {menuItem14OpenFile, menuItem15OpenAtLine, menuItem16Divider, menuItem17Order, menuItem21Divider, menuItem22FilterResults, menuItem23ExportFiltered, menuItem24Divider, menuItem25SelectColour, menuItem28ChangeSeverity, menuItem26Divider, menuItem27DeleteItem})
         cmResultsListContextMenu.Name = "cmResultsListContextMenu"
-        cmResultsListContextMenu.Size = New Size(331, 320)
+        cmResultsListContextMenu.Size = New Size(331, 292)
         ' 
         ' ssStatusStrip
         ' 

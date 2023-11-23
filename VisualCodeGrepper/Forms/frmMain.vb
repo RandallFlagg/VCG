@@ -1399,6 +1399,8 @@ Friend Class frmMain
         If Not asAppSettings.IsConsole Then
             ' If asAppSettings.IsConsole Then AttachConsole(-1)
 
+            ' Implement context menu for text boxes, etc.
+            AddContextMenu()
             PopulateLanguageOptions()
             cboLanguage.SelectedIndex = 3 'set to C#
             ' Get previous window size and location from Registry
@@ -1658,6 +1660,39 @@ Friend Class frmMain
         Catch exError As Exception
             DisplayError(Me, exError.Message, "Error", MsgBoxStyle.Critical)
         End Try
+
+    End Sub
+
+    Private Sub AddContextMenu()
+        ' Provide pop-up-menu for the relevant controls
+        '==============================================
+        Exit Sub
+        Dim cmFullContextMenu As New ContextMenuStrip        ' The filenames combobox allows cut/copy/paste
+        Dim cmResultsContextMenu As New ContextMenuStrip     ' The results are just for copying, not modification
+        Dim cmResultsListContextMenu As New ContextMenuStrip ' The results table allows a file to be opened in its associated app or Notepad++
+
+        '== Full context menu for combo box ==
+        AddHandler menuItem3Paste.Click, AddressOf PasteToolStripMenuItem_Click
+        AddHandler menuItem5SelectAll.Click, AddressOf SelectAllToolStripMenuItem_Click
+
+        '== Specialised menu for results ==
+        AddHandler menuItem6Copy.Click, AddressOf CopyToolStripMenuItem_Click
+        AddHandler menuItem10SelectAll.Click, AddressOf SelectAllToolStripMenuItem_Click
+        AddHandler menuItem8Find.Click, AddressOf FindToolStripMenuItem_Click
+        AddHandler menuItem11Sort.Click, AddressOf SortRichTextResultsOnSeverityToolStripMenuItem_Click
+        AddHandler menuItem12Sort.Click, AddressOf SortRichTextResultsOnFileNameToolStripMenuItem_Click
+        AddHandler menuItem19FilterResults.Click, AddressOf FilterResultsToolStripMenuItem_Click
+        AddHandler menuItem20ExportFiltered.Click, AddressOf ExportFilteredResultsXML
+
+        '== File menu for results table ==
+        AddHandler menuItem14OpenFile.Click, AddressOf OpenFileInEditor
+        AddHandler menuItem15OpenAtLine.Click, AddressOf OpenAtCodeBlock
+        AddHandler menuItem17Order.Click, AddressOf OrderOnMultColumns
+        AddHandler menuItem22FilterResults.Click, AddressOf FilterResultsToolStripMenuItem_Click
+        AddHandler menuItem23ExportFiltered.Click, AddressOf ExportFilteredResultsXML
+        AddHandler menuItem25SelectColour.Click, AddressOf SelectCheckColour
+        AddHandler menuItem28ChangeSeverity.Click, AddressOf SetSeverity
+        AddHandler menuItem27DeleteItem.Click, AddressOf DeleteScanResult
 
     End Sub
 
